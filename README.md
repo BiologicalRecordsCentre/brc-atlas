@@ -10,6 +10,6 @@ or include them in code directly from a CDN, e.g:
 ```
 
 ## API documentation and code examples
-For details of the API, view the [JSDoc API documentation](https://biologicalrecordscentre.github.io/brc-atlas/api/).
+For details of the API, view the [JSDoc API documentation](https://biologicalrecordscentre.github.io/brc-atlas/docs/api/).
 
-There are also a number of [working examples](https://biologicalrecordscentre.github.io/brc-atlas/).
+There are also a number of [working examples](https://biologicalrecordscentre.github.io/brc-atlas/docs/).
