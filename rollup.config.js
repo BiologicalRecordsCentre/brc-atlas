@@ -25,7 +25,7 @@ export default [
   {
 		input: 'index.js',
 		output: {
-			name: 'brc-atlas',
+			name: 'brcatlas',
 			file: pkg.browsermin,
 			format: 'umd'
 		},

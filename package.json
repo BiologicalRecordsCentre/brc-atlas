@@ -1,12 +1,12 @@
 {
-  "name": "brc-atlas",
+  "name": "brcatlas",
   "version": "0.0.1",
   "description": "Javascript library for web-based biological records atlas mapping in the British Isles.",
   "type": "module",
-  "main": "dist/brc-atlas.cjs.js",
-  "module": "dist/brc-atlas.esm.js",
-  "browser": "dist/brc-atlas.umd.js",
-  "browsermin": "dist/brc-atlas.min.umd.js",
+  "main": "dist/brcatlas.cjs.js",
+  "module": "dist/brcatlas.esm.js",
+  "browser": "dist/brcatlas.umd.js",
+  "browsermin": "dist/brcatlas.min.umd.js",
   "scripts": {
     "lint": "npx eslint src",
     "test": "jest",
