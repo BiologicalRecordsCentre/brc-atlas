@@ -5,13 +5,25 @@ import commonjs from '@rollup/plugin-commonjs'
 import babel from '@rollup/plugin-babel'
 import { terser } from 'rollup-plugin-terser'
 import pkg from './package.json'
+import css from 'rollup-plugin-css-only'
 
 export default [
+  {
+    input: './src/css.js',
+    output: {
+			name: 'brcatlas',
+			file: pkg.browser,
+			format: 'umd'
+		},
+		plugins: [
+      css({ output: null })
+		]
+  },
 	// browser-friendly UMD builds
   {
 		input: 'index.js',
 		output: {
-			name: 'bigr',
+			name: 'brcatlas',
 			file: pkg.browser,
 			format: 'umd'
 		},
@@ -19,7 +31,7 @@ export default [
       eslint(),
 			resolve(), // so Rollup can find node libs
       commonjs(), // so Rollup can convert CommonJS modules to an ES modules
-      babel({ babelHelpers: 'bundled', presets: ['@babel/preset-env'] })
+      babel({ babelHelpers: 'bundled', presets: ['@babel/preset-env'] }),
 		]
   },
   {
@@ -36,19 +48,5 @@ export default [
       babel({ babelHelpers: 'bundled', presets: ['@babel/preset-env'] }),
       terser()
 		]
-	},
-	// CommonJS (for Node) and ES module (for bundlers) build.
-	// (We could have three entries in the configuration array
-	// instead of two, but it's quicker to generate multiple
-	// builds from a single configuration where possible, using
-	// an array for the `output` option, where we can specify
-	// `file` and `format` for each target)
-	{
-    input: 'index.js',
-    external: ['proj4', 'point-in-polygon'],
-		output: [
-			{ file: pkg.main, format: 'cjs' },
-			{ file: pkg.module, format: 'es' }
-		]
-	}
+  }
 ]
