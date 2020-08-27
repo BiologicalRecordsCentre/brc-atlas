@@ -1,5 +1,5 @@
 // Based on example: https://github.com/rollup/rollup-starter-lib
-import { eslint } from "rollup-plugin-eslint";
+//import { eslint } from "rollup-plugin-eslint";
 import resolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import babel from '@rollup/plugin-babel'
@@ -31,7 +31,7 @@ export default [
 			format: 'umd'
 		},
 		plugins: [
-      eslint(),
+      //eslint(),
 			resolve(), // so Rollup can find node libs
       commonjs(), // so Rollup can convert CommonJS modules to an ES modules
       json(), // required to import package into index.js
