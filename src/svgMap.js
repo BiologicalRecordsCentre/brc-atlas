@@ -187,8 +187,11 @@ export function svgMap({
 
   function drawDots() {
     const mapFunctionName = mapTypesSel[mapTypesKey]
+    console.log('Function', mapFunctionName)
     if(typeof window[mapFunctionName] === 'function') {
+      console.log('Is function')
       window[mapFunctionName](taxonIdentifier).then(data => {
+        console.log('Data returned')
         const radiusPixels = getRadiusPixels(data.precision)
         // circles
         let recCircles

@@ -12204,9 +12204,12 @@
 
     function drawDots() {
       var mapFunctionName = mapTypesSel[mapTypesKey];
+      console.log('Function', mapFunctionName);
 
       if (typeof window[mapFunctionName] === 'function') {
+        console.log('Is function');
         window[mapFunctionName](taxonIdentifier).then(function (data) {
+          console.log('Data returned');
           var radiusPixels = getRadiusPixels(data.precision); // circles
 
           var recCircles;
