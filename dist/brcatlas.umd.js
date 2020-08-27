@@ -12450,6 +12450,71 @@
     return api;
   }
 
+  var name = "brcatlas";
+  var version = "0.0.8";
+  var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
+  var type = "module";
+  var main = "dist/brcatlas.cjs.js";
+  var browser = "dist/brcatlas.umd.js";
+  var scripts = {
+  	lint: "npx eslint src",
+  	test: "jest",
+  	prepare: "node script-prepublish.js",
+  	build: "rollup --config",
+  	docs: "jsdoc ./src/ -R README.md -d ./docs/api"
+  };
+  var author = "CEH Biological Records Centre";
+  var license = "GPL-3.0-only";
+  var files = [
+  	"dist"
+  ];
+  var repository = {
+  	type: "git",
+  	url: "https://github.com/BiologicalRecordsCentre/brc-atlas.git"
+  };
+  var dependencies = {
+  	"brc-atlas-bigr": "^2.0.1",
+  	d3: "^5.16.0",
+  	micromodal: "^0.4.6",
+  	"point-in-polygon": "^1.0.1",
+  	proj4: "^2.6.2"
+  };
+  var devDependencies = {
+  	"@babel/core": "^7.10.4",
+  	"@babel/preset-env": "^7.10.4",
+  	"@rollup/plugin-babel": "^5.0.4",
+  	"@rollup/plugin-commonjs": "^13.0.0",
+  	"@rollup/plugin-json": "^4.1.0",
+  	"@rollup/plugin-node-resolve": "^8.1.0",
+  	"copy-dir": "^1.3.0",
+  	eslint: "^7.4.0",
+  	"eslint-plugin-jest": "^23.17.1",
+  	jest: "^26.1.0",
+  	rollup: "^2.23.0",
+  	"rollup-plugin-css-only": "^2.1.0",
+  	"rollup-plugin-eslint": "^7.0.0",
+  	"rollup-plugin-terser": "^6.1.0"
+  };
+  var pkg = {
+  	name: name,
+  	version: version,
+  	description: description,
+  	type: type,
+  	main: main,
+  	browser: browser,
+  	scripts: scripts,
+  	author: author,
+  	license: license,
+  	files: files,
+  	repository: repository,
+  	dependencies: dependencies,
+  	devDependencies: devDependencies
+  };
+
+  // to assist with trouble shooting.
+
+  console.log("running version ".concat(pkg.version));
+
   exports.getInsetDims = getInsetDims;
   exports.getTweenTransOpts = getTweenTransOpts;
   exports.namedTransOpts = namedTransOpts;

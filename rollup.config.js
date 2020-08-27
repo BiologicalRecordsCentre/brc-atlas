@@ -3,11 +3,13 @@ import { eslint } from "rollup-plugin-eslint";
 import resolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import babel from '@rollup/plugin-babel'
-import { terser } from 'rollup-plugin-terser'
+import json from '@rollup/plugin-json'
 import pkg from './package.json'
 import css from 'rollup-plugin-css-only'
 
 export default [
+  // This is a bit of a hack to get rollup to make a single
+  // CSS file. This needs to come before the JS built.
   {
     input: './src/css.js',
     output: {
@@ -19,7 +21,8 @@ export default [
       css({ output: null })
 		]
   },
-	// browser-friendly UMD builds
+  // Browser-friendly UMD builds
+  // No need to create a minified version as jsdelivr CDN can do that for us
   {
 		input: 'index.js',
 		output: {
@@ -31,22 +34,8 @@ export default [
       eslint(),
 			resolve(), // so Rollup can find node libs
       commonjs(), // so Rollup can convert CommonJS modules to an ES modules
+      json(), // required to import package into index.js
       babel({ babelHelpers: 'bundled', presets: ['@babel/preset-env'] }),
-		]
-  },
-  {
-		input: 'index.js',
-		output: {
-			name: 'brcatlas',
-			file: pkg.browsermin,
-			format: 'umd'
-		},
-		plugins: [
-      eslint(),
-			resolve(), 
-      commonjs(),
-      babel({ babelHelpers: 'bundled', presets: ['@babel/preset-env'] }),
-      terser()
 		]
   }
 ]
