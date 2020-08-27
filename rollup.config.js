@@ -23,6 +23,7 @@ export default [
   },
   // Browser-friendly UMD builds
   // No need to create a minified version as jsdelivr CDN can do that for us
+  // Avoid bundling d3
   {
     external: ['d3'],
     globals: {
