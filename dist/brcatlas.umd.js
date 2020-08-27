@@ -12451,10 +12451,10 @@
   }
 
   var name = "brcatlas";
-  var version = "0.0.8";
+  var version = "0.0.9";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
-  var main = "dist/brcatlas.cjs.js";
+  var main = "dist/brcatlas.umd.js";
   var browser = "dist/brcatlas.umd.js";
   var scripts = {
   	lint: "npx eslint src",
@@ -12475,9 +12475,7 @@
   var dependencies = {
   	"brc-atlas-bigr": "^2.0.1",
   	d3: "^5.16.0",
-  	micromodal: "^0.4.6",
-  	"point-in-polygon": "^1.0.1",
-  	proj4: "^2.6.2"
+  	micromodal: "^0.4.6"
   };
   var devDependencies = {
   	"@babel/core": "^7.10.4",
