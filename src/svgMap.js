@@ -186,8 +186,6 @@ export function svgMap({
   }
 
   function drawDots() {
-    // if(typeof window[mapFunctionName] === 'function') {
-    //   window[mapFunctionName](taxonIdentifier).then(data => {
     if(typeof mapTypesSel[mapTypesKey] === 'function') {
       mapTypesSel[mapTypesKey](taxonIdentifier).then(data => {
         const radiusPixels = getRadiusPixels(data.precision)
