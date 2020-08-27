@@ -24,6 +24,10 @@ export default [
   // Browser-friendly UMD builds
   // No need to create a minified version as jsdelivr CDN can do that for us
   {
+    external: ['d3'],
+    globals: {
+      'd3': 'd3'
+    },
 		input: 'index.js',
 		output: {
 			name: 'brcatlas',
