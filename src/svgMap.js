@@ -75,7 +75,7 @@ export function svgMap({
       .style("right", "5px")
       .style("bottom", "7px")
       .on("click", function(){
-        showOptsDialog(mapTypesSel, mapTypesKey, transOptsSel, transOptsKey)
+        showOptsDialog(mapTypesKey, transOptsSel, transOptsKey)
       })
       
     // Create to options dialog
@@ -186,12 +186,10 @@ export function svgMap({
   }
 
   function drawDots() {
-    const mapFunctionName = mapTypesSel[mapTypesKey]
-    console.log('Function', mapFunctionName, typeof window[mapFunctionName])
-    if(typeof window[mapFunctionName] === 'function') {
-      console.log('Is function')
-      window[mapFunctionName](taxonIdentifier).then(data => {
-        console.log('Data returned')
+    // if(typeof window[mapFunctionName] === 'function') {
+    //   window[mapFunctionName](taxonIdentifier).then(data => {
+    if(typeof mapTypesSel[mapTypesKey] === 'function') {
+      mapTypesSel[mapTypesKey](taxonIdentifier).then(data => {
         const radiusPixels = getRadiusPixels(data.precision)
         // circles
         let recCircles

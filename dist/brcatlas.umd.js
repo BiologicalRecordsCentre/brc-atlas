@@ -319,22 +319,6 @@
     return tto;
   }
 
-  function _typeof(obj) {
-    "@babel/helpers - typeof";
-
-    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-      _typeof = function (obj) {
-        return typeof obj;
-      };
-    } else {
-      _typeof = function (obj) {
-        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-      };
-    }
-
-    return _typeof(obj);
-  }
-
   function ascending (a, b) {
     return a < b ? -1 : a > b ? 1 : a >= b ? 0 : NaN;
   }
@@ -1359,6 +1343,22 @@
 
   function select (selector) {
     return typeof selector === "string" ? new Selection([[document.querySelector(selector)]], [document.documentElement]) : new Selection([[selector]], root);
+  }
+
+  function _typeof(obj) {
+    "@babel/helpers - typeof";
+
+    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+      _typeof = function (obj) {
+        return typeof obj;
+      };
+    } else {
+      _typeof = function (obj) {
+        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+      };
+    }
+
+    return _typeof(obj);
   }
 
   function define (constructor, factory, prototype) {
@@ -11940,13 +11940,15 @@
       applyFunction(ret);
     });
   }
-  function showOptsDialog(mapTypesSel, mapTypesKey, transOptsSel, transOptsKey) {
+  function showOptsDialog(mapTypesKey, transOptsSel, transOptsKey) {
     if (document.getElementById(transOptsSel[transOptsKey])) {
       document.getElementById(transOptsSel[transOptsKey]).checked = true;
     }
 
-    if (document.getElementById(mapTypesSel[mapTypesKey])) {
-      document.getElementById(mapTypesSel[mapTypesKey]).checked = true;
+    var id = mapTypesKey.replace(/ /g, '');
+
+    if (document.getElementById(id)) {
+      document.getElementById(id).checked = true;
     }
 
     MicroModal.show('modal-1');
@@ -11971,11 +11973,13 @@
   }
 
   function mapTypeSelection(el, mapTypesSel, mapTypesKey, mapTypesOpts) {
+    var id = mapTypesKey.replace(/ /g, '');
+
     if (mapTypesOpts && Object.keys(mapTypesSel).length > 1) {
       el.append("h3").text("Map information type");
       Object.keys(mapTypesSel).forEach(function (k) {
-        var radio = el.append("input").attr("type", "radio").attr("id", mapTypesSel[k]).attr("name", "mapTypeRadio").attr("value", k);
-        el.append("label").attr("for", mapTypesSel[k]).text(k);
+        var radio = el.append("input").attr("type", "radio").attr("id", id).attr("name", "mapTypeRadio").attr("value", k);
+        el.append("label").attr("for", id).text(k);
 
         if (k === mapTypesKey) {
           radio.attr("checked", "checked");
@@ -12102,7 +12106,7 @@
     if (transOptsOpts && Object.keys(transOptsSel).length > 1 || mapTypesOpts && Object.keys(mapTypesSel).length > 1) {
       // Add gear icon to invoke options dialog
       mainDiv.append("img").attr("src", "../images/gear.png").style("width", "16px").style("position", "absolute").style("right", "5px").style("bottom", "7px").on("click", function () {
-        showOptsDialog(mapTypesSel, mapTypesKey, transOptsSel, transOptsKey);
+        showOptsDialog(mapTypesKey, transOptsSel, transOptsKey);
       }); // Create to options dialog
 
       optsDialog(id, transOptsSel, transOptsKey, transOptsOpts, mapTypesSel, mapTypesKey, mapTypesOpts, userChangedOptions);
@@ -12203,13 +12207,10 @@
     }
 
     function drawDots() {
-      var mapFunctionName = mapTypesSel[mapTypesKey];
-      console.log('Function', mapFunctionName, _typeof(window[mapFunctionName]));
-
-      if (typeof window[mapFunctionName] === 'function') {
-        console.log('Is function');
-        window[mapFunctionName](taxonIdentifier).then(function (data) {
-          console.log('Data returned');
+      // if(typeof window[mapFunctionName] === 'function') {
+      //   window[mapFunctionName](taxonIdentifier).then(data => {
+      if (typeof mapTypesSel[mapTypesKey] === 'function') {
+        mapTypesSel[mapTypesKey](taxonIdentifier).then(function (data) {
           var radiusPixels = getRadiusPixels(data.precision); // circles
 
           var recCircles;

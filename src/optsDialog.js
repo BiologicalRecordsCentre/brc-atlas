@@ -85,13 +85,14 @@ export function optsDialog(parentId, transOptsSel, transOptsKey, transOptsOpts, 
   })
 }
 
-export function showOptsDialog(mapTypesSel, mapTypesKey, transOptsSel, transOptsKey,){
+export function showOptsDialog(mapTypesKey, transOptsSel, transOptsKey,){
 
   if (document.getElementById(transOptsSel[transOptsKey])) {
     document.getElementById(transOptsSel[transOptsKey]).checked = true
   }
-  if (document.getElementById(mapTypesSel[mapTypesKey])) {
-    document.getElementById(mapTypesSel[mapTypesKey]).checked = true
+  const id = mapTypesKey.replace(/ /g,'')
+  if (document.getElementById(id)) {
+    document.getElementById(id).checked = true
   }
   MicroModal.show('modal-1')
 }
@@ -120,16 +121,17 @@ function transOptsSelection(el, transOptsSel, transOptsKey, transOptsOpts) {
 }
 
 function mapTypeSelection(el, mapTypesSel, mapTypesKey, mapTypesOpts) {
+  const id = mapTypesKey.replace(/ /g,'')
   if (mapTypesOpts && Object.keys(mapTypesSel).length > 1) {
     el.append("h3").text("Map information type")
     Object.keys(mapTypesSel).forEach(k => {
       const radio = el.append("input")
         .attr("type", "radio")
-        .attr("id", mapTypesSel[k])
+        .attr("id", id)
         .attr("name", "mapTypeRadio")
         .attr("value", k)
       el.append("label")
-        .attr("for", mapTypesSel[k])
+        .attr("for", id)
         .text(k)
 
       if (k === mapTypesKey) {
