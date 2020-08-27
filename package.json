@@ -1,9 +1,9 @@
 {
   "name": "brcatlas",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Javascript library for web-based biological records atlas mapping in the British Isles.",
   "type": "module",
-  "main": "dist/brcatlas.cjs.js",
+  "main": "dist/brcatlas.umd.js",
   "browser": "dist/brcatlas.umd.js",
   "scripts": {
     "lint": "npx eslint src",
@@ -24,9 +24,7 @@
   "dependencies": {
     "brc-atlas-bigr": "^2.0.1",
     "d3": "^5.16.0",
-    "micromodal": "^0.4.6",
-    "point-in-polygon": "^1.0.1",
-    "proj4": "^2.6.2"
+    "micromodal": "^0.4.6"
   },
   "devDependencies": {
     "@babel/core": "^7.10.4",
