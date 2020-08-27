@@ -187,7 +187,7 @@ export function svgMap({
 
   function drawDots() {
     const mapFunctionName = mapTypesSel[mapTypesKey]
-    console.log('Function', mapFunctionName)
+    console.log('Function', mapFunctionName, typeof window[mapFunctionName])
     if(typeof window[mapFunctionName] === 'function') {
       console.log('Is function')
       window[mapFunctionName](taxonIdentifier).then(data => {
