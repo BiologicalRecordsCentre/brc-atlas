@@ -319,6 +319,672 @@
     return tto;
   }
 
+  /** @module src/constants */
+
+  /** @constant
+    * @description This object contains some constants which may be required 
+    * throughout the library.
+    *  @type {object}
+  */
+  var constants = {
+    cdn: 'https://unpkg.com/brc-atlas-bigr/dist'
+  };
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  function _createClass(Constructor, protoProps, staticProps) {
+    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) _defineProperties(Constructor, staticProps);
+    return Constructor;
+  }
+
+  function _toConsumableArray(arr) {
+    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
+  }
+
+  function _arrayWithoutHoles(arr) {
+    if (Array.isArray(arr)) return _arrayLikeToArray(arr);
+  }
+
+  function _iterableToArray(iter) {
+    if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);
+  }
+
+  function _unsupportedIterableToArray(o, minLen) {
+    if (!o) return;
+    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === "Object" && o.constructor) n = o.constructor.name;
+    if (n === "Map" || n === "Set") return Array.from(n);
+    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+  }
+
+  function _arrayLikeToArray(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+
+    for (var i = 0, arr2 = new Array(len); i < len; i++) {
+      arr2[i] = arr[i];
+    }
+
+    return arr2;
+  }
+
+  function _nonIterableSpread() {
+    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+
+  var MicroModal = function () {
+    var FOCUSABLE_ELEMENTS = ['a[href]', 'area[href]', 'input:not([disabled]):not([type="hidden"]):not([aria-hidden])', 'select:not([disabled]):not([aria-hidden])', 'textarea:not([disabled]):not([aria-hidden])', 'button:not([disabled]):not([aria-hidden])', 'iframe', 'object', 'embed', '[contenteditable]', '[tabindex]:not([tabindex^="-"])'];
+
+    var Modal = /*#__PURE__*/function () {
+      function Modal(_ref) {
+        var targetModal = _ref.targetModal,
+            _ref$triggers = _ref.triggers,
+            triggers = _ref$triggers === void 0 ? [] : _ref$triggers,
+            _ref$onShow = _ref.onShow,
+            onShow = _ref$onShow === void 0 ? function () {} : _ref$onShow,
+            _ref$onClose = _ref.onClose,
+            onClose = _ref$onClose === void 0 ? function () {} : _ref$onClose,
+            _ref$openTrigger = _ref.openTrigger,
+            openTrigger = _ref$openTrigger === void 0 ? 'data-micromodal-trigger' : _ref$openTrigger,
+            _ref$closeTrigger = _ref.closeTrigger,
+            closeTrigger = _ref$closeTrigger === void 0 ? 'data-micromodal-close' : _ref$closeTrigger,
+            _ref$openClass = _ref.openClass,
+            openClass = _ref$openClass === void 0 ? 'is-open' : _ref$openClass,
+            _ref$disableScroll = _ref.disableScroll,
+            disableScroll = _ref$disableScroll === void 0 ? false : _ref$disableScroll,
+            _ref$disableFocus = _ref.disableFocus,
+            disableFocus = _ref$disableFocus === void 0 ? false : _ref$disableFocus,
+            _ref$awaitCloseAnimat = _ref.awaitCloseAnimation,
+            awaitCloseAnimation = _ref$awaitCloseAnimat === void 0 ? false : _ref$awaitCloseAnimat,
+            _ref$awaitOpenAnimati = _ref.awaitOpenAnimation,
+            awaitOpenAnimation = _ref$awaitOpenAnimati === void 0 ? false : _ref$awaitOpenAnimati,
+            _ref$debugMode = _ref.debugMode,
+            debugMode = _ref$debugMode === void 0 ? false : _ref$debugMode;
+
+        _classCallCheck(this, Modal); // Save a reference of the modal
+
+
+        this.modal = document.getElementById(targetModal); // Save a reference to the passed config
+
+        this.config = {
+          debugMode: debugMode,
+          disableScroll: disableScroll,
+          openTrigger: openTrigger,
+          closeTrigger: closeTrigger,
+          openClass: openClass,
+          onShow: onShow,
+          onClose: onClose,
+          awaitCloseAnimation: awaitCloseAnimation,
+          awaitOpenAnimation: awaitOpenAnimation,
+          disableFocus: disableFocus
+        }; // Register click events only if pre binding eventListeners
+
+        if (triggers.length > 0) this.registerTriggers.apply(this, _toConsumableArray(triggers)); // pre bind functions for event listeners
+
+        this.onClick = this.onClick.bind(this);
+        this.onKeydown = this.onKeydown.bind(this);
+      }
+      /**
+       * Loops through all openTriggers and binds click event
+       * @param  {array} triggers [Array of node elements]
+       * @return {void}
+       */
+
+
+      _createClass(Modal, [{
+        key: "registerTriggers",
+        value: function registerTriggers() {
+          var _this = this;
+
+          for (var _len = arguments.length, triggers = new Array(_len), _key = 0; _key < _len; _key++) {
+            triggers[_key] = arguments[_key];
+          }
+
+          triggers.filter(Boolean).forEach(function (trigger) {
+            trigger.addEventListener('click', function (event) {
+              return _this.showModal(event);
+            });
+          });
+        }
+      }, {
+        key: "showModal",
+        value: function showModal() {
+          var _this2 = this;
+
+          var event = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+          this.activeElement = document.activeElement;
+          this.modal.setAttribute('aria-hidden', 'false');
+          this.modal.classList.add(this.config.openClass);
+          this.scrollBehaviour('disable');
+          this.addEventListeners();
+
+          if (this.config.awaitOpenAnimation) {
+            var handler = function handler() {
+              _this2.modal.removeEventListener('animationend', handler, false);
+
+              _this2.setFocusToFirstNode();
+            };
+
+            this.modal.addEventListener('animationend', handler, false);
+          } else {
+            this.setFocusToFirstNode();
+          }
+
+          this.config.onShow(this.modal, this.activeElement, event);
+        }
+      }, {
+        key: "closeModal",
+        value: function closeModal() {
+          var event = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+          var modal = this.modal;
+          this.modal.setAttribute('aria-hidden', 'true');
+          this.removeEventListeners();
+          this.scrollBehaviour('enable');
+
+          if (this.activeElement && this.activeElement.focus) {
+            this.activeElement.focus();
+          }
+
+          this.config.onClose(this.modal, this.activeElement, event);
+
+          if (this.config.awaitCloseAnimation) {
+            var openClass = this.config.openClass; // <- old school ftw
+
+            this.modal.addEventListener('animationend', function handler() {
+              modal.classList.remove(openClass);
+              modal.removeEventListener('animationend', handler, false);
+            }, false);
+          } else {
+            modal.classList.remove(this.config.openClass);
+          }
+        }
+      }, {
+        key: "closeModalById",
+        value: function closeModalById(targetModal) {
+          this.modal = document.getElementById(targetModal);
+          if (this.modal) this.closeModal();
+        }
+      }, {
+        key: "scrollBehaviour",
+        value: function scrollBehaviour(toggle) {
+          if (!this.config.disableScroll) return;
+          var body = document.querySelector('body');
+
+          switch (toggle) {
+            case 'enable':
+              Object.assign(body.style, {
+                overflow: ''
+              });
+              break;
+
+            case 'disable':
+              Object.assign(body.style, {
+                overflow: 'hidden'
+              });
+              break;
+          }
+        }
+      }, {
+        key: "addEventListeners",
+        value: function addEventListeners() {
+          this.modal.addEventListener('touchstart', this.onClick);
+          this.modal.addEventListener('click', this.onClick);
+          document.addEventListener('keydown', this.onKeydown);
+        }
+      }, {
+        key: "removeEventListeners",
+        value: function removeEventListeners() {
+          this.modal.removeEventListener('touchstart', this.onClick);
+          this.modal.removeEventListener('click', this.onClick);
+          document.removeEventListener('keydown', this.onKeydown);
+        }
+      }, {
+        key: "onClick",
+        value: function onClick(event) {
+          if (event.target.hasAttribute(this.config.closeTrigger)) {
+            this.closeModal(event);
+          }
+        }
+      }, {
+        key: "onKeydown",
+        value: function onKeydown(event) {
+          if (event.keyCode === 27) this.closeModal(event); // esc
+
+          if (event.keyCode === 9) this.retainFocus(event); // tab
+        }
+      }, {
+        key: "getFocusableNodes",
+        value: function getFocusableNodes() {
+          var nodes = this.modal.querySelectorAll(FOCUSABLE_ELEMENTS);
+          return Array.apply(void 0, _toConsumableArray(nodes));
+        }
+        /**
+         * Tries to set focus on a node which is not a close trigger
+         * if no other nodes exist then focuses on first close trigger
+         */
+
+      }, {
+        key: "setFocusToFirstNode",
+        value: function setFocusToFirstNode() {
+          var _this3 = this;
+
+          if (this.config.disableFocus) return;
+          var focusableNodes = this.getFocusableNodes(); // no focusable nodes
+
+          if (focusableNodes.length === 0) return; // remove nodes on whose click, the modal closes
+          // could not think of a better name :(
+
+          var nodesWhichAreNotCloseTargets = focusableNodes.filter(function (node) {
+            return !node.hasAttribute(_this3.config.closeTrigger);
+          });
+          if (nodesWhichAreNotCloseTargets.length > 0) nodesWhichAreNotCloseTargets[0].focus();
+          if (nodesWhichAreNotCloseTargets.length === 0) focusableNodes[0].focus();
+        }
+      }, {
+        key: "retainFocus",
+        value: function retainFocus(event) {
+          var focusableNodes = this.getFocusableNodes(); // no focusable nodes
+
+          if (focusableNodes.length === 0) return;
+          /**
+           * Filters nodes which are hidden to prevent
+           * focus leak outside modal
+           */
+
+          focusableNodes = focusableNodes.filter(function (node) {
+            return node.offsetParent !== null;
+          }); // if disableFocus is true
+
+          if (!this.modal.contains(document.activeElement)) {
+            focusableNodes[0].focus();
+          } else {
+            var focusedItemIndex = focusableNodes.indexOf(document.activeElement);
+
+            if (event.shiftKey && focusedItemIndex === 0) {
+              focusableNodes[focusableNodes.length - 1].focus();
+              event.preventDefault();
+            }
+
+            if (!event.shiftKey && focusableNodes.length > 0 && focusedItemIndex === focusableNodes.length - 1) {
+              focusableNodes[0].focus();
+              event.preventDefault();
+            }
+          }
+        }
+      }]);
+
+      return Modal;
+    }();
+    /**
+     * Modal prototype ends.
+     * Here on code is responsible for detecting and
+     * auto binding event handlers on modal triggers
+     */
+    // Keep a reference to the opened modal
+
+
+    var activeModal = null;
+    /**
+     * Generates an associative array of modals and it's
+     * respective triggers
+     * @param  {array} triggers     An array of all triggers
+     * @param  {string} triggerAttr The data-attribute which triggers the module
+     * @return {array}
+     */
+
+    var generateTriggerMap = function generateTriggerMap(triggers, triggerAttr) {
+      var triggerMap = [];
+      triggers.forEach(function (trigger) {
+        var targetModal = trigger.attributes[triggerAttr].value;
+        if (triggerMap[targetModal] === undefined) triggerMap[targetModal] = [];
+        triggerMap[targetModal].push(trigger);
+      });
+      return triggerMap;
+    };
+    /**
+     * Validates whether a modal of the given id exists
+     * in the DOM
+     * @param  {number} id  The id of the modal
+     * @return {boolean}
+     */
+
+
+    var validateModalPresence = function validateModalPresence(id) {
+      if (!document.getElementById(id)) {
+        console.warn("MicroModal: \u2757Seems like you have missed %c'".concat(id, "'"), 'background-color: #f8f9fa;color: #50596c;font-weight: bold;', 'ID somewhere in your code. Refer example below to resolve it.');
+        console.warn("%cExample:", 'background-color: #f8f9fa;color: #50596c;font-weight: bold;', "<div class=\"modal\" id=\"".concat(id, "\"></div>"));
+        return false;
+      }
+    };
+    /**
+     * Validates if there are modal triggers present
+     * in the DOM
+     * @param  {array} triggers An array of data-triggers
+     * @return {boolean}
+     */
+
+
+    var validateTriggerPresence = function validateTriggerPresence(triggers) {
+      if (triggers.length <= 0) {
+        console.warn("MicroModal: \u2757Please specify at least one %c'micromodal-trigger'", 'background-color: #f8f9fa;color: #50596c;font-weight: bold;', 'data attribute.');
+        console.warn("%cExample:", 'background-color: #f8f9fa;color: #50596c;font-weight: bold;', "<a href=\"#\" data-micromodal-trigger=\"my-modal\"></a>");
+        return false;
+      }
+    };
+    /**
+     * Checks if triggers and their corresponding modals
+     * are present in the DOM
+     * @param  {array} triggers   Array of DOM nodes which have data-triggers
+     * @param  {array} triggerMap Associative array of modals and their triggers
+     * @return {boolean}
+     */
+
+
+    var validateArgs = function validateArgs(triggers, triggerMap) {
+      validateTriggerPresence(triggers);
+      if (!triggerMap) return true;
+
+      for (var id in triggerMap) {
+        validateModalPresence(id);
+      }
+
+      return true;
+    };
+    /**
+     * Binds click handlers to all modal triggers
+     * @param  {object} config [description]
+     * @return void
+     */
+
+
+    var init = function init(config) {
+      // Create an config object with default openTrigger
+      var options = Object.assign({}, {
+        openTrigger: 'data-micromodal-trigger'
+      }, config); // Collects all the nodes with the trigger
+
+      var triggers = _toConsumableArray(document.querySelectorAll("[".concat(options.openTrigger, "]"))); // Makes a mappings of modals with their trigger nodes
+
+
+      var triggerMap = generateTriggerMap(triggers, options.openTrigger); // Checks if modals and triggers exist in dom
+
+      if (options.debugMode === true && validateArgs(triggers, triggerMap) === false) return; // For every target modal creates a new instance
+
+      for (var key in triggerMap) {
+        var value = triggerMap[key];
+        options.targetModal = key;
+        options.triggers = _toConsumableArray(value);
+        activeModal = new Modal(options); // eslint-disable-line no-new
+      }
+    };
+    /**
+     * Shows a particular modal
+     * @param  {string} targetModal [The id of the modal to display]
+     * @param  {object} config [The configuration object to pass]
+     * @return {void}
+     */
+
+
+    var show = function show(targetModal, config) {
+      var options = config || {};
+      options.targetModal = targetModal; // Checks if modals and triggers exist in dom
+
+      if (options.debugMode === true && validateModalPresence(targetModal) === false) return; // clear events in case previous modal wasn't close
+
+      if (activeModal) activeModal.removeEventListeners(); // stores reference to active modal
+
+      activeModal = new Modal(options); // eslint-disable-line no-new
+
+      activeModal.showModal();
+    };
+    /**
+     * Closes the active modal
+     * @param  {string} targetModal [The id of the modal to close]
+     * @return {void}
+     */
+
+
+    var close = function close(targetModal) {
+      targetModal ? activeModal.closeModalById(targetModal) : activeModal.closeModal();
+    };
+
+    return {
+      init: init,
+      show: show,
+      close: close
+    };
+  }();
+
+  window.MicroModal = MicroModal;
+
+  /**
+   * #TODO
+   * @returns {null} - there is no return object.
+   */
+  // export function optsDialog({
+  //     // Default options in here
+  //     parentId = 'body',
+  //     transOptsSel = {},
+  //     transOptsKey = "",
+  //     transOptsOpts = false,
+  //     mapTypesSel = {},
+  //     mapTypesKey = "",
+  //     mapTypesOpts = false,
+  //     applyFunction = null,
+  //   } = {}) {
+
+  function optsDialog(parentId, transOptsSel, transOptsKey, transOptsOpts, mapTypesSel, mapTypesKey, mapTypesOpts, applyFunction) {
+    // Create map SVG in given parent
+    var div1 = d3.select("#".concat(parentId)).append("div").classed("modal micromodal-slide", true).attr("id", "modal-1").attr("aria-hidden", "true");
+    var div2 = div1.append("div").classed("modal__overlay", true).attr("tabindex", "-1").attr("data-micromodal-close", "");
+    var div3 = div2.append("div").classed("modal__container", true).attr("role", "dialog").attr("aria-modal", "true").attr("aria-labelledby", "modal-1-title");
+    var header = div3.append("header").classed("modal__header", true);
+    header.append("h2").classed("modal__title", true).attr("id", "modal-1-title").text("Map options");
+    header.append("button").classed("modal__close", true).attr("aria-label", "Close modal").attr("data-micromodal-close", "");
+    var main = div3.append("main").classed("modal__content", true).attr("id", "modal-1-content");
+    transOptsSelection(main, transOptsSel, transOptsKey, transOptsOpts);
+    mapTypeSelection(main, mapTypesSel, mapTypesKey, mapTypesOpts);
+    var footer = div3.append("main").classed("modal__footer", true);
+    var apply = footer.append("button").classed("modal__btn modal__btn-primary", true).attr("data-micromodal-close", "").text("Okay");
+    footer.append("button").classed("modal__btn", true).attr("data-micromodal-close", "").attr("aria-label", "Close this dialog window").text("Cancel");
+    MicroModal.init();
+    apply.on("click", function () {
+      var ret = {};
+
+      if (transOptsOpts && Object.keys(transOptsSel).length > 1) {
+        ret.transOptsKey = d3.select('input[name="transOptsRadio"]:checked').node().value;
+      }
+
+      if (mapTypesOpts && Object.keys(mapTypesSel).length > 1) {
+        ret.mapTypesKey = d3.select('input[name="mapTypeRadio"]:checked').node().value;
+      }
+
+      applyFunction(ret);
+    });
+  }
+  function showOptsDialog(mapTypesKey, transOptsSel, transOptsKey) {
+    if (document.getElementById(transOptsSel[transOptsKey])) {
+      document.getElementById(transOptsSel[transOptsKey]).checked = true;
+    }
+
+    var id = mapTypesKey.replace(/ /g, '');
+
+    if (document.getElementById(id)) {
+      document.getElementById(id).checked = true;
+    }
+
+    MicroModal.show('modal-1');
+  }
+
+  function transOptsSelection(el, transOptsSel, transOptsKey, transOptsOpts) {
+    if (transOptsOpts && Object.keys(transOptsSel).length > 1) {
+      el.append("h3").text("Extent & view");
+      Object.keys(transOptsSel).forEach(function (k) {
+        var radio = el.append("input").attr("type", "radio").attr("id", transOptsSel[k]).attr("name", "transOptsRadio").attr("value", k);
+        el.append("label").attr("for", transOptsSel[k]).text(k);
+
+        if (k === transOptsKey) {
+          radio.attr("checked", "checked");
+        }
+
+        if (k !== Object.keys(transOptsSel)[Object.keys(transOptsSel).length - 1]) {
+          el.append("br");
+        }
+      });
+    }
+  }
+
+  function mapTypeSelection(el, mapTypesSel, mapTypesKey, mapTypesOpts) {
+    var id = mapTypesKey.replace(/ /g, '');
+
+    if (mapTypesOpts && Object.keys(mapTypesSel).length > 1) {
+      el.append("h3").text("Map information type");
+      Object.keys(mapTypesSel).forEach(function (k) {
+        var radio = el.append("input").attr("type", "radio").attr("id", id).attr("name", "mapTypeRadio").attr("value", k);
+        el.append("label").attr("for", id).text(k);
+
+        if (k === mapTypesKey) {
+          radio.attr("checked", "checked");
+        }
+
+        if (k !== Object.keys(mapTypesSel)[Object.keys(mapTypesSel).length - 1]) {
+          el.append("br");
+        }
+      });
+    }
+  }
+
+  /* ANY GENERALLY USEFUL DATA ACCESS ROUTINES SHOULD GO IN THIS MODULE *?
+
+  /**
+   * This will be a general purpose CSV reader that will read
+   * CSV expecting columns gr, shape, size, colour etc.
+   * @param {Object} opts - initialisation options.
+   */
+
+  function csvHectad(opts) {
+    // #TDOO - code below is just a placeholder
+    return new Promise(function (resolve, reject) {
+      d3.csv(opts.data, function (r) {
+        if (r.Hectad) {
+          // e.g. {Hectad: "NZ09"}
+          return {
+            gr: r.Hectad,
+            colour: "red"
+          };
+        }
+      }).then(function (data) {
+        resolve({
+          records: data,
+          size: 1,
+          shape: 'circle',
+          precision: 10000,
+          opacity: 0.8
+        });
+      })["catch"](function (e) {
+        reject(e);
+      });
+    });
+  }
+
+  /**
+   * #TODO - description and full parameter list.
+   * @param {SVG g element} g - the SVG g element that hosts the basemap images.
+   * @returns {null} - there is no return object.
+   */
+
+  function showImage(mapId, show, gBasemaps, imageFile, worldFile, transform) {
+    // If show is false, hide basemap layer
+    if (!show) {
+      // Hide the basemap layer if g element exists
+      if (gBasemaps.select("#basemap-".concat(mapId)).node()) {
+        gBasemaps.select("#basemap-".concat(mapId)).classed('baseMapHidden', true);
+      }
+
+      return;
+    } // Ensure g element exists for this mapId. If already exists, display it
+
+
+    if (!gBasemaps.select("#basemap-".concat(mapId)).node()) {
+      gBasemaps.append('g', "#basemap-".concat(mapId));
+    } else {
+      gBasemaps.select("#basemap-".concat(mapId)).classed('baseMapHidden', false);
+    } // If there is no image in the g element for this mapId, then add it
+
+
+    if (!gBasemaps.select("#basemap-".concat(mapId, " image")).node()) {
+      var img = new Image();
+
+      img.onerror = function (e) {
+        console.log(imageFile, 'could not be opened.', e);
+      };
+
+      img.onload = function () {
+        var imageWidth = this.width;
+        var imageHeight = this.height;
+        fetch(worldFile).then(function (response) {
+          response.text().then(function (text) {
+            var aWrld = text.split('\n');
+            var xResolution = Number(aWrld[0]);
+            var yResolution = Number(aWrld[3]); //negative value
+
+            var minEasting = Number(aWrld[4]);
+            var maxNorthing = Number(aWrld[5]);
+            var maxEasting = minEasting + imageWidth * xResolution;
+            var minNorthing = maxNorthing + imageHeight * yResolution;
+            var topLeft = transform([minEasting, maxNorthing]);
+            var topRight = transform([maxEasting, maxNorthing]);
+            var bottomLeft = transform([minEasting, minNorthing]);
+            gBasemaps.select("#basemap-".concat(mapId)).append('image').attr('data-xResolution', xResolution).attr('data-yResolution', yResolution).attr('data-minEasting', minEasting).attr('data-maxNorthing', maxNorthing).attr('data-imageWidth', imageWidth).attr('data-imageHeight', imageHeight).attr('href', imageFile).attr('x', topLeft[0]).attr('y', topLeft[1]).attr('width', topRight[0] - topLeft[0]).attr('height', bottomLeft[1] - topLeft[1]);
+          });
+        })["catch"](function (e) {
+          console.log(worldFile, 'could not be opened.', e);
+        });
+      };
+
+      img.src = imageFile;
+    }
+  }
+  function transformImages(gBasemaps, transform) {
+    gBasemaps.selectAll('image').each(function () {
+      // Don't use fat arrow above because this needs to
+      // resolve correctly below.
+      var img = d3.select(this);
+      var minEasting = Number(img.attr('data-minEasting'));
+      var maxNorthing = Number(img.attr('data-maxNorthing'));
+      var imageWidth = Number(img.attr('data-imageWidth'));
+      var imageHeight = Number(img.attr('data-imageHeight'));
+      var xResolution = Number(img.attr('data-xResolution'));
+      var yResolution = Number(img.attr('data-yResolution'));
+      var maxEasting = minEasting + imageWidth * xResolution;
+      var minNorthing = maxNorthing + imageHeight * yResolution;
+      var topLeft = transform([minEasting, maxNorthing]);
+      var topRight = transform([maxEasting, maxNorthing]);
+      var bottomLeft = transform([minEasting, minNorthing]);
+      img.attr('x', topLeft[0]).attr('y', topLeft[1]).attr('width', topRight[0] - topLeft[0]).attr('height', bottomLeft[1] - topLeft[1]);
+    });
+  }
+  function setImagePriorities(gBasemaps, mapIds) {
+    mapIds.reverse().forEach(function (mapId) {
+      gBasemaps.append('g').attr('id', "basemap-".concat(mapId)).classed('baseMapHidden', true);
+    });
+  }
+
   function _typeof(obj) {
     "@babel/helpers - typeof";
 
@@ -7767,774 +8433,21 @@
     };
   }
 
-  /** @module src/constants */
-
-  /** @constant
-    * @description This object contains some constants which may be required 
-    * throughout the library.
-    *  @type {object}
-  */
-  var constants = {
-    cdn: 'https://unpkg.com/brc-atlas-bigr/dist'
-  };
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
+  function getRadiusPixels(transform, precision) {
+    return Math.abs(transform([300000, 300000])[0] - transform([300000 + precision / 2, 300000])[0]);
   }
 
-  function _defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];
-      descriptor.enumerable = descriptor.enumerable || false;
-      descriptor.configurable = true;
-      if ("value" in descriptor) descriptor.writable = true;
-      Object.defineProperty(target, descriptor.key, descriptor);
-    }
+  function refreshDots(svg, transform, accessFunction, taxonIdentifier) {
+    svg.selectAll('.dotCircle').remove();
+    svg.selectAll('.dotSquare').remove();
+    svg.selectAll('.dotTriangle').remove();
+    drawDots(svg, transform, accessFunction, taxonIdentifier);
   }
-
-  function _createClass(Constructor, protoProps, staticProps) {
-    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-    if (staticProps) _defineProperties(Constructor, staticProps);
-    return Constructor;
-  }
-
-  function _toConsumableArray(arr) {
-    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
-  }
-
-  function _arrayWithoutHoles(arr) {
-    if (Array.isArray(arr)) return _arrayLikeToArray(arr);
-  }
-
-  function _iterableToArray(iter) {
-    if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);
-  }
-
-  function _unsupportedIterableToArray(o, minLen) {
-    if (!o) return;
-    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
-    var n = Object.prototype.toString.call(o).slice(8, -1);
-    if (n === "Object" && o.constructor) n = o.constructor.name;
-    if (n === "Map" || n === "Set") return Array.from(n);
-    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
-  }
-
-  function _arrayLikeToArray(arr, len) {
-    if (len == null || len > arr.length) len = arr.length;
-
-    for (var i = 0, arr2 = new Array(len); i < len; i++) {
-      arr2[i] = arr[i];
-    }
-
-    return arr2;
-  }
-
-  function _nonIterableSpread() {
-    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-  }
-
-  var MicroModal = function () {
-    var FOCUSABLE_ELEMENTS = ['a[href]', 'area[href]', 'input:not([disabled]):not([type="hidden"]):not([aria-hidden])', 'select:not([disabled]):not([aria-hidden])', 'textarea:not([disabled]):not([aria-hidden])', 'button:not([disabled]):not([aria-hidden])', 'iframe', 'object', 'embed', '[contenteditable]', '[tabindex]:not([tabindex^="-"])'];
-
-    var Modal = /*#__PURE__*/function () {
-      function Modal(_ref) {
-        var targetModal = _ref.targetModal,
-            _ref$triggers = _ref.triggers,
-            triggers = _ref$triggers === void 0 ? [] : _ref$triggers,
-            _ref$onShow = _ref.onShow,
-            onShow = _ref$onShow === void 0 ? function () {} : _ref$onShow,
-            _ref$onClose = _ref.onClose,
-            onClose = _ref$onClose === void 0 ? function () {} : _ref$onClose,
-            _ref$openTrigger = _ref.openTrigger,
-            openTrigger = _ref$openTrigger === void 0 ? 'data-micromodal-trigger' : _ref$openTrigger,
-            _ref$closeTrigger = _ref.closeTrigger,
-            closeTrigger = _ref$closeTrigger === void 0 ? 'data-micromodal-close' : _ref$closeTrigger,
-            _ref$openClass = _ref.openClass,
-            openClass = _ref$openClass === void 0 ? 'is-open' : _ref$openClass,
-            _ref$disableScroll = _ref.disableScroll,
-            disableScroll = _ref$disableScroll === void 0 ? false : _ref$disableScroll,
-            _ref$disableFocus = _ref.disableFocus,
-            disableFocus = _ref$disableFocus === void 0 ? false : _ref$disableFocus,
-            _ref$awaitCloseAnimat = _ref.awaitCloseAnimation,
-            awaitCloseAnimation = _ref$awaitCloseAnimat === void 0 ? false : _ref$awaitCloseAnimat,
-            _ref$awaitOpenAnimati = _ref.awaitOpenAnimation,
-            awaitOpenAnimation = _ref$awaitOpenAnimati === void 0 ? false : _ref$awaitOpenAnimati,
-            _ref$debugMode = _ref.debugMode,
-            debugMode = _ref$debugMode === void 0 ? false : _ref$debugMode;
-
-        _classCallCheck(this, Modal); // Save a reference of the modal
-
-
-        this.modal = document.getElementById(targetModal); // Save a reference to the passed config
-
-        this.config = {
-          debugMode: debugMode,
-          disableScroll: disableScroll,
-          openTrigger: openTrigger,
-          closeTrigger: closeTrigger,
-          openClass: openClass,
-          onShow: onShow,
-          onClose: onClose,
-          awaitCloseAnimation: awaitCloseAnimation,
-          awaitOpenAnimation: awaitOpenAnimation,
-          disableFocus: disableFocus
-        }; // Register click events only if pre binding eventListeners
-
-        if (triggers.length > 0) this.registerTriggers.apply(this, _toConsumableArray(triggers)); // pre bind functions for event listeners
-
-        this.onClick = this.onClick.bind(this);
-        this.onKeydown = this.onKeydown.bind(this);
-      }
-      /**
-       * Loops through all openTriggers and binds click event
-       * @param  {array} triggers [Array of node elements]
-       * @return {void}
-       */
-
-
-      _createClass(Modal, [{
-        key: "registerTriggers",
-        value: function registerTriggers() {
-          var _this = this;
-
-          for (var _len = arguments.length, triggers = new Array(_len), _key = 0; _key < _len; _key++) {
-            triggers[_key] = arguments[_key];
-          }
-
-          triggers.filter(Boolean).forEach(function (trigger) {
-            trigger.addEventListener('click', function (event) {
-              return _this.showModal(event);
-            });
-          });
-        }
-      }, {
-        key: "showModal",
-        value: function showModal() {
-          var _this2 = this;
-
-          var event = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-          this.activeElement = document.activeElement;
-          this.modal.setAttribute('aria-hidden', 'false');
-          this.modal.classList.add(this.config.openClass);
-          this.scrollBehaviour('disable');
-          this.addEventListeners();
-
-          if (this.config.awaitOpenAnimation) {
-            var handler = function handler() {
-              _this2.modal.removeEventListener('animationend', handler, false);
-
-              _this2.setFocusToFirstNode();
-            };
-
-            this.modal.addEventListener('animationend', handler, false);
-          } else {
-            this.setFocusToFirstNode();
-          }
-
-          this.config.onShow(this.modal, this.activeElement, event);
-        }
-      }, {
-        key: "closeModal",
-        value: function closeModal() {
-          var event = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-          var modal = this.modal;
-          this.modal.setAttribute('aria-hidden', 'true');
-          this.removeEventListeners();
-          this.scrollBehaviour('enable');
-
-          if (this.activeElement && this.activeElement.focus) {
-            this.activeElement.focus();
-          }
-
-          this.config.onClose(this.modal, this.activeElement, event);
-
-          if (this.config.awaitCloseAnimation) {
-            var openClass = this.config.openClass; // <- old school ftw
-
-            this.modal.addEventListener('animationend', function handler() {
-              modal.classList.remove(openClass);
-              modal.removeEventListener('animationend', handler, false);
-            }, false);
-          } else {
-            modal.classList.remove(this.config.openClass);
-          }
-        }
-      }, {
-        key: "closeModalById",
-        value: function closeModalById(targetModal) {
-          this.modal = document.getElementById(targetModal);
-          if (this.modal) this.closeModal();
-        }
-      }, {
-        key: "scrollBehaviour",
-        value: function scrollBehaviour(toggle) {
-          if (!this.config.disableScroll) return;
-          var body = document.querySelector('body');
-
-          switch (toggle) {
-            case 'enable':
-              Object.assign(body.style, {
-                overflow: ''
-              });
-              break;
-
-            case 'disable':
-              Object.assign(body.style, {
-                overflow: 'hidden'
-              });
-              break;
-          }
-        }
-      }, {
-        key: "addEventListeners",
-        value: function addEventListeners() {
-          this.modal.addEventListener('touchstart', this.onClick);
-          this.modal.addEventListener('click', this.onClick);
-          document.addEventListener('keydown', this.onKeydown);
-        }
-      }, {
-        key: "removeEventListeners",
-        value: function removeEventListeners() {
-          this.modal.removeEventListener('touchstart', this.onClick);
-          this.modal.removeEventListener('click', this.onClick);
-          document.removeEventListener('keydown', this.onKeydown);
-        }
-      }, {
-        key: "onClick",
-        value: function onClick(event) {
-          if (event.target.hasAttribute(this.config.closeTrigger)) {
-            this.closeModal(event);
-          }
-        }
-      }, {
-        key: "onKeydown",
-        value: function onKeydown(event) {
-          if (event.keyCode === 27) this.closeModal(event); // esc
-
-          if (event.keyCode === 9) this.retainFocus(event); // tab
-        }
-      }, {
-        key: "getFocusableNodes",
-        value: function getFocusableNodes() {
-          var nodes = this.modal.querySelectorAll(FOCUSABLE_ELEMENTS);
-          return Array.apply(void 0, _toConsumableArray(nodes));
-        }
-        /**
-         * Tries to set focus on a node which is not a close trigger
-         * if no other nodes exist then focuses on first close trigger
-         */
-
-      }, {
-        key: "setFocusToFirstNode",
-        value: function setFocusToFirstNode() {
-          var _this3 = this;
-
-          if (this.config.disableFocus) return;
-          var focusableNodes = this.getFocusableNodes(); // no focusable nodes
-
-          if (focusableNodes.length === 0) return; // remove nodes on whose click, the modal closes
-          // could not think of a better name :(
-
-          var nodesWhichAreNotCloseTargets = focusableNodes.filter(function (node) {
-            return !node.hasAttribute(_this3.config.closeTrigger);
-          });
-          if (nodesWhichAreNotCloseTargets.length > 0) nodesWhichAreNotCloseTargets[0].focus();
-          if (nodesWhichAreNotCloseTargets.length === 0) focusableNodes[0].focus();
-        }
-      }, {
-        key: "retainFocus",
-        value: function retainFocus(event) {
-          var focusableNodes = this.getFocusableNodes(); // no focusable nodes
-
-          if (focusableNodes.length === 0) return;
-          /**
-           * Filters nodes which are hidden to prevent
-           * focus leak outside modal
-           */
-
-          focusableNodes = focusableNodes.filter(function (node) {
-            return node.offsetParent !== null;
-          }); // if disableFocus is true
-
-          if (!this.modal.contains(document.activeElement)) {
-            focusableNodes[0].focus();
-          } else {
-            var focusedItemIndex = focusableNodes.indexOf(document.activeElement);
-
-            if (event.shiftKey && focusedItemIndex === 0) {
-              focusableNodes[focusableNodes.length - 1].focus();
-              event.preventDefault();
-            }
-
-            if (!event.shiftKey && focusableNodes.length > 0 && focusedItemIndex === focusableNodes.length - 1) {
-              focusableNodes[0].focus();
-              event.preventDefault();
-            }
-          }
-        }
-      }]);
-
-      return Modal;
-    }();
-    /**
-     * Modal prototype ends.
-     * Here on code is responsible for detecting and
-     * auto binding event handlers on modal triggers
-     */
-    // Keep a reference to the opened modal
-
-
-    var activeModal = null;
-    /**
-     * Generates an associative array of modals and it's
-     * respective triggers
-     * @param  {array} triggers     An array of all triggers
-     * @param  {string} triggerAttr The data-attribute which triggers the module
-     * @return {array}
-     */
-
-    var generateTriggerMap = function generateTriggerMap(triggers, triggerAttr) {
-      var triggerMap = [];
-      triggers.forEach(function (trigger) {
-        var targetModal = trigger.attributes[triggerAttr].value;
-        if (triggerMap[targetModal] === undefined) triggerMap[targetModal] = [];
-        triggerMap[targetModal].push(trigger);
-      });
-      return triggerMap;
-    };
-    /**
-     * Validates whether a modal of the given id exists
-     * in the DOM
-     * @param  {number} id  The id of the modal
-     * @return {boolean}
-     */
-
-
-    var validateModalPresence = function validateModalPresence(id) {
-      if (!document.getElementById(id)) {
-        console.warn("MicroModal: \u2757Seems like you have missed %c'".concat(id, "'"), 'background-color: #f8f9fa;color: #50596c;font-weight: bold;', 'ID somewhere in your code. Refer example below to resolve it.');
-        console.warn("%cExample:", 'background-color: #f8f9fa;color: #50596c;font-weight: bold;', "<div class=\"modal\" id=\"".concat(id, "\"></div>"));
-        return false;
-      }
-    };
-    /**
-     * Validates if there are modal triggers present
-     * in the DOM
-     * @param  {array} triggers An array of data-triggers
-     * @return {boolean}
-     */
-
-
-    var validateTriggerPresence = function validateTriggerPresence(triggers) {
-      if (triggers.length <= 0) {
-        console.warn("MicroModal: \u2757Please specify at least one %c'micromodal-trigger'", 'background-color: #f8f9fa;color: #50596c;font-weight: bold;', 'data attribute.');
-        console.warn("%cExample:", 'background-color: #f8f9fa;color: #50596c;font-weight: bold;', "<a href=\"#\" data-micromodal-trigger=\"my-modal\"></a>");
-        return false;
-      }
-    };
-    /**
-     * Checks if triggers and their corresponding modals
-     * are present in the DOM
-     * @param  {array} triggers   Array of DOM nodes which have data-triggers
-     * @param  {array} triggerMap Associative array of modals and their triggers
-     * @return {boolean}
-     */
-
-
-    var validateArgs = function validateArgs(triggers, triggerMap) {
-      validateTriggerPresence(triggers);
-      if (!triggerMap) return true;
-
-      for (var id in triggerMap) {
-        validateModalPresence(id);
-      }
-
-      return true;
-    };
-    /**
-     * Binds click handlers to all modal triggers
-     * @param  {object} config [description]
-     * @return void
-     */
-
-
-    var init = function init(config) {
-      // Create an config object with default openTrigger
-      var options = Object.assign({}, {
-        openTrigger: 'data-micromodal-trigger'
-      }, config); // Collects all the nodes with the trigger
-
-      var triggers = _toConsumableArray(document.querySelectorAll("[".concat(options.openTrigger, "]"))); // Makes a mappings of modals with their trigger nodes
-
-
-      var triggerMap = generateTriggerMap(triggers, options.openTrigger); // Checks if modals and triggers exist in dom
-
-      if (options.debugMode === true && validateArgs(triggers, triggerMap) === false) return; // For every target modal creates a new instance
-
-      for (var key in triggerMap) {
-        var value = triggerMap[key];
-        options.targetModal = key;
-        options.triggers = _toConsumableArray(value);
-        activeModal = new Modal(options); // eslint-disable-line no-new
-      }
-    };
-    /**
-     * Shows a particular modal
-     * @param  {string} targetModal [The id of the modal to display]
-     * @param  {object} config [The configuration object to pass]
-     * @return {void}
-     */
-
-
-    var show = function show(targetModal, config) {
-      var options = config || {};
-      options.targetModal = targetModal; // Checks if modals and triggers exist in dom
-
-      if (options.debugMode === true && validateModalPresence(targetModal) === false) return; // clear events in case previous modal wasn't close
-
-      if (activeModal) activeModal.removeEventListeners(); // stores reference to active modal
-
-      activeModal = new Modal(options); // eslint-disable-line no-new
-
-      activeModal.showModal();
-    };
-    /**
-     * Closes the active modal
-     * @param  {string} targetModal [The id of the modal to close]
-     * @return {void}
-     */
-
-
-    var close = function close(targetModal) {
-      targetModal ? activeModal.closeModalById(targetModal) : activeModal.closeModal();
-    };
-
-    return {
-      init: init,
-      show: show,
-      close: close
-    };
-  }();
-
-  window.MicroModal = MicroModal;
-
-  /**
-   * #TODO
-   * @returns {null} - there is no return object.
-   */
-  // export function optsDialog({
-  //     // Default options in here
-  //     parentId = 'body',
-  //     transOptsSel = {},
-  //     transOptsKey = "",
-  //     transOptsOpts = false,
-  //     mapTypesSel = {},
-  //     mapTypesKey = "",
-  //     mapTypesOpts = false,
-  //     applyFunction = null,
-  //   } = {}) {
-
-  function optsDialog(parentId, transOptsSel, transOptsKey, transOptsOpts, mapTypesSel, mapTypesKey, mapTypesOpts, applyFunction) {
-    // Create map SVG in given parent
-    var div1 = d3.select("#".concat(parentId)).append("div").classed("modal micromodal-slide", true).attr("id", "modal-1").attr("aria-hidden", "true");
-    var div2 = div1.append("div").classed("modal__overlay", true).attr("tabindex", "-1").attr("data-micromodal-close", "");
-    var div3 = div2.append("div").classed("modal__container", true).attr("role", "dialog").attr("aria-modal", "true").attr("aria-labelledby", "modal-1-title");
-    var header = div3.append("header").classed("modal__header", true);
-    header.append("h2").classed("modal__title", true).attr("id", "modal-1-title").text("Map options");
-    header.append("button").classed("modal__close", true).attr("aria-label", "Close modal").attr("data-micromodal-close", "");
-    var main = div3.append("main").classed("modal__content", true).attr("id", "modal-1-content");
-    transOptsSelection(main, transOptsSel, transOptsKey, transOptsOpts);
-    mapTypeSelection(main, mapTypesSel, mapTypesKey, mapTypesOpts);
-    var footer = div3.append("main").classed("modal__footer", true);
-    var apply = footer.append("button").classed("modal__btn modal__btn-primary", true).attr("data-micromodal-close", "").text("Okay");
-    footer.append("button").classed("modal__btn", true).attr("data-micromodal-close", "").attr("aria-label", "Close this dialog window").text("Cancel");
-    MicroModal.init();
-    apply.on("click", function () {
-      var ret = {};
-
-      if (transOptsOpts && Object.keys(transOptsSel).length > 1) {
-        ret.transOptsKey = d3.select('input[name="transOptsRadio"]:checked').node().value;
-      }
-
-      if (mapTypesOpts && Object.keys(mapTypesSel).length > 1) {
-        ret.mapTypesKey = d3.select('input[name="mapTypeRadio"]:checked').node().value;
-      }
-
-      applyFunction(ret);
-    });
-  }
-  function showOptsDialog(mapTypesKey, transOptsSel, transOptsKey) {
-    if (document.getElementById(transOptsSel[transOptsKey])) {
-      document.getElementById(transOptsSel[transOptsKey]).checked = true;
-    }
-
-    var id = mapTypesKey.replace(/ /g, '');
-
-    if (document.getElementById(id)) {
-      document.getElementById(id).checked = true;
-    }
-
-    MicroModal.show('modal-1');
-  }
-
-  function transOptsSelection(el, transOptsSel, transOptsKey, transOptsOpts) {
-    if (transOptsOpts && Object.keys(transOptsSel).length > 1) {
-      el.append("h3").text("Extent & view");
-      Object.keys(transOptsSel).forEach(function (k) {
-        var radio = el.append("input").attr("type", "radio").attr("id", transOptsSel[k]).attr("name", "transOptsRadio").attr("value", k);
-        el.append("label").attr("for", transOptsSel[k]).text(k);
-
-        if (k === transOptsKey) {
-          radio.attr("checked", "checked");
-        }
-
-        if (k !== Object.keys(transOptsSel)[Object.keys(transOptsSel).length - 1]) {
-          el.append("br");
-        }
-      });
-    }
-  }
-
-  function mapTypeSelection(el, mapTypesSel, mapTypesKey, mapTypesOpts) {
-    var id = mapTypesKey.replace(/ /g, '');
-
-    if (mapTypesOpts && Object.keys(mapTypesSel).length > 1) {
-      el.append("h3").text("Map information type");
-      Object.keys(mapTypesSel).forEach(function (k) {
-        var radio = el.append("input").attr("type", "radio").attr("id", id).attr("name", "mapTypeRadio").attr("value", k);
-        el.append("label").attr("for", id).text(k);
-
-        if (k === mapTypesKey) {
-          radio.attr("checked", "checked");
-        }
-
-        if (k !== Object.keys(mapTypesSel)[Object.keys(mapTypesSel).length - 1]) {
-          el.append("br");
-        }
-      });
-    }
-  }
-
-  /* ANY GENERALLY USEFUL DATA ACCESS ROUTINES SHOULD GO IN THIS MODULE *?
-
-  /**
-   * This will be a general purpose CSV reader that will read
-   * CSV expecting columns gr, shape, size, colour etc.
-   * @param {Object} opts - initialisation options.
-   */
-
-  function csvHectad(opts) {
-    // #TDOO - code below is just a placeholder
+  function drawDots(svg, transform, accessFunction, taxonIdentifier) {
     return new Promise(function (resolve, reject) {
-      d3.csv(opts.data, function (r) {
-        if (r.Hectad) {
-          // e.g. {Hectad: "NZ09"}
-          return {
-            gr: r.Hectad,
-            colour: "red"
-          };
-        }
-      }).then(function (data) {
-        resolve({
-          records: data,
-          size: 1,
-          shape: 'circle',
-          precision: 10000,
-          opacity: 0.8
-        });
-      })["catch"](function (e) {
-        reject(e);
-      });
-    });
-  }
-
-  /**
-   * #TODO - description and full parameter list.
-   * @param {Object} opts - initialisation options.
-   * @param {string} opts.id - the id of the element which will be the parent of the SVG.
-   * @param {number} opts.height - the height of the SVG.
-   * @param {boolean} opts.expand - indicates whether or not the map will expand to fill parent element.
-   * @param {Object or string} opts.transOptsInit - a transformation object or a string representing a pre-defined transformation.
-   * @param {string} opts.boundaryGjson - the URL of a boundary geoJson file to display.
-   * @param {string} opts.gridGjson - the URL of a grid geoJson file to display.
-   * @returns {null} - there is no return object.
-   */
-
-  function svgMap() {
-    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-        _ref$id = _ref.id,
-        id = _ref$id === void 0 ? 'body' : _ref$id,
-        _ref$height = _ref.height,
-        height = _ref$height === void 0 ? 500 : _ref$height,
-        _ref$expand = _ref.expand,
-        expand = _ref$expand === void 0 ? false : _ref$expand,
-        _ref$legend = _ref.legend,
-        legend = _ref$legend === void 0 ? false : _ref$legend,
-        _ref$legendScale = _ref.legendScale,
-        legendScale = _ref$legendScale === void 0 ? 1 : _ref$legendScale,
-        _ref$legendX = _ref.legendX,
-        legendX = _ref$legendX === void 0 ? 10 : _ref$legendX,
-        _ref$legendY = _ref.legendY,
-        legendY = _ref$legendY === void 0 ? 5 : _ref$legendY,
-        _ref$transOptsInit = _ref.transOptsInit,
-        transOptsInit = _ref$transOptsInit === void 0 ? '' : _ref$transOptsInit,
-        _ref$transOptsSel = _ref.transOptsSel,
-        transOptsSel = _ref$transOptsSel === void 0 ? {
-      'No insets': 'BI1'
-    } : _ref$transOptsSel,
-        _ref$transOptsOpts = _ref.transOptsOpts,
-        transOptsOpts = _ref$transOptsOpts === void 0 ? true : _ref$transOptsOpts,
-        _ref$mapTypesInit = _ref.mapTypesInit,
-        mapTypesInit = _ref$mapTypesInit === void 0 ? 'Standard hectad' : _ref$mapTypesInit,
-        _ref$mapTypesSel = _ref.mapTypesSel,
-        mapTypesSel = _ref$mapTypesSel === void 0 ? {
-      'Standard hectad': csvHectad
-    } : _ref$mapTypesSel,
-        _ref$mapTypesOpts = _ref.mapTypesOpts,
-        mapTypesOpts = _ref$mapTypesOpts === void 0 ? true : _ref$mapTypesOpts,
-        _ref$boundaryGjson = _ref.boundaryGjson,
-        boundaryGjson = _ref$boundaryGjson === void 0 ? "".concat(constants.cdn, "/assets/GB-I-CI-27700-reduced.geojson") : _ref$boundaryGjson,
-        _ref$gridGjson = _ref.gridGjson,
-        gridGjson = _ref$gridGjson === void 0 ? "".concat(constants.cdn, "/assets/GB-I-grid-27700-reduced.geojson") : _ref$gridGjson,
-        _ref$gridLineColour = _ref.gridLineColour,
-        gridLineColour = _ref$gridLineColour === void 0 ? '7C7CD3' : _ref$gridLineColour,
-        _ref$boundaryColour = _ref.boundaryColour,
-        boundaryColour = _ref$boundaryColour === void 0 ? '7C7CD3' : _ref$boundaryColour,
-        _ref$boundaryFill = _ref.boundaryFill,
-        boundaryFill = _ref$boundaryFill === void 0 ? 'white' : _ref$boundaryFill,
-        _ref$seaFill = _ref.seaFill,
-        seaFill = _ref$seaFill === void 0 ? 'E6EFFF' : _ref$seaFill,
-        _ref$insetColour = _ref.insetColour,
-        insetColour = _ref$insetColour === void 0 ? '7C7CD3' : _ref$insetColour;
-
-    var width, path, transform, boundary, dataBoundary, grid, dataGrid, transOptsKey, mapTypesKey, taxonIdentifier; // Set the initial transformation key
-
-    if (transOptsInit && transOptsSel[transOptsInit]) {
-      transOptsKey = transOptsInit;
-    } else {
-      transOptsKey = Object.keys(transOptsSel)[0];
-    } // Set the initial map type key
-
-
-    if (mapTypesInit && mapTypesSel[mapTypesInit]) {
-      mapTypesKey = mapTypesInit;
-    } else {
-      mapTypesKey = Object.keys(mapTypesSel)[0];
-    } // Create map SVG in given parent
-
-
-    var mainDiv = d3.select("#".concat(id)).append("div").style("position", "relative").style("display", "inline");
-    var svg = mainDiv.append("svg").style("background-color", seaFill);
-
-    if (transOptsOpts && Object.keys(transOptsSel).length > 1 || mapTypesOpts && Object.keys(mapTypesSel).length > 1) {
-      // Add gear icon to invoke options dialog
-      mainDiv.append("img").attr("src", "../images/gear.png").style("width", "16px").style("position", "absolute").style("right", "5px").style("bottom", "7px").on("click", function () {
-        showOptsDialog(mapTypesKey, transOptsSel, transOptsKey);
-      }); // Create to options dialog
-
-      optsDialog(id, transOptsSel, transOptsKey, transOptsOpts, mapTypesSel, mapTypesKey, mapTypesOpts, userChangedOptions);
-    }
-
-    function getRadiusPixels(precision) {
-      return Math.abs(transform([300000, 300000])[0] - transform([300000 + precision / 2, 300000])[0]);
-    }
-
-    function userChangedOptions(opts) {
-      if (opts.transOptsKey && transOptsKey !== opts.transOptsKey) {
-        transOptsKey = opts.transOptsKey;
-        transformSet();
-        drawBoundaryAndGrid();
-        setSvgSize();
-        drawInsetBoxes();
-        refreshDots();
-      }
-
-      if (opts.mapTypesKey && mapTypesKey !== opts.mapTypesKey) {
-        mapTypesKey = opts.mapTypesKey;
-        drawDots();
-      }
-    }
-
-    function transformSet() {
-      var transOpts = transOptsSel[transOptsKey];
-
-      if (typeof transOpts === 'string') {
-        transOpts = namedTransOpts[transOpts];
-      }
-
-      transform = transformFunction(transOpts, height);
-      path = d3.geoPath().projection(d3.geoTransform({
-        point: function point(x, y) {
-          var tP = transform([x, y]);
-          var tX = tP[0];
-          var tY = tP[1];
-          this.stream.point(tX, tY);
-        }
-      }));
-      width = widthFromHeight(transOpts, height);
-    }
-
-    function setSvgSize() {
-      if (svg) {
-        // Set width/height or viewbox depending on required behaviour
-        if (expand) {
-          svg.attr("viewBox", "0 0 " + width + " " + height);
-        } else {
-          svg.attr("width", width);
-          svg.attr("height", height);
-        }
-      }
-    }
-
-    function drawBoundaryAndGrid() {
-      if (dataBoundary) {
-        if (boundary) {
-          boundary.selectAll("path").remove();
-        } else {
-          boundary = svg.append("g").attr("id", "boundary");
-        }
-
-        boundary.append("path").datum(dataBoundary).attr("d", path).style("fill", boundaryFill).style("stroke", boundaryColour);
-      }
-
-      if (dataGrid) {
-        if (grid) {
-          grid.selectAll("path").remove();
-        } else {
-          grid = svg.append("g").attr("id", "grid");
-        }
-
-        grid.append("path").datum(dataGrid).attr("d", path).style("stroke", gridLineColour);
-      }
-    }
-
-    function drawInsetBoxes() {
-      svg.selectAll('.inset').remove();
-      var transOpts = transOptsSel[transOptsKey];
-
-      if (typeof transOpts === 'string') {
-        transOpts = namedTransOpts[transOpts];
-      }
-
-      getInsetDims(transOpts, height).forEach(function (i) {
-        var margin = 10;
-        svg.append('rect').classed('inset', true).attr('x', i.x - margin).attr('y', i.y - margin).attr('width', i.width + 2 * margin).attr('height', i.height + 2 * margin).style('fill', 'transparent').style('stroke', insetColour);
-      });
-    }
-
-    function refreshDots() {
-      svg.selectAll('.dotCircle').remove();
-      svg.selectAll('.dotSquare').remove();
-      svg.selectAll('.dotTriangle').remove();
-      drawDots();
-    }
-
-    function drawDots() {
-      if (typeof mapTypesSel[mapTypesKey] === 'function') {
-        mapTypesSel[mapTypesKey](taxonIdentifier).then(function (data) {
-          var radiusPixels = getRadiusPixels(data.precision); // circles
+      if (typeof accessFunction === 'function') {
+        accessFunction(taxonIdentifier).then(function (data) {
+          var radiusPixels = getRadiusPixels(transform, data.precision); // circles
 
           var recCircles;
 
@@ -8676,51 +8589,225 @@
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
           });
-          triangle.exit().transition().ease(d3.easeCubic).duration(500).attr("d", d3.symbol().type(d3.symbolTriangle).size(0)).remove(); // Legend
-
-          if (legend) {
-            svgLegend(data);
-          }
+          triangle.exit().transition().ease(d3.easeCubic).duration(500).attr("d", d3.symbol().type(d3.symbolTriangle).size(0)).remove();
+          return data;
+        }).then(function (data) {
+          resolve(data);
         })["catch"](function () {
-          console.log("Failed to read data", taxonIdentifier);
+          reject("Failed to read data", taxonIdentifier);
+        });
+      } else {
+        reject("Data accessor not a function");
+      }
+    });
+  }
+
+  function svgLegend(svg, data, legend, legendX, legendY, legendScale) {
+    if (!legend) return;
+    svg.select('#legend').remove();
+    if (!data.legend) return;
+    var lineHeight = 20;
+    var swatchPixels = lineHeight / 3;
+    var gLegend = svg.append('g').attr('id', 'legend');
+    gLegend.append('text').attr('x', 0).attr('y', lineHeight).attr('font-weight', 'bold').text(data.legend.title);
+    data.legend.lines.forEach(function (l, i) {
+      var shape = l.shape ? l.shape : data.shape;
+      var size = l.size ? l.size : data.size;
+      var opacity = l.opacity ? l.opacity : data.opacity;
+      var colour = l.colour ? l.colour : data.colour;
+      var colour2 = l.colour2 ? l.colour2 : data.colour2;
+      var dot;
+
+      if (shape === 'circle') {
+        dot = gLegend.append('circle').attr("r", swatchPixels * size).attr("cx", swatchPixels * 1).attr("cy", lineHeight * (i + 2.5) - swatchPixels);
+      } else if (shape === 'bullseye') {
+        dot = gLegend.append('circle').attr("r", swatchPixels * size).attr("cx", swatchPixels * 1).attr("cy", lineHeight * (i + 2.5) - swatchPixels);
+        gLegend.append('circle').attr("r", swatchPixels * size * 0.5).attr("cx", swatchPixels * 1).attr("cy", lineHeight * (i + 2.5) - swatchPixels).style('fill', colour2).style('opacity', opacity);
+      } else if (shape === 'square') {
+        dot = gLegend.append('rect').attr("width", swatchPixels * 2).attr("height", swatchPixels * 2).attr("x", 0).attr("y", lineHeight * (i + 2.5) - 2 * swatchPixels);
+      } else if (shape === 'triangle-up') {
+        dot = gLegend.append('path').attr("d", d3.symbol().type(d3.symbolTriangle).size(swatchPixels * swatchPixels * 1.7)).attr("transform", "translate(".concat(swatchPixels * 1, ",").concat(lineHeight * (i + 2.5) - swatchPixels, ")"));
+      } else if (shape === 'triangle-down') {
+        dot = gLegend.append('path').attr("d", d3.symbol().type(d3.symbolTriangle).size(swatchPixels * swatchPixels * 1.7)).attr("transform", "translate(".concat(swatchPixels * 1, ",").concat(lineHeight * (i + 2.5) - swatchPixels, ") rotate(180)"));
+      }
+
+      dot.style('fill', colour).style('opacity', opacity);
+    });
+    data.legend.lines.forEach(function (l, i) {
+      gLegend.append('text').attr('x', swatchPixels * 4).attr('y', lineHeight * (i + 2.5)).text(l.text);
+    });
+    gLegend.attr("transform", "translate(".concat(legendX, ",").concat(legendY, ") scale(").concat(legendScale, ", ").concat(legendScale, ")"));
+  }
+
+  /**
+   * #TODO - description and full parameter list.
+   * @param {Object} opts - initialisation options.
+   * @param {string} opts.id - the id of the element which will be the parent of the SVG.
+   * @param {number} opts.height - the height of the SVG.
+   * @param {boolean} opts.expand - indicates whether or not the map will expand to fill parent element.
+   * @param {Object or string} opts.transOptsInit - a transformation object or a string representing a pre-defined transformation.
+   * @param {string} opts.boundaryGjson - the URL of a boundary geoJson file to display.
+   * @param {string} opts.gridGjson - the URL of a grid geoJson file to display.
+   * @returns {null} - there is no return object.
+   */
+
+  function svgMap() {
+    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+        _ref$id = _ref.id,
+        id = _ref$id === void 0 ? 'body' : _ref$id,
+        _ref$height = _ref.height,
+        height = _ref$height === void 0 ? 500 : _ref$height,
+        _ref$expand = _ref.expand,
+        expand = _ref$expand === void 0 ? false : _ref$expand,
+        _ref$legend = _ref.legend,
+        legend = _ref$legend === void 0 ? false : _ref$legend,
+        _ref$legendScale = _ref.legendScale,
+        legendScale = _ref$legendScale === void 0 ? 1 : _ref$legendScale,
+        _ref$legendX = _ref.legendX,
+        legendX = _ref$legendX === void 0 ? 10 : _ref$legendX,
+        _ref$legendY = _ref.legendY,
+        legendY = _ref$legendY === void 0 ? 5 : _ref$legendY,
+        _ref$transOptsInit = _ref.transOptsInit,
+        transOptsInit = _ref$transOptsInit === void 0 ? '' : _ref$transOptsInit,
+        _ref$transOptsSel = _ref.transOptsSel,
+        transOptsSel = _ref$transOptsSel === void 0 ? {
+      'No insets': 'BI1'
+    } : _ref$transOptsSel,
+        _ref$transOptsOpts = _ref.transOptsOpts,
+        transOptsOpts = _ref$transOptsOpts === void 0 ? true : _ref$transOptsOpts,
+        _ref$mapTypesInit = _ref.mapTypesInit,
+        mapTypesInit = _ref$mapTypesInit === void 0 ? 'Standard hectad' : _ref$mapTypesInit,
+        _ref$mapTypesSel = _ref.mapTypesSel,
+        mapTypesSel = _ref$mapTypesSel === void 0 ? {
+      'Standard hectad': csvHectad
+    } : _ref$mapTypesSel,
+        _ref$mapTypesOpts = _ref.mapTypesOpts,
+        mapTypesOpts = _ref$mapTypesOpts === void 0 ? true : _ref$mapTypesOpts,
+        _ref$boundaryGjson = _ref.boundaryGjson,
+        boundaryGjson = _ref$boundaryGjson === void 0 ? "".concat(constants.cdn, "/assets/GB-I-CI-27700-reduced.geojson") : _ref$boundaryGjson,
+        _ref$gridGjson = _ref.gridGjson,
+        gridGjson = _ref$gridGjson === void 0 ? "".concat(constants.cdn, "/assets/GB-I-grid-27700-reduced.geojson") : _ref$gridGjson,
+        _ref$gridLineColour = _ref.gridLineColour,
+        gridLineColour = _ref$gridLineColour === void 0 ? '7C7CD3' : _ref$gridLineColour,
+        _ref$boundaryColour = _ref.boundaryColour,
+        boundaryColour = _ref$boundaryColour === void 0 ? '7C7CD3' : _ref$boundaryColour,
+        _ref$boundaryFill = _ref.boundaryFill,
+        boundaryFill = _ref$boundaryFill === void 0 ? 'white' : _ref$boundaryFill,
+        _ref$seaFill = _ref.seaFill,
+        seaFill = _ref$seaFill === void 0 ? 'E6EFFF' : _ref$seaFill,
+        _ref$insetColour = _ref.insetColour,
+        insetColour = _ref$insetColour === void 0 ? '7C7CD3' : _ref$insetColour;
+
+    var width, path, transform, basemaps, boundary, dataBoundary, grid, dataGrid, transOptsKey, mapTypesKey, taxonIdentifier; // Set the initial transformation key
+
+    if (transOptsInit && transOptsSel[transOptsInit]) {
+      transOptsKey = transOptsInit;
+    } else {
+      transOptsKey = Object.keys(transOptsSel)[0];
+    } // Set the initial map type key
+
+
+    if (mapTypesInit && mapTypesSel[mapTypesInit]) {
+      mapTypesKey = mapTypesInit;
+    } else {
+      mapTypesKey = Object.keys(mapTypesSel)[0];
+    } // Create a parent div for the SVG within the parent element passed
+    // as an argument. Allows us to style correctly for positioning etc.
+
+
+    var mainDiv = d3.select("#".concat(id)).append("div").style("position", "relative").style("display", "inline"); // Create the SVG.
+
+    var svg = mainDiv.append("svg").style("background-color", seaFill); // Create the SVG graphic objects that store the major map elements.
+    // The order these is created is important since it affects the order
+    // in which they are rendered (i.e. what is drawn over what).
+
+    boundary = svg.append("g").attr("id", "boundary");
+    basemaps = svg.append("g").attr("id", "backimage");
+    grid = svg.append("g").attr("id", "grid"); // Options dialog. 
+
+    if (transOptsOpts && Object.keys(transOptsSel).length > 1 || mapTypesOpts && Object.keys(mapTypesSel).length > 1) {
+      // Add gear icon to invoke options dialog
+      mainDiv.append("img").attr("src", "../images/gear.png").style("width", "16px").style("position", "absolute").style("right", "5px").style("bottom", "7px").on("click", function () {
+        showOptsDialog(mapTypesKey, transOptsSel, transOptsKey);
+      }); // Create options dialog
+
+      optsDialog(id, transOptsSel, transOptsKey, transOptsOpts, mapTypesSel, mapTypesKey, mapTypesOpts, userChangedOptions);
+    }
+
+    function userChangedOptions(opts) {
+      if (opts.transOptsKey && transOptsKey !== opts.transOptsKey) {
+        transOptsKey = opts.transOptsKey;
+        transformSet();
+        drawBoundaryAndGrid();
+        setSvgSize();
+        drawInsetBoxes();
+        refreshDots(svg, transform, mapTypesSel[mapTypesKey], taxonIdentifier);
+        transformImages(basemaps, transform);
+      }
+
+      if (opts.mapTypesKey && mapTypesKey !== opts.mapTypesKey) {
+        mapTypesKey = opts.mapTypesKey;
+        drawDots(svg, transform, mapTypesSel[mapTypesKey], taxonIdentifier).then(function (data) {
+          svgLegend(svg, data, legend, legendX, legendY, legendScale);
         });
       }
     }
 
-    function svgLegend(data) {
-      svg.select('#legend').remove();
-      if (!data.legend) return;
-      var radiusPixels = getRadiusPixels(data.precision) * 2;
-      var lineHeight = 20;
-      var gLegend = svg.append('g').attr('id', 'legend');
-      gLegend.append('text').attr('x', 0).attr('y', lineHeight).attr('font-weight', 'bold').text(data.legend.title);
-      data.legend.lines.forEach(function (l, i) {
-        var shape = l.shape ? l.shape : data.shape;
-        var size = l.size ? l.size : data.size;
-        var opacity = l.opacity ? l.opacity : data.opacity;
-        var colour = l.colour ? l.colour : data.colour;
-        var colour2 = l.colour2 ? l.colour2 : data.colour2;
-        var dot;
+    function transformSet() {
+      var transOpts = transOptsSel[transOptsKey];
 
-        if (shape === 'circle') {
-          dot = gLegend.append('circle').attr("r", radiusPixels * size).attr("cx", radiusPixels * 1).attr("cy", lineHeight * (i + 2.5) - radiusPixels);
-        } else if (shape === 'bullseye') {
-          dot = gLegend.append('circle').attr("r", radiusPixels * size).attr("cx", radiusPixels * 1).attr("cy", lineHeight * (i + 2.5) - radiusPixels);
-          gLegend.append('circle').attr("r", radiusPixels * size * 0.5).attr("cx", radiusPixels * 1).attr("cy", lineHeight * (i + 2.5) - radiusPixels).style('fill', colour2).style('opacity', opacity);
-        } else if (shape === 'square') {
-          dot = gLegend.append('rect').attr("width", radiusPixels * 2).attr("height", radiusPixels * 2).attr("x", 0).attr("y", lineHeight * (i + 2.5) - 2 * radiusPixels);
-        } else if (shape === 'triangle-up') {
-          dot = gLegend.append('path').attr("d", d3.symbol().type(d3.symbolTriangle).size(radiusPixels * radiusPixels * 1.7)).attr("transform", "translate(".concat(radiusPixels * 1, ",").concat(lineHeight * (i + 2.5) - radiusPixels, ")"));
-        } else if (shape === 'triangle-down') {
-          dot = gLegend.append('path').attr("d", d3.symbol().type(d3.symbolTriangle).size(radiusPixels * radiusPixels * 1.7)).attr("transform", "translate(".concat(radiusPixels * 1, ",").concat(lineHeight * (i + 2.5) - radiusPixels, ") rotate(180)"));
+      if (typeof transOpts === 'string') {
+        transOpts = namedTransOpts[transOpts];
+      }
+
+      transform = transformFunction(transOpts, height);
+      path = d3.geoPath().projection(d3.geoTransform({
+        point: function point(x, y) {
+          var tP = transform([x, y]);
+          var tX = tP[0];
+          var tY = tP[1];
+          this.stream.point(tX, tY);
         }
+      }));
+      width = widthFromHeight(transOpts, height);
+    }
 
-        dot.style('fill', colour).style('opacity', opacity);
+    function setSvgSize() {
+      if (svg) {
+        // Set width/height or viewbox depending on required behaviour
+        if (expand) {
+          svg.attr("viewBox", "0 0 " + width + " " + height);
+        } else {
+          svg.attr("width", width);
+          svg.attr("height", height);
+        }
+      }
+    }
+
+    function drawBoundaryAndGrid() {
+      if (dataBoundary) {
+        boundary.selectAll("path").remove();
+        boundary.append("path").datum(dataBoundary).attr("d", path).style("fill", boundaryFill).style("stroke", boundaryColour);
+      }
+
+      if (dataGrid) {
+        grid.selectAll("path").remove();
+        grid.append("path").datum(dataGrid).attr("d", path).style("stroke", gridLineColour);
+      }
+    }
+
+    function drawInsetBoxes() {
+      svg.selectAll('.inset').remove();
+      var transOpts = transOptsSel[transOptsKey];
+
+      if (typeof transOpts === 'string') {
+        transOpts = namedTransOpts[transOpts];
+      }
+
+      getInsetDims(transOpts, height).forEach(function (i) {
+        var margin = 10;
+        svg.append('rect').classed('inset', true).attr('x', i.x - margin).attr('y', i.y - margin).attr('width', i.width + 2 * margin).attr('height', i.height + 2 * margin).style('fill', 'transparent').style('stroke', insetColour);
       });
-      data.legend.lines.forEach(function (l, i) {
-        gLegend.append('text').attr('x', radiusPixels * 4).attr('y', lineHeight * (i + 2.5)).text(l.text);
-      });
-      gLegend.attr("transform", "translate(".concat(legendX, ",").concat(legendY, ") scale(").concat(legendScale, ", ").concat(legendScale, ")"));
     } // TODO. Needs enlarging and documenting. 
     // Define the api that will be exposed.
 
@@ -8735,15 +8822,33 @@
         drawBoundaryAndGrid();
         setSvgSize();
         drawInsetBoxes();
-        refreshDots();
+        refreshDots(svg, transform, mapTypesSel[mapTypesKey], taxonIdentifier);
+        transformImages(basemaps, transform);
       },
       setIdentfier: function setIdentfier(identifier) {
         taxonIdentifier = identifier;
-        drawDots();
+        drawDots(svg, transform, mapTypesSel[mapTypesKey], taxonIdentifier).then(function (data) {
+          svgLegend(svg, data, legend, legendX, legendY, legendScale);
+        });
       },
       setMapType: function setMapType(newMapTypesKey) {
         mapTypesKey = newMapTypesKey;
-        drawDots();
+        drawDots(svg, transform, mapTypesSel[mapTypesKey], taxonIdentifier).then(function (data) {
+          svgLegend(svg, data, legend, legendX, legendY, legendScale);
+        });
+      },
+      basemapImage: function basemapImage(mapId, show, imageFile, worldFile) {
+        showImage(mapId, show, basemaps, imageFile, worldFile, transform); // If no base map images shown then set boundary opacity to 1 otherwise 0
+        // const layers = basemaps.selectAll('g')._groups[0].length
+        // const hidden = basemaps.selectAll('g.baseMapHidden')._groups[0].length
+        // if (layers === hidden) {
+        //   boundary.style('fill-opacity', 1)
+        // } else {
+        //   boundary.style('fill-opacity', 0)
+        // }
+      },
+      baseMapPriorities: function setBaseMapPriorities(mapIds) {
+        setImagePriorities(basemaps, mapIds);
       }
     }; // Initialise the display
 
@@ -8776,7 +8881,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.0.12";
+  var version = "0.0.13";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
