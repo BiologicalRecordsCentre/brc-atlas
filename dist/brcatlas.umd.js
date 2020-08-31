@@ -5,7 +5,6 @@
 }(this, (function (exports, d3) { 'use strict';
 
   /** @module src/coordsToImage */
-
   /**
    * Given a transform object, describing a bounding rectangle in world coordinates,
    * and a height dimension, this function returns an array of objects - one
@@ -18,6 +17,7 @@
    * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
    * @returns {Array<Object>}
    */
+
   function getInsetDims(transOpts, outputHeight) {
     var outputWidth = widthFromHeight(transOpts, outputHeight);
     var transform = transformFunction(transOpts, outputHeight);
@@ -49,6 +49,7 @@
    * @returns {number}
    */
 
+
   function widthFromHeight(transOpts, outputHeight) {
     var realWidth = transOpts.bounds.xmax - transOpts.bounds.xmin;
     var realHeight = transOpts.bounds.ymax - transOpts.bounds.ymin;
@@ -69,18 +70,19 @@
    * @returns {function}
    */
 
+
   function transformFunction(transOpts, outputHeight) {
     var realWidth = transOpts.bounds.xmax - transOpts.bounds.xmin;
     var realHeight = transOpts.bounds.ymax - transOpts.bounds.ymin;
     var outputWidth = widthFromHeight(transOpts, outputHeight);
-    return function (p) {
+    return function (p, ignoreInset) {
       var x = p[0];
       var y = p[1];
       var tX, tY;
       tX = outputWidth * (x - transOpts.bounds.xmin) / realWidth;
       tY = outputHeight - outputHeight * (y - transOpts.bounds.ymin) / realHeight;
 
-      if (transOpts.insets && transOpts.insets.length > 0) {
+      if (!ignoreInset && transOpts.insets && transOpts.insets.length > 0) {
         transOpts.insets.forEach(function (inset) {
           if (x >= inset.bounds.xmin && x <= inset.bounds.xmax && y >= inset.bounds.ymin && y <= inset.bounds.ymax) {
             var insetX = outputWidth * (inset.bounds.xmin - transOpts.bounds.xmin) / realWidth;
@@ -108,6 +110,29 @@
       }
 
       return [tX, tY];
+    };
+  }
+  /**
+   * TODO document
+   */
+
+
+  function createTrans(transOpts, outputHeight) {
+    var transform = transformFunction(transOpts, outputHeight);
+    return {
+      params: transOpts,
+      insetDims: getInsetDims(transOpts, outputHeight),
+      height: outputHeight,
+      width: widthFromHeight(transOpts, outputHeight),
+      point: transform,
+      d3Path: d3.geoPath().projection(d3.geoTransform({
+        point: function point(x, y) {
+          var tP = transform([x, y]);
+          var tX = tP[0];
+          var tY = tP[1];
+          this.stream.point(tX, tY);
+        }
+      }))
     };
   } // Defined insets required for namedTransOpts
 
@@ -156,6 +181,8 @@
 
   var namedTransOpts = {
     BI1: {
+      id: 'BI1',
+      caption: 'No insets',
       bounds: {
         xmin: -213389,
         ymin: -113239,
@@ -164,6 +191,8 @@
       }
     },
     BI2: {
+      id: 'BI2',
+      caption: 'Inset Channel Islands (CI)',
       bounds: {
         xmin: -213389,
         ymin: -9939,
@@ -177,6 +206,8 @@
       }]
     },
     BI3: {
+      id: 'BI3',
+      caption: 'Inset Northern Isles',
       bounds: {
         xmin: -213389,
         ymin: -9939,
@@ -190,6 +221,8 @@
       }]
     },
     BI4: {
+      id: 'BI4',
+      caption: 'Inset CI & Northern Isles',
       bounds: {
         xmin: -213389,
         ymin: -9939,
@@ -207,116 +240,49 @@
       }]
     }
   };
+
+  /* ANY GENERALLY USEFUL DATA ACCESS ROUTINES SHOULD GO IN THIS MODULE *?
+
   /**
-   * Given both 'from' and 'to' transform objects, an output height and a
-   * 'tween' value between 0 and 1, this function returns a transform object
-   * for which the map bounds, the inset bounds and the inset image position
-   * are all interpolated between the 'from' and 'to' objects at a position
-   * depending on the value of the tween value. Typically this would then be used
-   * to help generate a path transformation to use with D3 to animate transitions
-   * between different map transformations. Note that this only works with
-   * named transformation objects defined in this library.
-   * @param {object} from - the 'from' transformation object.
-   * @param {object} to - the 'to' transformation object.
-   * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
-   * @param {number} tween - between 0 and 1 indicating the interpolation position.
-   * @returns {object} - in intermediate transformation object.
+   * This will be a general purpose CSV reader that will read
+   * CSV expecting columns gr, shape, size, colour etc.
+   * @param {Object} opts - initialisation options.
    */
 
-  function getTweenTransOpts(from, to, outputHeight, tween) {
-    var fto = copyTransOptsForTween(namedTransOpts[from], outputHeight);
-    var tto = copyTransOptsForTween(namedTransOpts[to], outputHeight);
-    var rto = {
-      bounds: {
-        xmin: fto.bounds.xmin + (tto.bounds.xmin - fto.bounds.xmin) * tween,
-        xmax: fto.bounds.xmax + (tto.bounds.xmax - fto.bounds.xmax) * tween,
-        ymin: fto.bounds.ymin + (tto.bounds.ymin - fto.bounds.ymin) * tween,
-        ymax: fto.bounds.ymax + (tto.bounds.ymax - fto.bounds.ymax) * tween
-      },
-      insets: [],
-      forTween: true // Means that negative image positions won't be translated by transformFunction
-
-    };
-    fto.insets.forEach(function (i, idx) {
-      rto.insets.push({
-        bounds: {
-          xmin: i.bounds.xmin + (tto.insets[idx].bounds.xmin - i.bounds.xmin) * tween,
-          xmax: i.bounds.xmax + (tto.insets[idx].bounds.xmax - i.bounds.xmax) * tween,
-          ymin: i.bounds.ymin + (tto.insets[idx].bounds.ymin - i.bounds.ymin) * tween,
-          ymax: i.bounds.ymax + (tto.insets[idx].bounds.ymax - i.bounds.ymax) * tween
-        },
-        imageX: i.imageX + (tto.insets[idx].imageX - i.imageX) * tween,
-        imageY: i.imageY + (tto.insets[idx].imageY - i.imageY) * tween
+  function noData() {
+    return new Promise(function (resolve) {
+      resolve({
+        records: [],
+        size: 1,
+        shape: 'circle',
+        precision: 10000,
+        opacity: 1
       });
     });
-    return rto;
   }
-
-  function copyTransOptsForTween(transOpts, outputHeight) {
-    // This function makes a copy of a transformation object. The copy is different
-    // from the original in two respects. Firstly the image positions of the insets
-    // are expressed as positive numbers (from bottom or left of image)
-    // even when expressed as negative offsets (from top or right of image) in the
-    // original. Secondly all named insets used in this library are represented in
-    // the returned object even if not present in the original. Such insets are
-    // given image positions that reflect their real world positions.
-    var insetDims = getInsetDims(transOpts, outputHeight);
-    var tto = {
-      bounds: {
-        xmin: transOpts.bounds.xmin,
-        xmax: transOpts.bounds.xmax,
-        ymin: transOpts.bounds.ymin,
-        ymax: transOpts.bounds.ymax
-      },
-      insets: []
-    };
-
-    if (transOpts.insets) {
-      transOpts.insets.forEach(function (i, idx) {
-        var iNew = {
-          bounds: {
-            xmin: i.bounds.xmin,
-            xmax: i.bounds.xmax,
-            ymin: i.bounds.ymin,
-            ymax: i.bounds.ymax
-          }
-        }; // Usng the calculated insetDims translates any negative numbers - used
-        // as shorthand for defining position offsets from top or right margin - to 
-        // positive values from bottom and left.
-
-        iNew.imageX = insetDims[idx].x, iNew.imageY = outputHeight - insetDims[idx].y - insetDims[idx].height;
-        tto.insets.push(iNew);
+  function csvHectad(opts) {
+    // #TDOO - code below is just a placeholder
+    return new Promise(function (resolve, reject) {
+      d3.csv(opts.data, function (r) {
+        if (r.Hectad) {
+          // e.g. {Hectad: "NZ09"}
+          return {
+            gr: r.Hectad,
+            colour: "red"
+          };
+        }
+      }).then(function (data) {
+        resolve({
+          records: data,
+          size: 1,
+          shape: 'circle',
+          precision: 10000,
+          opacity: 0.8
+        });
+      })["catch"](function (e) {
+        reject(e);
       });
-    }
-
-    var insetCi, insetNi;
-    tto.insets.forEach(function (i) {
-      if (i.bounds.xmin === boundsChannelIslands_gb.xmin) {
-        insetCi = true;
-      }
-
-      if (i.bounds.xmin === boundsNorthernIsles_gb.xmin) {
-        insetNi = true;
-      }
     });
-
-    if (!insetCi) {
-      tto.insets.unshift({
-        bounds: boundsChannelIslands_gb,
-        imageX: (boundsChannelIslands_gb.xmin - tto.bounds.xmin) / (tto.bounds.xmax - tto.bounds.xmin) * widthFromHeight(tto, outputHeight),
-        imageY: (boundsChannelIslands_gb.ymin - tto.bounds.ymin) / (tto.bounds.ymax - tto.bounds.ymin) * outputHeight
-      });
-    }
-
-    if (!insetNi) {
-      tto.insets.push({
-        bounds: boundsNorthernIsles_gb,
-        imageX: (boundsNorthernIsles_gb.xmin - tto.bounds.xmin) / (tto.bounds.xmax - tto.bounds.xmin) * widthFromHeight(tto, outputHeight),
-        imageY: (boundsNorthernIsles_gb.ymin - tto.bounds.ymin) / (tto.bounds.ymax - tto.bounds.ymin) * outputHeight
-      });
-    }
-
-    return tto;
   }
 
   /** @module src/constants */
@@ -781,14 +747,14 @@
   //     parentId = 'body',
   //     transOptsSel = {},
   //     transOptsKey = "",
-  //     transOptsOpts = false,
+  //     transOptsControl = false,
   //     mapTypesSel = {},
   //     mapTypesKey = "",
-  //     mapTypesOpts = false,
+  //     mapTypesControl = false,
   //     applyFunction = null,
   //   } = {}) {
 
-  function optsDialog(parentId, transOptsSel, transOptsKey, transOptsOpts, mapTypesSel, mapTypesKey, mapTypesOpts, applyFunction) {
+  function optsDialog(parentId, transOptsSel, transOptsKey, transOptsControl, mapTypesSel, mapTypesKey, mapTypesControl, applyFunction) {
     // Create map SVG in given parent
     var div1 = d3.select("#".concat(parentId)).append("div").classed("modal micromodal-slide", true).attr("id", "modal-1").attr("aria-hidden", "true");
     var div2 = div1.append("div").classed("modal__overlay", true).attr("tabindex", "-1").attr("data-micromodal-close", "");
@@ -797,8 +763,8 @@
     header.append("h2").classed("modal__title", true).attr("id", "modal-1-title").text("Map options");
     header.append("button").classed("modal__close", true).attr("aria-label", "Close modal").attr("data-micromodal-close", "");
     var main = div3.append("main").classed("modal__content", true).attr("id", "modal-1-content");
-    transOptsSelection(main, transOptsSel, transOptsKey, transOptsOpts);
-    mapTypeSelection(main, mapTypesSel, mapTypesKey, mapTypesOpts);
+    transOptsSelection(main, transOptsSel, transOptsKey, transOptsControl);
+    mapTypeSelection(main, mapTypesSel, mapTypesKey, mapTypesControl);
     var footer = div3.append("main").classed("modal__footer", true);
     var apply = footer.append("button").classed("modal__btn modal__btn-primary", true).attr("data-micromodal-close", "").text("Okay");
     footer.append("button").classed("modal__btn", true).attr("data-micromodal-close", "").attr("aria-label", "Close this dialog window").text("Cancel");
@@ -806,11 +772,11 @@
     apply.on("click", function () {
       var ret = {};
 
-      if (transOptsOpts && Object.keys(transOptsSel).length > 1) {
+      if (transOptsControl && Object.keys(transOptsSel).length > 1) {
         ret.transOptsKey = d3.select('input[name="transOptsRadio"]:checked').node().value;
       }
 
-      if (mapTypesOpts && Object.keys(mapTypesSel).length > 1) {
+      if (mapTypesControl && Object.keys(mapTypesSel).length > 1) {
         ret.mapTypesKey = d3.select('input[name="mapTypeRadio"]:checked').node().value;
       }
 
@@ -831,12 +797,12 @@
     MicroModal.show('modal-1');
   }
 
-  function transOptsSelection(el, transOptsSel, transOptsKey, transOptsOpts) {
-    if (transOptsOpts && Object.keys(transOptsSel).length > 1) {
+  function transOptsSelection(el, transOptsSel, transOptsKey, transOptsControl) {
+    if (transOptsControl && Object.keys(transOptsSel).length > 1) {
       el.append("h3").text("Extent & view");
       Object.keys(transOptsSel).forEach(function (k) {
-        var radio = el.append("input").attr("type", "radio").attr("id", transOptsSel[k]).attr("name", "transOptsRadio").attr("value", k);
-        el.append("label").attr("for", transOptsSel[k]).text(k);
+        var radio = el.append("input").attr("type", "radio").attr("id", "trans-opts-radio-".concat(k)).attr("name", "transOptsRadio").attr("value", k);
+        el.append("label").attr("for", "trans-opts-radio-".concat(k)).text(transOptsSel[k].caption);
 
         if (k === transOptsKey) {
           radio.attr("checked", "checked");
@@ -849,10 +815,10 @@
     }
   }
 
-  function mapTypeSelection(el, mapTypesSel, mapTypesKey, mapTypesOpts) {
+  function mapTypeSelection(el, mapTypesSel, mapTypesKey, mapTypesControl) {
     var id = mapTypesKey.replace(/ /g, '');
 
-    if (mapTypesOpts && Object.keys(mapTypesSel).length > 1) {
+    if (mapTypesControl && Object.keys(mapTypesSel).length > 1) {
       el.append("h3").text("Map information type");
       Object.keys(mapTypesSel).forEach(function (k) {
         var radio = el.append("input").attr("type", "radio").attr("id", id).attr("name", "mapTypeRadio").attr("value", k);
@@ -869,65 +835,48 @@
     }
   }
 
-  /* ANY GENERALLY USEFUL DATA ACCESS ROUTINES SHOULD GO IN THIS MODULE *?
-
-  /**
-   * This will be a general purpose CSV reader that will read
-   * CSV expecting columns gr, shape, size, colour etc.
-   * @param {Object} opts - initialisation options.
-   */
-
-  function csvHectad(opts) {
-    // #TDOO - code below is just a placeholder
-    return new Promise(function (resolve, reject) {
-      d3.csv(opts.data, function (r) {
-        if (r.Hectad) {
-          // e.g. {Hectad: "NZ09"}
-          return {
-            gr: r.Hectad,
-            colour: "red"
-          };
-        }
-      }).then(function (data) {
-        resolve({
-          records: data,
-          size: 1,
-          shape: 'circle',
-          precision: 10000,
-          opacity: 0.8
-        });
-      })["catch"](function (e) {
-        reject(e);
-      });
-    });
-  }
-
+  var basemaps = {};
   /**
    * #TODO - description and full parameter list.
    * @param {SVG g element} g - the SVG g element that hosts the basemap images.
    * @returns {null} - there is no return object.
    */
 
-  function showImage(mapId, show, gBasemaps, imageFile, worldFile, transform) {
-    // If show is false, hide basemap layer
-    if (!show) {
-      // Hide the basemap layer if g element exists
-      if (gBasemaps.select("#basemap-".concat(mapId)).node()) {
-        gBasemaps.select("#basemap-".concat(mapId)).classed('baseMapHidden', true);
-      }
+  function showImage(mapId, show, gBasemaps, imageFile, worldFile, trans) {
+    // Save the map source details for use with transformImages
+    if (!basemaps[mapId] && show) {
+      basemaps[mapId] = {
+        mapId: mapId,
+        imageFile: imageFile,
+        worldFile: worldFile
+      };
+    }
 
-      return;
-    } // Ensure g element exists for this mapId. If already exists, display it
+    var transId = trans.params.id; // Ensure g element exists for this mapId.
+
+    if (gBasemaps.select("#basemap-".concat(mapId)).size() === 0) {
+      gBasemaps.append('g').attr('id', "basemap-".concat(mapId));
+    } // Hide/show main g element for mapId appropriately
 
 
-    if (!gBasemaps.select("#basemap-".concat(mapId)).node()) {
-      gBasemaps.append('g', "#basemap-".concat(mapId));
+    if (show) {
+      gBasemaps.select("#basemap-".concat(mapId)).classed('hidden', false);
     } else {
-      gBasemaps.select("#basemap-".concat(mapId)).classed('baseMapHidden', false);
-    } // If there is no image in the g element for this mapId, then add it
+      gBasemaps.select("#basemap-".concat(mapId)).classed('hidden', true);
+      return;
+    } // Ensure g element exists for this mapId & transId
 
 
-    if (!gBasemaps.select("#basemap-".concat(mapId, " image")).node()) {
+    if (gBasemaps.select("#basemap-".concat(mapId, "-").concat(transId)).size() === 0) {
+      gBasemaps.select("#basemap-".concat(mapId)).append('g').attr('id', "basemap-".concat(mapId, "-").concat(transId));
+    } // Hide all g elements corresponding to different transitions within main mapId g elment
+    // except that corresponding to this transID
+
+
+    gBasemaps.select("#basemap-".concat(mapId)).selectAll('g').classed('hidden', true);
+    gBasemaps.select("#basemap-".concat(mapId, "-").concat(transId)).classed('hidden', false); // Add the images to the map/trans g element if none there already
+
+    if (gBasemaps.select("#basemap-".concat(mapId, "-").concat(transId, " Image")).size() === 0) {
       var img = new Image();
 
       img.onerror = function (e) {
@@ -947,37 +896,86 @@
             var maxNorthing = Number(aWrld[5]);
             var maxEasting = minEasting + imageWidth * xResolution;
             var minNorthing = maxNorthing + imageHeight * yResolution;
-            var topLeft = transform([minEasting, maxNorthing]);
-            var topRight = transform([maxEasting, maxNorthing]);
-            var bottomLeft = transform([minEasting, minNorthing]);
-            gBasemaps.select("#basemap-".concat(mapId)).append('image').attr('data-xResolution', xResolution).attr('data-yResolution', yResolution).attr('data-minEasting', minEasting).attr('data-maxNorthing', maxNorthing).attr('data-imageWidth', imageWidth).attr('data-imageHeight', imageHeight).attr('href', imageFile).attr('x', topLeft[0]).attr('y', topLeft[1]).attr('width', topRight[0] - topLeft[0]).attr('height', bottomLeft[1] - topLeft[1]);
+            var topLeft = trans.point([minEasting, maxNorthing]);
+            var topRight = trans.point([maxEasting, maxNorthing]);
+            var bottomLeft = trans.point([minEasting, minNorthing]);
+            var iInsets = trans.params.insets ? trans.params.insets.length : 0;
+
+            for (var i = 0; i <= iInsets; i++) {
+              var xShift = 0,
+                  yShift = 0;
+
+              if (i > 0) {
+                // Inset
+                var bounds = trans.params.insets[i - 1].bounds;
+                var dims = trans.insetDims[i - 1];
+                var xmid = bounds.xmin + (bounds.xmax - bounds.xmin) / 2;
+                var ymid = bounds.ymin + (bounds.ymax - bounds.ymin) / 2;
+                var xyWithInset = trans.point([xmid, ymid]);
+                var xyWithNoInset = trans.point([xmid, ymid], true);
+                xShift = xyWithInset[0] - xyWithNoInset[0];
+                yShift = xyWithInset[1] - xyWithNoInset[1];
+                console.log(dims);
+                var clippath = d3.select('svg defs').append('clipPath').attr('id', "clippath-".concat(mapId, "-").concat(transId, "-").concat(i));
+                clippath.append('rect').attr('x', dims.x).attr('y', dims.y).attr('width', dims.width).attr('height', dims.height);
+              }
+
+              var _img = gBasemaps.select("#basemap-".concat(mapId, "-").concat(transId)).append('image') // .attr('data-xResolution', xResolution)
+              // .attr('data-yResolution', yResolution)
+              // .attr('data-minEasting', minEasting)
+              // .attr('data-maxNorthing', maxNorthing)
+              // .attr('data-imageWidth', imageWidth)
+              // .attr('data-imageHeight', imageHeight)
+              .attr('href', imageFile).attr('x', topLeft[0] + xShift).attr('y', topLeft[1] + yShift).attr('width', topRight[0] - topLeft[0]).attr('height', bottomLeft[1] - topLeft[1]);
+
+              if (i > 0) {
+                _img.attr('clip-path', "url(#clippath-".concat(mapId, "-").concat(transId, "-").concat(i, ")"));
+              }
+            }
           });
         })["catch"](function (e) {
           console.log(worldFile, 'could not be opened.', e);
         });
-      };
+      }; // Load the image into image object so that we can get
+      // its dimensions.
+
 
       img.src = imageFile;
     }
   }
-  function transformImages(gBasemaps, transform) {
-    gBasemaps.selectAll('image').each(function () {
-      // Don't use fat arrow above because this needs to
-      // resolve correctly below.
-      var img = d3.select(this);
-      var minEasting = Number(img.attr('data-minEasting'));
-      var maxNorthing = Number(img.attr('data-maxNorthing'));
-      var imageWidth = Number(img.attr('data-imageWidth'));
-      var imageHeight = Number(img.attr('data-imageHeight'));
-      var xResolution = Number(img.attr('data-xResolution'));
-      var yResolution = Number(img.attr('data-yResolution'));
-      var maxEasting = minEasting + imageWidth * xResolution;
-      var minNorthing = maxNorthing + imageHeight * yResolution;
-      var topLeft = transform([minEasting, maxNorthing]);
-      var topRight = transform([maxEasting, maxNorthing]);
-      var bottomLeft = transform([minEasting, minNorthing]);
-      img.attr('x', topLeft[0]).attr('y', topLeft[1]).attr('width', topRight[0] - topLeft[0]).attr('height', bottomLeft[1] - topLeft[1]);
-    });
+  function transformImages(gBasemaps, trans) {
+    //showImage(mapId, show, gBasemaps, imageFile, worldFile, trans)
+    console.log(basemaps);
+    Object.keys(basemaps).forEach(function (k) {
+      var b = basemaps[k];
+
+      if (b.imageFile) {
+        var hidden = gBasemaps.select("#basemap-".concat(b.mapId)).classed('hidden');
+        console.log(b.mapId, !hidden);
+        showImage(b.mapId, !hidden, gBasemaps, b.imageFile, b.worldFile, trans);
+      }
+    }); // gBasemaps.selectAll('image')
+    //   .each(function(){
+    //     // Don't use fat arrow above because this needs to
+    //     // resolve correctly below.
+    //     const img = d3.select(this)
+    //     const minEasting = Number(img.attr('data-minEasting'))
+    //     const maxNorthing = Number(img.attr('data-maxNorthing'))
+    //     const imageWidth = Number(img.attr('data-imageWidth'))
+    //     const imageHeight = Number(img.attr('data-imageHeight'))
+    //     const xResolution = Number(img.attr('data-xResolution'))
+    //     const yResolution = Number(img.attr('data-yResolution'))
+    //     const maxEasting = minEasting + imageWidth * xResolution
+    //     const minNorthing = maxNorthing + imageHeight * yResolution
+    //     const topLeft = trans.point([minEasting, maxNorthing])
+    //     const topRight = trans.point([maxEasting, maxNorthing])
+    //     const bottomLeft = trans.point([minEasting, minNorthing])
+    //     img
+    //       .attr('x', topLeft[0])
+    //       .attr('y', topLeft[1])
+    //       .attr('width', topRight[0]-topLeft[0])
+    //       .attr('height', bottomLeft[1]-topLeft[1])
+    //   })
   }
   function setImagePriorities(gBasemaps, mapIds) {
     mapIds.reverse().forEach(function (mapId) {
@@ -8437,13 +8435,21 @@
     return Math.abs(transform([300000, 300000])[0] - transform([300000 + precision / 2, 300000])[0]);
   }
 
-  function refreshDots(svg, transform, accessFunction, taxonIdentifier) {
+  function refreshDots(svg, captionId, transform, accessFunction, taxonIdentifier) {
     svg.selectAll('.dotCircle').remove();
     svg.selectAll('.dotSquare').remove();
     svg.selectAll('.dotTriangle').remove();
-    drawDots(svg, transform, accessFunction, taxonIdentifier);
+    drawDots(svg, captionId, transform, accessFunction, taxonIdentifier);
   }
-  function drawDots(svg, transform, accessFunction, taxonIdentifier) {
+  function drawDots(svg, captionId, transform, accessFunction, taxonIdentifier) {
+    function getCaption(d) {
+      if (d.caption) {
+        return d.caption;
+      } else {
+        return '';
+      }
+    }
+
     return new Promise(function (resolve, reject) {
       if (typeof accessFunction === 'function') {
         accessFunction(taxonIdentifier).then(function (data) {
@@ -8462,7 +8468,7 @@
           var circles = svg.selectAll('.dotCircle').data(recCircles, function (d) {
             return d.gr;
           });
-          circles.enter().append("circle").classed('dotCircle', true).attr("cx", function (d) {
+          circles.enter().append("circle").classed('dotCircle dot', true).attr("cx", function (d) {
             return transform(getCentroid(d.gr, 'gb').centroid)[0];
           }).attr("cy", function (d) {
             return transform(getCentroid(d.gr, 'gb').centroid)[1];
@@ -8476,6 +8482,8 @@
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
+          }).attr("data-caption", function (d) {
+            return getCaption(d);
           });
           circles.exit().transition().ease(d3.easeCubic).duration(500).attr("r", 0).remove(); // bullseye
 
@@ -8492,7 +8500,7 @@
           var bullseyes = svg.selectAll('.dotBullseye').data(recBullseyes, function (d) {
             return d.gr;
           });
-          bullseyes.enter().append("circle").classed('dotBullseye', true).attr("cx", function (d) {
+          bullseyes.enter().append("circle").classed('dotBullseye dot', true).attr("cx", function (d) {
             return transform(getCentroid(d.gr, 'gb').centroid)[0];
           }).attr("cy", function (d) {
             return transform(getCentroid(d.gr, 'gb').centroid)[1];
@@ -8506,6 +8514,8 @@
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour2 ? d.colour2 : data.colour2;
+          }).attr("data-caption", function (d) {
+            return getCaption(d);
           });
           bullseyes.exit().transition().ease(d3.easeCubic).duration(500).attr("r", 0).remove(); // squares
 
@@ -8522,7 +8532,7 @@
           var squares = svg.selectAll('.dotSquare').data(recSquares, function (d) {
             return d.gr;
           });
-          squares.enter().append("rect").classed('dotSquare', true).attr("x", function (d) {
+          squares.enter().append("rect").classed('dotSquare dot', true).attr("x", function (d) {
             return transform(getCentroid(d.gr, 'gb').centroid)[0];
           }).attr("y", function (d) {
             return transform(getCentroid(d.gr, 'gb').centroid)[1];
@@ -8546,6 +8556,8 @@
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
+          }).attr("data-caption", function (d) {
+            return getCaption(d);
           });
           squares.exit().transition().ease(d3.easeCubic).duration(500).attr("width", 0).attr("height", 0).attr("transform", "translate(0,0)").remove(); // up triangles
 
@@ -8562,7 +8574,7 @@
           var triangle = svg.selectAll('.dotTriangle').data(recTriangles, function (d) {
             return d.gr;
           });
-          triangle.enter().append("path").classed('dotTriangle', true).attr("d", d3.symbol().type(d3.symbolTriangle).size(0)).attr("opacity", function (d) {
+          triangle.enter().append("path").classed('dotTriangle dot', true).attr("d", d3.symbol().type(d3.symbolTriangle).size(0)).attr("opacity", function (d) {
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
@@ -8588,8 +8600,20 @@
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
+          }).attr("data-caption", function (d) {
+            return getCaption(d);
           });
-          triangle.exit().transition().ease(d3.easeCubic).duration(500).attr("d", d3.symbol().type(d3.symbolTriangle).size(0)).remove();
+          triangle.exit().transition().ease(d3.easeCubic).duration(500).attr("d", d3.symbol().type(d3.symbolTriangle).size(0)).remove(); // Dot caption display
+
+          svg.selectAll('.dot').on('mouseover', function (d) {
+            if (captionId) {
+              if (d.caption) {
+                d3.select("#".concat(captionId)).html(d.caption);
+              } else {
+                d3.select("#".concat(captionId)).html('');
+              }
+            }
+          });
           return data;
         }).then(function (data) {
           resolve(data);
@@ -8655,6 +8679,8 @@
     var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
         _ref$id = _ref.id,
         id = _ref$id === void 0 ? 'body' : _ref$id,
+        _ref$captionId = _ref.captionId,
+        captionId = _ref$captionId === void 0 ? '' : _ref$captionId,
         _ref$height = _ref.height,
         height = _ref$height === void 0 ? 500 : _ref$height,
         _ref$expand = _ref.expand,
@@ -8667,22 +8693,20 @@
         legendX = _ref$legendX === void 0 ? 10 : _ref$legendX,
         _ref$legendY = _ref.legendY,
         legendY = _ref$legendY === void 0 ? 5 : _ref$legendY,
-        _ref$transOptsInit = _ref.transOptsInit,
-        transOptsInit = _ref$transOptsInit === void 0 ? '' : _ref$transOptsInit,
+        _ref$transOptsKey = _ref.transOptsKey,
+        transOptsKey = _ref$transOptsKey === void 0 ? 'BI1' : _ref$transOptsKey,
         _ref$transOptsSel = _ref.transOptsSel,
-        transOptsSel = _ref$transOptsSel === void 0 ? {
-      'No insets': 'BI1'
-    } : _ref$transOptsSel,
-        _ref$transOptsOpts = _ref.transOptsOpts,
-        transOptsOpts = _ref$transOptsOpts === void 0 ? true : _ref$transOptsOpts,
-        _ref$mapTypesInit = _ref.mapTypesInit,
-        mapTypesInit = _ref$mapTypesInit === void 0 ? 'Standard hectad' : _ref$mapTypesInit,
+        transOptsSel = _ref$transOptsSel === void 0 ? namedTransOpts : _ref$transOptsSel,
+        _ref$transOptsControl = _ref.transOptsControl,
+        transOptsControl = _ref$transOptsControl === void 0 ? true : _ref$transOptsControl,
+        _ref$mapTypesKey = _ref.mapTypesKey,
+        mapTypesKey = _ref$mapTypesKey === void 0 ? 'Standard hectad' : _ref$mapTypesKey,
         _ref$mapTypesSel = _ref.mapTypesSel,
         mapTypesSel = _ref$mapTypesSel === void 0 ? {
       'Standard hectad': csvHectad
     } : _ref$mapTypesSel,
-        _ref$mapTypesOpts = _ref.mapTypesOpts,
-        mapTypesOpts = _ref$mapTypesOpts === void 0 ? true : _ref$mapTypesOpts,
+        _ref$mapTypesControl = _ref.mapTypesControl,
+        mapTypesControl = _ref$mapTypesControl === void 0 ? true : _ref$mapTypesControl,
         _ref$boundaryGjson = _ref.boundaryGjson,
         boundaryGjson = _ref$boundaryGjson === void 0 ? "".concat(constants.cdn, "/assets/GB-I-CI-27700-reduced.geojson") : _ref$boundaryGjson,
         _ref$gridGjson = _ref.gridGjson,
@@ -8698,113 +8722,78 @@
         _ref$insetColour = _ref.insetColour,
         insetColour = _ref$insetColour === void 0 ? '7C7CD3' : _ref$insetColour;
 
-    var width, path, transform, basemaps, boundary, dataBoundary, grid, dataGrid, transOptsKey, mapTypesKey, taxonIdentifier; // Set the initial transformation key
-
-    if (transOptsInit && transOptsSel[transOptsInit]) {
-      transOptsKey = transOptsInit;
-    } else {
-      transOptsKey = Object.keys(transOptsSel)[0];
-    } // Set the initial map type key
-
-
-    if (mapTypesInit && mapTypesSel[mapTypesInit]) {
-      mapTypesKey = mapTypesInit;
-    } else {
-      mapTypesKey = Object.keys(mapTypesSel)[0];
-    } // Create a parent div for the SVG within the parent element passed
+    var trans, basemaps, boundary, boundaryf, dataBoundary, grid, dataGrid, taxonIdentifier; // Create a parent div for the SVG within the parent element passed
     // as an argument. Allows us to style correctly for positioning etc.
-
 
     var mainDiv = d3.select("#".concat(id)).append("div").style("position", "relative").style("display", "inline"); // Create the SVG.
 
-    var svg = mainDiv.append("svg").style("background-color", seaFill); // Create the SVG graphic objects that store the major map elements.
+    var svg = mainDiv.append("svg").style("background-color", seaFill);
+    svg.append('defs'); // Create the SVG graphic objects that store the major map elements.
     // The order these is created is important since it affects the order
     // in which they are rendered (i.e. what is drawn over what).
 
-    boundary = svg.append("g").attr("id", "boundary");
+    boundaryf = svg.append("g").attr("id", "boundaryf");
     basemaps = svg.append("g").attr("id", "backimage");
+    boundary = svg.append("g").attr("id", "boundary");
     grid = svg.append("g").attr("id", "grid"); // Options dialog. 
 
-    if (transOptsOpts && Object.keys(transOptsSel).length > 1 || mapTypesOpts && Object.keys(mapTypesSel).length > 1) {
+    if (transOptsControl && Object.keys(transOptsSel).length > 1 || mapTypesControl && Object.keys(mapTypesSel).length > 1) {
       // Add gear icon to invoke options dialog
       mainDiv.append("img").attr("src", "../images/gear.png").style("width", "16px").style("position", "absolute").style("right", "5px").style("bottom", "7px").on("click", function () {
         showOptsDialog(mapTypesKey, transOptsSel, transOptsKey);
       }); // Create options dialog
 
-      optsDialog(id, transOptsSel, transOptsKey, transOptsOpts, mapTypesSel, mapTypesKey, mapTypesOpts, userChangedOptions);
+      optsDialog(id, transOptsSel, transOptsKey, transOptsControl, mapTypesSel, mapTypesKey, mapTypesControl, userChangedOptions);
     }
 
     function userChangedOptions(opts) {
       if (opts.transOptsKey && transOptsKey !== opts.transOptsKey) {
         transOptsKey = opts.transOptsKey;
-        transformSet();
+        trans = createTrans(transOptsSel[transOptsKey], height);
         drawBoundaryAndGrid();
         setSvgSize();
         drawInsetBoxes();
-        refreshDots(svg, transform, mapTypesSel[mapTypesKey], taxonIdentifier);
-        transformImages(basemaps, transform);
+        refreshDots(svg, captionId, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier);
+        transformImages(basemaps, trans);
       }
 
       if (opts.mapTypesKey && mapTypesKey !== opts.mapTypesKey) {
         mapTypesKey = opts.mapTypesKey;
-        drawDots(svg, transform, mapTypesSel[mapTypesKey], taxonIdentifier).then(function (data) {
+        drawDots(svg, captionId, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier).then(function (data) {
           svgLegend(svg, data, legend, legendX, legendY, legendScale);
         });
       }
-    }
-
-    function transformSet() {
-      var transOpts = transOptsSel[transOptsKey];
-
-      if (typeof transOpts === 'string') {
-        transOpts = namedTransOpts[transOpts];
-      }
-
-      transform = transformFunction(transOpts, height);
-      path = d3.geoPath().projection(d3.geoTransform({
-        point: function point(x, y) {
-          var tP = transform([x, y]);
-          var tX = tP[0];
-          var tY = tP[1];
-          this.stream.point(tX, tY);
-        }
-      }));
-      width = widthFromHeight(transOpts, height);
     }
 
     function setSvgSize() {
       if (svg) {
         // Set width/height or viewbox depending on required behaviour
         if (expand) {
-          svg.attr("viewBox", "0 0 " + width + " " + height);
+          svg.attr("viewBox", "0 0 " + trans.width + " " + trans.height);
         } else {
-          svg.attr("width", width);
-          svg.attr("height", height);
+          svg.attr("width", trans.width);
+          svg.attr("height", trans.height);
         }
       }
     }
 
     function drawBoundaryAndGrid() {
       if (dataBoundary) {
+        boundaryf.selectAll("path").remove();
+        boundaryf.append("path").datum(dataBoundary).attr("d", trans.d3Path).style("stroke-opacity", 0).style("fill", boundaryFill);
         boundary.selectAll("path").remove();
-        boundary.append("path").datum(dataBoundary).attr("d", path).style("fill", boundaryFill).style("stroke", boundaryColour);
+        boundary.append("path").datum(dataBoundary).attr("d", trans.d3Path).style("fill-opacity", 0).style("stroke", boundaryColour);
       }
 
       if (dataGrid) {
         grid.selectAll("path").remove();
-        grid.append("path").datum(dataGrid).attr("d", path).style("stroke", gridLineColour);
+        grid.append("path").datum(dataGrid).attr("d", trans.d3Path).style("stroke", gridLineColour);
       }
     }
 
     function drawInsetBoxes() {
       svg.selectAll('.inset').remove();
-      var transOpts = transOptsSel[transOptsKey];
-
-      if (typeof transOpts === 'string') {
-        transOpts = namedTransOpts[transOpts];
-      }
-
-      getInsetDims(transOpts, height).forEach(function (i) {
+      trans.insetDims.forEach(function (i) {
         var margin = 10;
         svg.append('rect').classed('inset', true).attr('x', i.x - margin).attr('y', i.y - margin).attr('width', i.width + 2 * margin).attr('height', i.height + 2 * margin).style('fill', 'transparent').style('stroke', insetColour);
       });
@@ -8818,27 +8807,27 @@
       },
       setTransform: function setTransform(newTransOptsKey) {
         transOptsKey = newTransOptsKey;
-        transformSet();
+        trans = createTrans(transOptsSel[transOptsKey], height);
         drawBoundaryAndGrid();
         setSvgSize();
         drawInsetBoxes();
-        refreshDots(svg, transform, mapTypesSel[mapTypesKey], taxonIdentifier);
-        transformImages(basemaps, transform);
+        refreshDots(svg, captionId, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier);
+        transformImages(basemaps, trans);
       },
       setIdentfier: function setIdentfier(identifier) {
         taxonIdentifier = identifier;
-        drawDots(svg, transform, mapTypesSel[mapTypesKey], taxonIdentifier).then(function (data) {
+        drawDots(svg, captionId, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier).then(function (data) {
           svgLegend(svg, data, legend, legendX, legendY, legendScale);
         });
       },
       setMapType: function setMapType(newMapTypesKey) {
         mapTypesKey = newMapTypesKey;
-        drawDots(svg, transform, mapTypesSel[mapTypesKey], taxonIdentifier).then(function (data) {
+        drawDots(svg, captionId, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier).then(function (data) {
           svgLegend(svg, data, legend, legendX, legendY, legendScale);
         });
       },
       basemapImage: function basemapImage(mapId, show, imageFile, worldFile) {
-        showImage(mapId, show, basemaps, imageFile, worldFile, transform); // If no base map images shown then set boundary opacity to 1 otherwise 0
+        showImage(mapId, show, basemaps, imageFile, worldFile, trans); // If no base map images shown then set boundary opacity to 1 otherwise 0
         // const layers = basemaps.selectAll('g')._groups[0].length
         // const hidden = basemaps.selectAll('g.baseMapHidden')._groups[0].length
         // if (layers === hidden) {
@@ -8852,7 +8841,7 @@
       }
     }; // Initialise the display
 
-    transformSet();
+    trans = createTrans(transOptsSel[transOptsKey], height);
     setSvgSize();
     drawInsetBoxes();
     var pBoundary, pGrid;
@@ -8943,12 +8932,9 @@
 
   console.log("Running ".concat(pkg.name, " version ").concat(pkg.version));
 
-  exports.getInsetDims = getInsetDims;
-  exports.getTweenTransOpts = getTweenTransOpts;
   exports.namedTransOpts = namedTransOpts;
+  exports.noData = noData;
   exports.svgMap = svgMap;
-  exports.transformFunction = transformFunction;
-  exports.widthFromHeight = widthFromHeight;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 

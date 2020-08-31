@@ -2,14 +2,22 @@ import * as d3 from 'd3'
 import { getCentroid, checkGr } from 'brc-atlas-bigr'
 import { getRadiusPixels } from './general.js'
 
-export function refreshDots(svg, transform, accessFunction, taxonIdentifier) {
+export function refreshDots(svg, captionId, transform, accessFunction, taxonIdentifier) {
   svg.selectAll('.dotCircle').remove()
   svg.selectAll('.dotSquare').remove()
   svg.selectAll('.dotTriangle').remove()
-  drawDots(svg, transform, accessFunction, taxonIdentifier)
+  drawDots(svg, captionId, transform, accessFunction, taxonIdentifier)
 }
 
-export function drawDots(svg, transform, accessFunction, taxonIdentifier) {
+export function drawDots(svg, captionId, transform, accessFunction, taxonIdentifier) {
+
+  function getCaption(d) {
+    if (d.caption) {
+      return d.caption
+    } else {
+      return ''
+    }
+  }
 
   return new Promise((resolve, reject) => {
     if(typeof accessFunction === 'function') {
@@ -26,7 +34,7 @@ export function drawDots(svg, transform, accessFunction, taxonIdentifier) {
           .data(recCircles, d => d.gr)
         circles.enter()
           .append("circle")
-          .classed('dotCircle', true)
+          .classed('dotCircle dot', true)
           .attr("cx", d => transform(getCentroid(d.gr, 'gb').centroid)[0])
           .attr("cy", d => transform(getCentroid(d.gr, 'gb').centroid)[1]) 
           .attr("r", 0)
@@ -39,6 +47,7 @@ export function drawDots(svg, transform, accessFunction, taxonIdentifier) {
           .attr("r", d => d.size ? radiusPixels * d.size : radiusPixels * data.size)
           .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
+          .attr("data-caption", d => getCaption(d))
         circles.exit()
           .transition()
             .ease(d3.easeCubic)
@@ -57,7 +66,7 @@ export function drawDots(svg, transform, accessFunction, taxonIdentifier) {
           .data(recBullseyes, d => d.gr)
           bullseyes.enter()
           .append("circle")
-          .classed('dotBullseye', true)
+          .classed('dotBullseye dot', true)
           .attr("cx", d => transform(getCentroid(d.gr, 'gb').centroid)[0])
           .attr("cy", d => transform(getCentroid(d.gr, 'gb').centroid)[1]) 
           .attr("r", 0)
@@ -70,6 +79,7 @@ export function drawDots(svg, transform, accessFunction, taxonIdentifier) {
           .attr("r", d => d.size ? radiusPixels * d.size * 0.5 : radiusPixels * data.size * 0.5)
           .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour2 ? d.colour2 : data.colour2)
+          .attr("data-caption", d => getCaption(d))
           bullseyes.exit()
           .transition()
             .ease(d3.easeCubic)
@@ -88,7 +98,7 @@ export function drawDots(svg, transform, accessFunction, taxonIdentifier) {
           .data(recSquares, d => d.gr)
         squares.enter()
           .append("rect")
-          .classed('dotSquare', true)
+          .classed('dotSquare dot', true)
           .attr("x", d => transform(getCentroid(d.gr, 'gb').centroid)[0])
           .attr("y", d => transform(getCentroid(d.gr, 'gb').centroid)[1])
           .attr("width", 0)
@@ -112,6 +122,7 @@ export function drawDots(svg, transform, accessFunction, taxonIdentifier) {
           })
           .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
+          .attr("data-caption", d => getCaption(d))
         squares.exit()
           .transition()
             .ease(d3.easeCubic)
@@ -132,7 +143,7 @@ export function drawDots(svg, transform, accessFunction, taxonIdentifier) {
             .data(recTriangles, d => d.gr)
           triangle.enter()
             .append("path")
-            .classed('dotTriangle', true)
+            .classed('dotTriangle dot', true)
             .attr("d", d3.symbol().type(d3.symbolTriangle).size(0))
             .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
             .style("fill", d => d.colour ? d.colour : data.colour)
@@ -160,12 +171,26 @@ export function drawDots(svg, transform, accessFunction, taxonIdentifier) {
             .attr("d", d3.symbol().type(d3.symbolTriangle).size(radiusPixels * radiusPixels * 1.7))
             .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
             .style("fill", d => d.colour ? d.colour : data.colour)
+            .attr("data-caption", d => getCaption(d))
           triangle.exit()
             .transition()
               .ease(d3.easeCubic)
               .duration(500)
             .attr("d", d3.symbol().type(d3.symbolTriangle).size(0))
             .remove()
+
+        // Dot caption display
+        svg.selectAll('.dot')
+          .on('mouseover', d => {
+            if (captionId) {
+              if (d.caption) {
+                d3.select(`#${captionId}`).html(d.caption)
+              } else {
+                d3.select(`#${captionId}`).html('')
+              }
+            }
+          })
+          
         return data
       }).then (data => {
         resolve(data)

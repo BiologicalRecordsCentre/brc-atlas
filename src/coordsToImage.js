@@ -1,5 +1,7 @@
 /** @module src/coordsToImage */
 
+import * as d3 from 'd3'
+
 /**
  * Given a transform object, describing a bounding rectangle in world coordinates,
  * and a height dimension, this function returns an array of objects - one
@@ -12,7 +14,7 @@
  * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
  * @returns {Array<Object>}
  */
-export function getInsetDims(transOpts, outputHeight) {
+function getInsetDims(transOpts, outputHeight) {
 
   const outputWidth = widthFromHeight(transOpts, outputHeight)
   const transform = transformFunction(transOpts, outputHeight)
@@ -44,7 +46,7 @@ export function getInsetDims(transOpts, outputHeight) {
  * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
  * @returns {number}
  */
-export function widthFromHeight(transOpts, outputHeight) {
+function widthFromHeight(transOpts, outputHeight) {
   const realWidth = transOpts.bounds.xmax - transOpts.bounds.xmin
   const realHeight = transOpts.bounds.ymax - transOpts.bounds.ymin
   return outputHeight * realWidth/realHeight
@@ -64,13 +66,13 @@ export function widthFromHeight(transOpts, outputHeight) {
  * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
  * @returns {function}
  */
-export function transformFunction(transOpts, outputHeight) {
+function transformFunction(transOpts, outputHeight) {
 
   const realWidth = transOpts.bounds.xmax - transOpts.bounds.xmin
   const realHeight = transOpts.bounds.ymax - transOpts.bounds.ymin
   const outputWidth = widthFromHeight(transOpts, outputHeight)
 
-  return function(p) {
+  return function(p, ignoreInset) {
     const x = p[0]
     const y = p[1]
     let tX, tY
@@ -78,7 +80,7 @@ export function transformFunction(transOpts, outputHeight) {
     tX = outputWidth * (x-transOpts.bounds.xmin)/realWidth
     tY = outputHeight - outputHeight * (y-transOpts.bounds.ymin)/realHeight
 
-    if (transOpts.insets && transOpts.insets.length > 0) {
+    if (!ignoreInset && transOpts.insets && transOpts.insets.length > 0) {
       transOpts.insets.forEach(function(inset) {
       
         if (x >= inset.bounds.xmin &&  x <= inset.bounds.xmax && y >= inset.bounds.ymin &&  y <= inset.bounds.ymax) {
@@ -107,6 +109,31 @@ export function transformFunction(transOpts, outputHeight) {
       })
     }
     return [tX, tY]
+  }
+}
+
+/**
+ * TODO document
+ */
+export function createTrans (transOpts, outputHeight) {
+  const transform = transformFunction(transOpts, outputHeight)
+  return {
+    params: transOpts,
+    insetDims: getInsetDims(transOpts, outputHeight),
+    height: outputHeight,
+    width: widthFromHeight(transOpts, outputHeight),
+    point: transform,
+    d3Path: d3.geoPath()
+      .projection(
+        d3.geoTransform({
+          point: function(x, y) {
+            const tP = transform([x,y])
+            const tX = tP[0]
+            const tY = tP[1]
+            this.stream.point(tX, tY)
+          }
+        })
+      )
   }
 }
 
@@ -156,6 +183,8 @@ const boundsNorthernIsles_gb = {
 */
 export const namedTransOpts = {
   BI1: {
+    id: 'BI1',
+    caption: 'No insets',
     bounds: {
       xmin: -213389,
       ymin: -113239,
@@ -164,6 +193,8 @@ export const namedTransOpts = {
     },
   },
   BI2: {
+    id: 'BI2',
+    caption: 'Inset Channel Islands (CI)',
     bounds: {
       xmin: -213389,
       ymin: -9939,
@@ -177,6 +208,8 @@ export const namedTransOpts = {
     }]
   },
   BI3: {
+    id: 'BI3',
+    caption: 'Inset Northern Isles',
     bounds: {
       xmin: -213389,
       ymin: -9939,
@@ -190,6 +223,8 @@ export const namedTransOpts = {
     }]
   },
   BI4: {
+    id: 'BI4',
+    caption: 'Inset CI & Northern Isles',
     bounds: {
       xmin: -213389,
       ymin: -9939,

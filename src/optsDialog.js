@@ -10,14 +10,14 @@ import MicroModal from 'micromodal'
 //     parentId = 'body',
 //     transOptsSel = {},
 //     transOptsKey = "",
-//     transOptsOpts = false,
+//     transOptsControl = false,
 //     mapTypesSel = {},
 //     mapTypesKey = "",
-//     mapTypesOpts = false,
+//     mapTypesControl = false,
 //     applyFunction = null,
 //   } = {}) {
 
-export function optsDialog(parentId, transOptsSel, transOptsKey, transOptsOpts, mapTypesSel, mapTypesKey, mapTypesOpts, applyFunction) {
+export function optsDialog(parentId, transOptsSel, transOptsKey, transOptsControl, mapTypesSel, mapTypesKey, mapTypesControl, applyFunction) {
   
   // Create map SVG in given parent
   const div1 = d3.select(`#${parentId}`)
@@ -54,8 +54,8 @@ export function optsDialog(parentId, transOptsSel, transOptsKey, transOptsOpts, 
     .classed("modal__content", true)
     .attr("id", "modal-1-content")
 
-  transOptsSelection(main, transOptsSel, transOptsKey, transOptsOpts)
-  mapTypeSelection(main, mapTypesSel, mapTypesKey, mapTypesOpts)
+  transOptsSelection(main, transOptsSel, transOptsKey, transOptsControl)
+  mapTypeSelection(main, mapTypesSel, mapTypesKey, mapTypesControl)
 
   const footer = div3.append("main")
     .classed("modal__footer", true)
@@ -75,10 +75,10 @@ export function optsDialog(parentId, transOptsSel, transOptsKey, transOptsOpts, 
 
   apply.on("click", () => {
     const ret = {}
-    if (transOptsOpts && Object.keys(transOptsSel).length > 1) {
+    if (transOptsControl && Object.keys(transOptsSel).length > 1) {
       ret.transOptsKey = d3.select('input[name="transOptsRadio"]:checked').node().value
     }
-    if (mapTypesOpts && Object.keys(mapTypesSel).length > 1) {
+    if (mapTypesControl && Object.keys(mapTypesSel).length > 1) {
       ret.mapTypesKey = d3.select('input[name="mapTypeRadio"]:checked').node().value
     }
     applyFunction(ret)  
@@ -97,18 +97,18 @@ export function showOptsDialog(mapTypesKey, transOptsSel, transOptsKey,){
   MicroModal.show('modal-1')
 }
 
-function transOptsSelection(el, transOptsSel, transOptsKey, transOptsOpts) {
-  if (transOptsOpts && Object.keys(transOptsSel).length > 1) {
+function transOptsSelection(el, transOptsSel, transOptsKey, transOptsControl) {
+  if (transOptsControl && Object.keys(transOptsSel).length > 1) {
     el.append("h3").text("Extent & view")
     Object.keys(transOptsSel).forEach(k => {
       const radio = el.append("input")
         .attr("type", "radio")
-        .attr("id", transOptsSel[k])
+        .attr("id", `trans-opts-radio-${k}`)
         .attr("name", "transOptsRadio")
         .attr("value", k)
       el.append("label")
-        .attr("for", transOptsSel[k])
-        .text(k)
+        .attr("for", `trans-opts-radio-${k}`)
+        .text(transOptsSel[k].caption)
 
       if (k === transOptsKey) {
         radio.attr("checked", "checked")
@@ -120,9 +120,9 @@ function transOptsSelection(el, transOptsSel, transOptsKey, transOptsOpts) {
   }
 }
 
-function mapTypeSelection(el, mapTypesSel, mapTypesKey, mapTypesOpts) {
+function mapTypeSelection(el, mapTypesSel, mapTypesKey, mapTypesControl) {
   const id = mapTypesKey.replace(/ /g,'')
-  if (mapTypesOpts && Object.keys(mapTypesSel).length > 1) {
+  if (mapTypesControl && Object.keys(mapTypesSel).length > 1) {
     el.append("h3").text("Map information type")
     Object.keys(mapTypesSel).forEach(k => {
       const radio = el.append("input")

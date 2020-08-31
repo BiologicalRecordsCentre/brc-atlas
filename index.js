@@ -1,4 +1,5 @@
-import { getTweenTransOpts, getInsetDims, transformFunction,  widthFromHeight, namedTransOpts } from './src/coordsToImage'
+import { namedTransOpts } from './src/coordsToImage'
+import { noData } from './src/dataAccess'
 import { svgMap } from './src/svgMap'
 import pkg from './package.json'
 
@@ -6,10 +7,8 @@ import pkg from './package.json'
 // to assist with trouble shooting.
 console.log(`Running ${pkg.name} version ${pkg.version}`)
 
-export { getTweenTransOpts, 
-  getInsetDims, 
-  transformFunction,  
-  widthFromHeight, 
+export {
+  noData,
   namedTransOpts,
   svgMap
 } 

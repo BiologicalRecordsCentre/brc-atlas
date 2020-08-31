@@ -1,5 +1,5 @@
 import * as d3 from 'd3'
-import { transformFunction, widthFromHeight, namedTransOpts, getInsetDims } from './coordsToImage.js'
+import { createTrans, namedTransOpts } from './coordsToImage.js'
 import { constants } from './constants.js'
 import { optsDialog, showOptsDialog } from './optsDialog.js'
 import { csvHectad } from './dataAccess.js'
@@ -21,18 +21,19 @@ import { svgLegend } from './svgLegend.js'
 export function svgMap({
   // Default options in here
   id = 'body',
+  captionId = '',
   height = 500,
   expand = false,
   legend = false,
   legendScale = 1,
   legendX = 10,
   legendY = 5,
-  transOptsInit = '',
-  transOptsSel = {'No insets': 'BI1'},
-  transOptsOpts = true,
-  mapTypesInit = 'Standard hectad',
+  transOptsKey = 'BI1',
+  transOptsSel = namedTransOpts,
+  transOptsControl = true,
+  mapTypesKey = 'Standard hectad',
   mapTypesSel = {'Standard hectad': csvHectad},
-  mapTypesOpts = true,
+  mapTypesControl = true,
   boundaryGjson = `${constants.cdn}/assets/GB-I-CI-27700-reduced.geojson`,
   gridGjson = `${constants.cdn}/assets/GB-I-grid-27700-reduced.geojson`,
   gridLineColour = '7C7CD3',
@@ -42,21 +43,7 @@ export function svgMap({
   insetColour = '7C7CD3'
 } = {}) {
 
-  let width, path, transform, basemaps, boundary, dataBoundary, grid, dataGrid, transOptsKey, mapTypesKey, taxonIdentifier
-
-  // Set the initial transformation key
-  if (transOptsInit && transOptsSel[transOptsInit]) {
-    transOptsKey = transOptsInit
-  } else {
-    transOptsKey = Object.keys(transOptsSel)[0]
-  }
-
-  // Set the initial map type key
-  if (mapTypesInit && mapTypesSel[mapTypesInit]) {
-    mapTypesKey = mapTypesInit
-  } else {
-    mapTypesKey = Object.keys(mapTypesSel)[0]
-  }
+  let trans, basemaps, boundary, boundaryf, dataBoundary, grid, dataGrid, taxonIdentifier
 
   // Create a parent div for the SVG within the parent element passed
   // as an argument. Allows us to style correctly for positioning etc.
@@ -68,17 +55,19 @@ export function svgMap({
   // Create the SVG.
   const svg = mainDiv.append("svg")
     .style("background-color", seaFill)
+  svg.append('defs')
 
   // Create the SVG graphic objects that store the major map elements.
   // The order these is created is important since it affects the order
   // in which they are rendered (i.e. what is drawn over what).
-  boundary = svg.append("g").attr("id", "boundary")
+  boundaryf = svg.append("g").attr("id", "boundaryf")
   basemaps = svg.append("g").attr("id", "backimage")
+  boundary = svg.append("g").attr("id", "boundary")
   grid = svg.append("g").attr("id", "grid")
 
   // Options dialog. 
-  if ((transOptsOpts && Object.keys(transOptsSel).length > 1) || 
-    (mapTypesOpts && Object.keys(mapTypesSel).length > 1)) {
+  if ((transOptsControl && Object.keys(transOptsSel).length > 1) || 
+    (mapTypesControl && Object.keys(mapTypesSel).length > 1)) {
     // Add gear icon to invoke options dialog
     mainDiv.append("img")
       .attr("src", "../images/gear.png")
@@ -90,85 +79,67 @@ export function svgMap({
         showOptsDialog(mapTypesKey, transOptsSel, transOptsKey)
       })
     // Create options dialog
-    optsDialog(id, transOptsSel, transOptsKey, transOptsOpts, mapTypesSel, mapTypesKey, mapTypesOpts, userChangedOptions)
+    optsDialog(id, transOptsSel, transOptsKey, transOptsControl, mapTypesSel, mapTypesKey, mapTypesControl, userChangedOptions)
   }
 
   function userChangedOptions(opts) {
     if (opts.transOptsKey && transOptsKey !== opts.transOptsKey){
       transOptsKey = opts.transOptsKey
-      transformSet()
+      trans = createTrans(transOptsSel[transOptsKey], height)
       drawBoundaryAndGrid()
       setSvgSize()
-      drawInsetBoxes(svg)
-      refreshDots(svg, transform, mapTypesSel[mapTypesKey], taxonIdentifier)
-      transformImages(basemaps, transform)
+      drawInsetBoxes()
+      refreshDots(svg, captionId, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier)
+      transformImages(basemaps, trans)
     }
     if (opts.mapTypesKey && mapTypesKey !== opts.mapTypesKey){
       mapTypesKey = opts.mapTypesKey
-      drawDots(svg, transform, mapTypesSel[mapTypesKey], taxonIdentifier)
+      drawDots(svg, captionId, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier)
         .then (data => {
           svgLegend(svg, data, legend, legendX, legendY, legendScale)
       })
     }
   }
 
-  function transformSet(){
-    let transOpts = transOptsSel[transOptsKey]
-    if (typeof transOpts === 'string') {
-      transOpts = namedTransOpts[transOpts]
-    }
-    transform = transformFunction(transOpts, height)
-    path = d3.geoPath()
-      .projection(
-        d3.geoTransform({
-          point: function(x, y) {
-            const tP = transform([x,y])
-            const tX = tP[0]
-            const tY = tP[1]
-            this.stream.point(tX, tY)
-          }
-        })
-      )
-    width = widthFromHeight(transOpts, height)
-  }
-
   function setSvgSize(){
     if (svg) {
       // Set width/height or viewbox depending on required behaviour
       if (expand) {
-        svg.attr("viewBox", "0 0 " + width + " " +  height)
+        svg.attr("viewBox", "0 0 " + trans.width + " " +  trans.height)
       } else {
-        svg.attr("width", width)
-        svg.attr("height", height)
+        svg.attr("width", trans.width)
+        svg.attr("height", trans.height)
       }
     }
   }
 
   function drawBoundaryAndGrid() {
     if (dataBoundary) {
+      boundaryf.selectAll("path").remove()
+      boundaryf.append("path")
+        .datum(dataBoundary)
+        .attr("d", trans.d3Path)
+        .style("stroke-opacity", 0)
+        .style("fill", boundaryFill)
       boundary.selectAll("path").remove()
       boundary.append("path")
         .datum(dataBoundary)
-        .attr("d", path)
-        .style("fill", boundaryFill)
+        .attr("d", trans.d3Path)
+        .style("fill-opacity", 0)
         .style("stroke", boundaryColour)
     }
     if (dataGrid) {
       grid.selectAll("path").remove()
       grid.append("path")
         .datum(dataGrid)
-        .attr("d", path)
+        .attr("d", trans.d3Path)
         .style("stroke", gridLineColour)
     }
   }
 
   function drawInsetBoxes() {
     svg.selectAll('.inset').remove()
-    let transOpts = transOptsSel[transOptsKey]
-    if (typeof transOpts === 'string') {
-      transOpts = namedTransOpts[transOpts]
-    }
-    getInsetDims(transOpts, height).forEach(function(i){
+    trans.insetDims.forEach(function(i){
       const margin = 10 
       svg.append('rect')
         .classed('inset', true)
@@ -189,29 +160,29 @@ export function svgMap({
     },
     setTransform: function setTransform (newTransOptsKey) {
       transOptsKey = newTransOptsKey
-      transformSet()
+      trans = createTrans(transOptsSel[transOptsKey], height)
       drawBoundaryAndGrid()
       setSvgSize()
       drawInsetBoxes()
-      refreshDots(svg, transform, mapTypesSel[mapTypesKey], taxonIdentifier)
-      transformImages(basemaps, transform)
+      refreshDots(svg, captionId, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier)
+      transformImages(basemaps, trans)
     },
     setIdentfier: function setIdentfier(identifier) {
       taxonIdentifier = identifier
-      drawDots(svg, transform, mapTypesSel[mapTypesKey], taxonIdentifier)
+      drawDots(svg, captionId, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier)
         .then (data => {
           svgLegend(svg, data, legend, legendX, legendY, legendScale)
       })
     },
     setMapType: function setMapType(newMapTypesKey) {
       mapTypesKey = newMapTypesKey
-      drawDots(svg, transform, mapTypesSel[mapTypesKey], taxonIdentifier)
+      drawDots(svg, captionId, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier)
         .then (data => {
           svgLegend(svg, data, legend, legendX, legendY, legendScale)
       })
     },
     basemapImage: function basemapImage(mapId, show, imageFile, worldFile) {
-      showImage(mapId, show, basemaps, imageFile, worldFile, transform)
+      showImage(mapId, show, basemaps, imageFile, worldFile, trans)
       // If no base map images shown then set boundary opacity to 1 otherwise 0
       // const layers = basemaps.selectAll('g')._groups[0].length
       // const hidden = basemaps.selectAll('g.baseMapHidden')._groups[0].length
@@ -227,7 +198,7 @@ export function svgMap({
   }
 
   // Initialise the display
-  transformSet()
+  trans = createTrans(transOptsSel[transOptsKey], height)
   setSvgSize()
   drawInsetBoxes()
 
