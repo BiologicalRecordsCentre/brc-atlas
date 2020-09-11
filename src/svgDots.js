@@ -2,15 +2,13 @@ import * as d3 from 'd3'
 import { getCentroid, checkGr } from 'brc-atlas-bigr'
 import { getRadiusPixels } from './general.js'
 
-export function refreshDots(svg, captionId, transform, accessFunction, taxonIdentifier) {
+export function removeDots(svg) {
   svg.selectAll('.dotCircle').remove()
   svg.selectAll('.dotSquare').remove()
   svg.selectAll('.dotTriangle').remove()
-  drawDots(svg, captionId, transform, accessFunction, taxonIdentifier)
 }
 
-export function drawDots(svg, captionId, transform, accessFunction, taxonIdentifier) {
-
+export function drawDots(svg, captionId, transform, accessFunction, taxonIdentifier, proj) {
   function getCaption(d) {
     if (d.caption) {
       return d.caption
@@ -35,8 +33,8 @@ export function drawDots(svg, captionId, transform, accessFunction, taxonIdentif
         circles.enter()
           .append("circle")
           .classed('dotCircle dot', true)
-          .attr("cx", d => transform(getCentroid(d.gr, 'gb').centroid)[0])
-          .attr("cy", d => transform(getCentroid(d.gr, 'gb').centroid)[1]) 
+          .attr("cx", d => transform(getCentroid(d.gr, proj).centroid)[0])
+          .attr("cy", d => transform(getCentroid(d.gr, proj).centroid)[1]) 
           .attr("r", 0)
           .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
@@ -67,8 +65,8 @@ export function drawDots(svg, captionId, transform, accessFunction, taxonIdentif
           bullseyes.enter()
           .append("circle")
           .classed('dotBullseye dot', true)
-          .attr("cx", d => transform(getCentroid(d.gr, 'gb').centroid)[0])
-          .attr("cy", d => transform(getCentroid(d.gr, 'gb').centroid)[1]) 
+          .attr("cx", d => transform(getCentroid(d.gr, proj).centroid)[0])
+          .attr("cy", d => transform(getCentroid(d.gr, proj).centroid)[1]) 
           .attr("r", 0)
           .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour2 ? d.colour2 : data.colour2)
@@ -99,8 +97,8 @@ export function drawDots(svg, captionId, transform, accessFunction, taxonIdentif
         squares.enter()
           .append("rect")
           .classed('dotSquare dot', true)
-          .attr("x", d => transform(getCentroid(d.gr, 'gb').centroid)[0])
-          .attr("y", d => transform(getCentroid(d.gr, 'gb').centroid)[1])
+          .attr("x", d => transform(getCentroid(d.gr, proj).centroid)[0])
+          .attr("y", d => transform(getCentroid(d.gr, proj).centroid)[1])
           .attr("width", 0)
           .attr("height", 0) 
           .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
@@ -113,8 +111,8 @@ export function drawDots(svg, captionId, transform, accessFunction, taxonIdentif
           .attr("height", d => d.size ? 2 * radiusPixels * d.size : 2 * radiusPixels * data.size)
           .attr("transform", d => {
             if (checkGr(d.gr).projection === 'ir') {
-              const x = transform(getCentroid(d.gr, 'gb').centroid)[0]
-              const y = transform(getCentroid(d.gr, 'gb').centroid)[1]
+              const x = transform(getCentroid(d.gr, proj).centroid)[0]
+              const y = transform(getCentroid(d.gr, proj).centroid)[1]
               return `translate(${-radiusPixels},${-radiusPixels}) rotate(5 ${x} ${y})`
             } else {
               return `translate(${-radiusPixels},${-radiusPixels})`
@@ -148,8 +146,8 @@ export function drawDots(svg, captionId, transform, accessFunction, taxonIdentif
             .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
             .style("fill", d => d.colour ? d.colour : data.colour)
             .attr("transform", d => {
-              const x = transform(getCentroid(d.gr, 'gb').centroid)[0]
-              const y = transform(getCentroid(d.gr, 'gb').centroid)[1]
+              const x = transform(getCentroid(d.gr, proj).centroid)[0]
+              const y = transform(getCentroid(d.gr, proj).centroid)[1]
               let extraRotate, yOffset
               if (d.shape === 'triangle-up') {
                 extraRotate=0
@@ -158,6 +156,7 @@ export function drawDots(svg, captionId, transform, accessFunction, taxonIdentif
                 extraRotate=180
                 yOffset=-radiusPixels/3
               }
+              // TODO - only do this rotation for output projection gb
               if (checkGr(d.gr).projection === 'ir') {
                 return `translate(${x},${y + yOffset}) rotate(${5 + extraRotate})`
               } else {

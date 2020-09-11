@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>BRC Atlas Library example 3</title>
+</head>
+<body>
+  <div class="content">
+    <h1>Using the BRC Atlas Library</h1>
+    <h2>Show an Irish distribution map from a CSV file</h2>
+    <div id="map"></div>
+    <p>
+      This example demonstrates creation of an atlas map for a region
+      of the British Ilse for which boundary, grid and transformation
+      information does not exists as a standard asset in the library.
+      In this case, we are displaying a hectad map for Ireland and
+      the map is shown on the Irish projection.
+    </p>
+    <p>
+      For an explanation of the code that instantiates a standard map and displays,
+      see <a href='./example-1.html'>example-1.html</a>. This example builds on that
+      one.
+    </p>
+    <p>
+      Create the map in the div element with the id 'map' with the necessary
+      configuration options. See text below for an explanation of them.
+    </p>
+<pre>
+<code class="javascript">var map = brcatlas.svgMap({
+  id: "map",
+  mapTypesKey: 'Standard hectad',
+  transOptsKey: 'Ire1',
+  transOptsSel: {
+    Ire1: {
+      id: 'Ire1',
+      caption: 'Island of Ireland',
+      bounds: {
+        xmin: 18000,
+        ymin: 12000,
+        xmax: 380000,
+        ymax: 470000
+      },
+    },
+  },
+  boundaryGjson: './ireland-29903.geojson',
+  gridGjson: './ireland-grid-29903.geojson',
+  proj: "ir",
+})
+map.setIdentfier('./example-irish-hectads-1.csv')
+map.redrawMap()</code>
+</pre>
+    <ul>
+      <li><strong>transOptsKey</strong>: this specifies the key of
+        the transformation option that is to be selected from 
+        transformation option objects defined by <i>transOptsSel</i>.
+      </li>
+      <li><strong>transOptsSel</strong>: has one or more properties
+        corresponding to transformation option objects. In this
+        case only a single transformation is defined. The bounds 
+        specify a suitable bounding box for the island of Ireland
+        which must use coordinates in the same projection used
+        for the geojson files used to define the boundary and/or grids.
+        In this case we are using data projected in the Irish Grid 
+        TM75 (EPSG code 29903).
+      </li>
+      <li><strong>boundaryGjson</strong>: a geoJson file which specifies
+        the geographical boundary of the island of Ireland. This 
+        is projected in the Irish Grid system (EPSG code 29903).
+      </li>
+      <li><strong>gridGjson</strong>: a geoJson file which specifies
+        some grid lines for the island of Ireland - 100 km grid in this
+        case. This 
+        is projected in the Irish Grid system (EPSG code 29903).
+      </li>
+      <li><strong>proj</strong>: this is used to specify the projection
+        that will be used to render the altas 'dots'. It requires a two
+        letter code corresponding one of the projections known to 
+        the BRC Atlas library ('gb', 'ir' or 'ci'). Here, of course,
+        we use 'ir' corresponding to the Irish Grid System.
+      </li>
+    </ul>
+
+    <p>
+      We use <i>map.setIdentfier</i> to identify some data 
+      from a CSV file that contains
+      Irish hectad grid references. We are using the standard hectad
+      data accessor function <i>Standard hectad</i>. Finally
+      we draw the map with <i>map.redrawMap</i>.
+    </p>
+
+    <!--JS and CSS required for highlighting inline example code-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/a11y-light.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <!--Page CSS-->
+    <link rel="stylesheet" href="example.css" />
+
+    <!--D3 JS required exernal dependency of BRC Atlas library-->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+
+    <!--BRC Atlas library JS and CSS-->
+    <script src="./../../brc-atlas/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="./../../brc-atlas/dist/brcatlas.umd.css">
+    <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas/dist/brcatlas.umd.css"> -->
+
+    <script>
+      var map = brcatlas.svgMap({
+        id: "map",
+        mapTypesKey: 'Standard hectad',
+        transOptsKey: 'Ire1',
+        transOptsSel: {
+          Ire1: {
+            id: 'Ire1',
+            caption: 'Island of Ireland',
+            bounds: {
+              xmin: 18000,
+              ymin: 12000,
+              xmax: 380000,
+              ymax: 470000
+            },
+          },
+        },
+        boundaryGjson: './ireland-29903.geojson',
+        gridGjson: './ireland-grid-29903.geojson',
+        proj: "ir"
+      })
+      map.setIdentfier('./example-irish-hectads-1.csv')
+      map.redrawMap()
+    </script>
+  </div>
+</body>
+</html>

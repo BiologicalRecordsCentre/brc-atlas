@@ -6,14 +6,14 @@
 
   /** @module src/coordsToImage */
   /**
-   * Given a transform object, describing a bounding rectangle in world coordinates,
+   * Given a transform options object, describing a bounding rectangle in world coordinates,
    * and a height dimension, this function returns an array of objects - one
    * for each inset described in the transform object - that describe a set of
    * rectangles corresponding to each of the insets. Each object has an origin
-   * corresponding to the top left of the rectangle, a width and a height dimension.
+   * corresponding to the top-left of the rectangle, a width and a height dimension.
    * The dimensions and coordiates are relative to the height argument. A typical
    * use of these metrics would be to draw an SVG rectagle around an inset.
-   * @param {object} transOpts - the transformation object
+   * @param {object} transOpts - the transformation options object.
    * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
    * @returns {Array<Object>}
    */
@@ -41,10 +41,10 @@
     return insetDims;
   }
   /**
-   * Given a transform object, describing a bounding rectangle in world coordinates,
+   * Given a transform options object, describing a bounding rectangle in world coordinates,
    * and a height dimension, this function returns a width dimension
    * that respects the aspect ratio described by the bounding rectangle.
-   * @param {object} transOpts - the transformation object
+   * @param {object} transOpts - the transformation options object.
    * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
    * @returns {number}
    */
@@ -56,7 +56,7 @@
     return outputHeight * realWidth / realHeight;
   }
   /**
-   * Given a transform object, describing a bounding rectangle in world coordinates,
+   * Given a transform options object, describing a bounding rectangle in world coordinates,
    * and a height dimension, this function returns a new function that will accept a
    * point argument - normally describing real world coordinates - and returns a 
    * point that is transformed to be within the range 0 - outputHeight (for y)
@@ -65,7 +65,7 @@
    * The transOpts argument is an object which can also describe areas which should
    * displaced in the output. This can be used for displaying islands in an
    * inset, e.g. the Channel Islands.
-   * @param {object} transOpts - the transformation object
+   * @param {object} transOpts - the transformation options object.
    * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
    * @returns {function}
    */
@@ -113,7 +113,18 @@
     };
   }
   /**
-   * TODO document
+   * Given a transform options object, describing a bounding rectangle in world coordinates,
+   * and a height dimension, this function returns an object that encapsulates the transformation
+   * options and provides additional transformation functionality and other information.
+   * @param {Object} transOpts - the transformation options object.
+   * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
+   * @returns {Object} transopts - the transformation object.
+   * @returns {Object} transopts.params - The transformation options object.
+   * @returns {Array<Object>} transopts.insetDims - an array of objects defining the position and size of insets.
+   * @returns {number} transopts.height - the height, e.g. height in pixels, of the SVG element.
+   * @returns {number} transopts.width - the width, e.g. width in pixels, of the SVG element.
+   * @returns {function} transopts.point - a function that will take a point object describing real world coordinates and return the SVG coordinates.
+   * @returns {function} transopts.d3Path - a function that will take a geoJson path in real world coordinates and return the SVG path.
    */
 
 
@@ -153,11 +164,15 @@
     * format to be used as transOpts arguments to some of the functions in this module.
     * Using one of these may save you generating one of your own. The main bounds element
     * indicates the extent of the main map (in real world coordinates). The bounds of
-    * inset objects indicate the extent that is to be offset within the map image. The
-    * imageX and imageY values of an inset object indicates the position of the offset
+    * inset objects indicate the extent that is to be offset within the map image.
+    * The imageX and imageY values of an inset object indicates the position of the offset
     * portion within the map in pixels. Positve x and y values offset the inset from the
     * left and bottom of the image respecitvely. Negative x and y values offset the inset
     * from the right and top of the image respectively.
+    * Each transOpts object also has a property called 'id' which must be set to the
+    * value used as a key to the object in the parent object. Each also has a
+    * property called 'caption' which has a name which can be displayed if offering
+    * users a choice between transformation objects.
     * <ul>
     * <li> <b>namedTransOpts.BI1</b> is a bounding box, in EPSG:27700, for the 
     * British Ilses that includes the Channel Islands in their natural position.
@@ -240,58 +255,189 @@
       }]
     }
   };
-
-  /* ANY GENERALLY USEFUL DATA ACCESS ROUTINES SHOULD GO IN THIS MODULE *?
-
   /**
-   * This will be a general purpose CSV reader that will read
-   * CSV expecting columns gr, shape, size, colour etc.
-   * @param {Object} opts - initialisation options.
+   * Given both 'from' and 'to' transform options objects, an output height and a
+   * 'tween' value between 0 and 1, this function returns a transform option object
+   * for which the map bounds, the inset bounds and the inset image position
+   * are all interpolated between the 'from' and 'to' objects at a position
+   * depending on the value of the tween value. Typically this would then be used
+   * to help generate a path transformation to use with D3 to animate transitions
+   * between different map transformations. Note that this only works with
+   * named transformation objects defined in this library.
+   * @param {object} from - the 'from' transformation options object.
+   * @param {object} to - the 'to' transformation options object.
+   * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
+   * @param {number} tween - between 0 and 1 indicating the interpolation position.
+   * @returns {object} - in intermediate transformation options object.
    */
 
-  function noData() {
-    return new Promise(function (resolve) {
-      resolve({
-        records: [],
-        size: 1,
-        shape: 'circle',
-        precision: 10000,
-        opacity: 1
+  function getTweenTransOpts(from, to, outputHeight, tween) {
+    var fto = copyTransOptsForTween(namedTransOpts[from], outputHeight);
+    var tto = copyTransOptsForTween(namedTransOpts[to], outputHeight);
+    var rto = {
+      bounds: {
+        xmin: fto.bounds.xmin + (tto.bounds.xmin - fto.bounds.xmin) * tween,
+        xmax: fto.bounds.xmax + (tto.bounds.xmax - fto.bounds.xmax) * tween,
+        ymin: fto.bounds.ymin + (tto.bounds.ymin - fto.bounds.ymin) * tween,
+        ymax: fto.bounds.ymax + (tto.bounds.ymax - fto.bounds.ymax) * tween
+      },
+      insets: [],
+      forTween: true // Means that negative image positions won't be translated by transformFunction
+
+    };
+    fto.insets.forEach(function (i, idx) {
+      rto.insets.push({
+        bounds: {
+          xmin: i.bounds.xmin + (tto.insets[idx].bounds.xmin - i.bounds.xmin) * tween,
+          xmax: i.bounds.xmax + (tto.insets[idx].bounds.xmax - i.bounds.xmax) * tween,
+          ymin: i.bounds.ymin + (tto.insets[idx].bounds.ymin - i.bounds.ymin) * tween,
+          ymax: i.bounds.ymax + (tto.insets[idx].bounds.ymax - i.bounds.ymax) * tween
+        },
+        imageX: i.imageX + (tto.insets[idx].imageX - i.imageX) * tween,
+        imageY: i.imageY + (tto.insets[idx].imageY - i.imageY) * tween
       });
     });
+    return rto;
   }
-  function csvHectad(opts) {
-    // #TDOO - code below is just a placeholder
+
+  function copyTransOptsForTween(transOpts, outputHeight) {
+    // This function makes a copy of a transformation object. The copy is different
+    // from the original in two respects. Firstly the image positions of the insets
+    // are expressed as positive numbers (from bottom or left of image)
+    // even when expressed as negative offsets (from top or right of image) in the
+    // original. Secondly all named insets used in this library are represented in
+    // the returned object even if not present in the original. Such insets are
+    // given image positions that reflect their real world positions.
+    var insetDims = getInsetDims(transOpts, outputHeight);
+    var tto = {
+      bounds: {
+        xmin: transOpts.bounds.xmin,
+        xmax: transOpts.bounds.xmax,
+        ymin: transOpts.bounds.ymin,
+        ymax: transOpts.bounds.ymax
+      },
+      insets: []
+    };
+
+    if (transOpts.insets) {
+      transOpts.insets.forEach(function (i, idx) {
+        var iNew = {
+          bounds: {
+            xmin: i.bounds.xmin,
+            xmax: i.bounds.xmax,
+            ymin: i.bounds.ymin,
+            ymax: i.bounds.ymax
+          }
+        }; // Usng the calculated insetDims translates any negative numbers - used
+        // as shorthand for defining position offsets from top or right margin - to 
+        // positive values from bottom and left.
+
+        iNew.imageX = insetDims[idx].x, iNew.imageY = outputHeight - insetDims[idx].y - insetDims[idx].height;
+        tto.insets.push(iNew);
+      });
+    }
+
+    var insetCi, insetNi;
+    tto.insets.forEach(function (i) {
+      if (i.bounds.xmin === boundsChannelIslands_gb.xmin) {
+        insetCi = true;
+      }
+
+      if (i.bounds.xmin === boundsNorthernIsles_gb.xmin) {
+        insetNi = true;
+      }
+    });
+
+    if (!insetCi) {
+      tto.insets.unshift({
+        bounds: boundsChannelIslands_gb,
+        imageX: (boundsChannelIslands_gb.xmin - tto.bounds.xmin) / (tto.bounds.xmax - tto.bounds.xmin) * widthFromHeight(tto, outputHeight),
+        imageY: (boundsChannelIslands_gb.ymin - tto.bounds.ymin) / (tto.bounds.ymax - tto.bounds.ymin) * outputHeight
+      });
+    }
+
+    if (!insetNi) {
+      tto.insets.push({
+        bounds: boundsNorthernIsles_gb,
+        imageX: (boundsNorthernIsles_gb.xmin - tto.bounds.xmin) / (tto.bounds.xmax - tto.bounds.xmin) * widthFromHeight(tto, outputHeight),
+        imageY: (boundsNorthernIsles_gb.ymin - tto.bounds.ymin) / (tto.bounds.ymax - tto.bounds.ymin) * outputHeight
+      });
+    }
+
+    return tto;
+  }
+
+  /** @module src/dataAccess */
+
+  function csvMonad(file) {
+    return csvGr(file, 1000);
+  }
+
+  function csvTetrad(file) {
+    return csvGr(file, 2000);
+  }
+
+  function csvHectad(file) {
+    return csvGr(file, 10000);
+  }
+
+  function csvGr(file, precision) {
     return new Promise(function (resolve, reject) {
-      d3.csv(opts.data, function (r) {
-        if (r.Hectad) {
-          // e.g. {Hectad: "NZ09"}
+      d3.csv(file, function (r) {
+        if (r.gr) {
           return {
-            gr: r.Hectad,
-            colour: "red"
+            gr: r.gr,
+            caption: "<strong>Grid ref: </strong>".concat(r.gr),
+            colour: r.colour,
+            shape: r.shape,
+            opacity: r.opacity,
+            size: r.size
           };
         }
       }).then(function (data) {
         resolve({
           records: data,
-          size: 1,
-          shape: 'circle',
-          precision: 10000,
-          opacity: 0.8
+          precision: precision
         });
       })["catch"](function (e) {
         reject(e);
       });
     });
   }
-
-  /** @module src/constants */
-
   /** @constant
-    * @description This object contains some constants which may be required 
-    * throughout the library.
-    *  @type {object}
+  * @description This object has properties corresponding to a number of data access
+  * functions that can be used to load data provided in standard formats. There are
+  * three functions accessed through the keys listed below.
+  * <ul>
+  * <li> <b>Standard monad</b> expects the grid references to be monads (1 km resolution).
+  * <li> <b>Standard tetrad</b> expects the grid references to be tetrads (2 km resolution).
+  * <li> <b>Standard hectad</b> expects the grid references to be hectads (10 km resolution).
+  * </ul>
+  * Each of the
+  * data accessor functions referenced by these keys takes a single argument which is the path (or URL) of
+  * a CSV that contains data in a standard format. The columns which must be present in the 
+  * CSV are described below (the order is not important).
+  * <ul>
+  * <li> <b>gr</b> - the grid referece which must be of the correct precision for the function.
+  * <li> <b>shape</b> - describes the shape that will be displayed at that location,
+  * valid values are: circle, square, diamond, triangle-up, triangle-down.
+  * <li> <b>size</b> - a number between 0 and 1 which will be used as a factor to resize the
+  * dot symbol displayed on the map.
+  * <li> <b>colour</b> - a colour for the symbol which can be hex format, e.g. #FFA500, 
+  * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
+  * <li> <b>opacity</b> - a number between 0 and 1 used to set the opacity of the symbol
+  * (0 is fully transparent and 1 fully opaque).
+  * </ul>
+  *  @type {object}
   */
+
+
+  var dataAccessors = {
+    'Standard monad': csvMonad,
+    'Standard tetrad': csvTetrad,
+    'Standard hectad': csvHectad
+  };
+
   var constants = {
     cdn: 'https://unpkg.com/brc-atlas-bigr/dist'
   };
@@ -738,22 +884,6 @@
 
   window.MicroModal = MicroModal;
 
-  /**
-   * #TODO
-   * @returns {null} - there is no return object.
-   */
-  // export function optsDialog({
-  //     // Default options in here
-  //     parentId = 'body',
-  //     transOptsSel = {},
-  //     transOptsKey = "",
-  //     transOptsControl = false,
-  //     mapTypesSel = {},
-  //     mapTypesKey = "",
-  //     mapTypesControl = false,
-  //     applyFunction = null,
-  //   } = {}) {
-
   function optsDialog(parentId, transOptsSel, transOptsKey, transOptsControl, mapTypesSel, mapTypesKey, mapTypesControl, applyFunction) {
     // Create map SVG in given parent
     var div1 = d3.select("#".concat(parentId)).append("div").classed("modal micromodal-slide", true).attr("id", "modal-1").attr("aria-hidden", "true");
@@ -836,12 +966,6 @@
   }
 
   var basemaps = {};
-  /**
-   * #TODO - description and full parameter list.
-   * @param {SVG g element} g - the SVG g element that hosts the basemap images.
-   * @returns {null} - there is no return object.
-   */
-
   function showImage(mapId, show, gBasemaps, imageFile, worldFile, trans) {
     // Save the map source details for use with transformImages
     if (!basemaps[mapId] && show) {
@@ -920,13 +1044,7 @@
                 clippath.append('rect').attr('x', dims.x).attr('y', dims.y).attr('width', dims.width).attr('height', dims.height);
               }
 
-              var _img = gBasemaps.select("#basemap-".concat(mapId, "-").concat(transId)).append('image') // .attr('data-xResolution', xResolution)
-              // .attr('data-yResolution', yResolution)
-              // .attr('data-minEasting', minEasting)
-              // .attr('data-maxNorthing', maxNorthing)
-              // .attr('data-imageWidth', imageWidth)
-              // .attr('data-imageHeight', imageHeight)
-              .attr('href', imageFile).attr('x', topLeft[0] + xShift).attr('y', topLeft[1] + yShift).attr('width', topRight[0] - topLeft[0]).attr('height', bottomLeft[1] - topLeft[1]);
+              var _img = gBasemaps.select("#basemap-".concat(mapId, "-").concat(transId)).append('image').attr('href', imageFile).attr('x', topLeft[0] + xShift).attr('y', topLeft[1] + yShift).attr('width', topRight[0] - topLeft[0]).attr('height', bottomLeft[1] - topLeft[1]);
 
               if (i > 0) {
                 _img.attr('clip-path', "url(#clippath-".concat(mapId, "-").concat(transId, "-").concat(i, ")"));
@@ -944,8 +1062,6 @@
     }
   }
   function transformImages(gBasemaps, trans) {
-    //showImage(mapId, show, gBasemaps, imageFile, worldFile, trans)
-    console.log(basemaps);
     Object.keys(basemaps).forEach(function (k) {
       var b = basemaps[k];
 
@@ -954,28 +1070,7 @@
         console.log(b.mapId, !hidden);
         showImage(b.mapId, !hidden, gBasemaps, b.imageFile, b.worldFile, trans);
       }
-    }); // gBasemaps.selectAll('image')
-    //   .each(function(){
-    //     // Don't use fat arrow above because this needs to
-    //     // resolve correctly below.
-    //     const img = d3.select(this)
-    //     const minEasting = Number(img.attr('data-minEasting'))
-    //     const maxNorthing = Number(img.attr('data-maxNorthing'))
-    //     const imageWidth = Number(img.attr('data-imageWidth'))
-    //     const imageHeight = Number(img.attr('data-imageHeight'))
-    //     const xResolution = Number(img.attr('data-xResolution'))
-    //     const yResolution = Number(img.attr('data-yResolution'))
-    //     const maxEasting = minEasting + imageWidth * xResolution
-    //     const minNorthing = maxNorthing + imageHeight * yResolution
-    //     const topLeft = trans.point([minEasting, maxNorthing])
-    //     const topRight = trans.point([maxEasting, maxNorthing])
-    //     const bottomLeft = trans.point([minEasting, minNorthing])
-    //     img
-    //       .attr('x', topLeft[0])
-    //       .attr('y', topLeft[1])
-    //       .attr('width', topRight[0]-topLeft[0])
-    //       .attr('height', bottomLeft[1]-topLeft[1])
-    //   })
+    });
   }
   function setImagePriorities(gBasemaps, mapIds) {
     mapIds.reverse().forEach(function (mapId) {
@@ -8435,13 +8530,12 @@
     return Math.abs(transform([300000, 300000])[0] - transform([300000 + precision / 2, 300000])[0]);
   }
 
-  function refreshDots(svg, captionId, transform, accessFunction, taxonIdentifier) {
+  function removeDots(svg) {
     svg.selectAll('.dotCircle').remove();
     svg.selectAll('.dotSquare').remove();
     svg.selectAll('.dotTriangle').remove();
-    drawDots(svg, captionId, transform, accessFunction, taxonIdentifier);
   }
-  function drawDots(svg, captionId, transform, accessFunction, taxonIdentifier) {
+  function drawDots(svg, captionId, transform, accessFunction, taxonIdentifier, proj) {
     function getCaption(d) {
       if (d.caption) {
         return d.caption;
@@ -8469,9 +8563,9 @@
             return d.gr;
           });
           circles.enter().append("circle").classed('dotCircle dot', true).attr("cx", function (d) {
-            return transform(getCentroid(d.gr, 'gb').centroid)[0];
+            return transform(getCentroid(d.gr, proj).centroid)[0];
           }).attr("cy", function (d) {
-            return transform(getCentroid(d.gr, 'gb').centroid)[1];
+            return transform(getCentroid(d.gr, proj).centroid)[1];
           }).attr("r", 0).attr("opacity", function (d) {
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
@@ -8501,9 +8595,9 @@
             return d.gr;
           });
           bullseyes.enter().append("circle").classed('dotBullseye dot', true).attr("cx", function (d) {
-            return transform(getCentroid(d.gr, 'gb').centroid)[0];
+            return transform(getCentroid(d.gr, proj).centroid)[0];
           }).attr("cy", function (d) {
-            return transform(getCentroid(d.gr, 'gb').centroid)[1];
+            return transform(getCentroid(d.gr, proj).centroid)[1];
           }).attr("r", 0).attr("opacity", function (d) {
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
@@ -8533,9 +8627,9 @@
             return d.gr;
           });
           squares.enter().append("rect").classed('dotSquare dot', true).attr("x", function (d) {
-            return transform(getCentroid(d.gr, 'gb').centroid)[0];
+            return transform(getCentroid(d.gr, proj).centroid)[0];
           }).attr("y", function (d) {
-            return transform(getCentroid(d.gr, 'gb').centroid)[1];
+            return transform(getCentroid(d.gr, proj).centroid)[1];
           }).attr("width", 0).attr("height", 0).attr("opacity", function (d) {
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
@@ -8546,8 +8640,8 @@
             return d.size ? 2 * radiusPixels * d.size : 2 * radiusPixels * data.size;
           }).attr("transform", function (d) {
             if (checkGr(d.gr).projection === 'ir') {
-              var x = transform(getCentroid(d.gr, 'gb').centroid)[0];
-              var y = transform(getCentroid(d.gr, 'gb').centroid)[1];
+              var x = transform(getCentroid(d.gr, proj).centroid)[0];
+              var y = transform(getCentroid(d.gr, proj).centroid)[1];
               return "translate(".concat(-radiusPixels, ",").concat(-radiusPixels, ") rotate(5 ").concat(x, " ").concat(y, ")");
             } else {
               return "translate(".concat(-radiusPixels, ",").concat(-radiusPixels, ")");
@@ -8579,8 +8673,8 @@
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
           }).attr("transform", function (d) {
-            var x = transform(getCentroid(d.gr, 'gb').centroid)[0];
-            var y = transform(getCentroid(d.gr, 'gb').centroid)[1];
+            var x = transform(getCentroid(d.gr, proj).centroid)[0];
+            var y = transform(getCentroid(d.gr, proj).centroid)[1];
             var extraRotate, yOffset;
 
             if (d.shape === 'triangle-up') {
@@ -8589,7 +8683,8 @@
             } else {
               extraRotate = 180;
               yOffset = -radiusPixels / 3;
-            }
+            } // TODO - only do this rotation for output projection gb
+
 
             if (checkGr(d.gr).projection === 'ir') {
               return "translate(".concat(x, ",").concat(y + yOffset, ") rotate(").concat(5 + extraRotate, ")");
@@ -8626,20 +8721,21 @@
     });
   }
 
-  function svgLegend(svg, data, legend, legendX, legendY, legendScale) {
-    if (!legend) return;
-    svg.select('#legend').remove();
-    if (!data.legend) return;
+  function svgLegend(svg, legendOpts) {
+    var legendData = legendOpts.data ? legendOpts.data : legendOpts.accessorData;
+    var legendX = legendOpts.x;
+    var legendY = legendOpts.y;
+    var legendScale = legendOpts.scale;
     var lineHeight = 20;
     var swatchPixels = lineHeight / 3;
     var gLegend = svg.append('g').attr('id', 'legend');
-    gLegend.append('text').attr('x', 0).attr('y', lineHeight).attr('font-weight', 'bold').text(data.legend.title);
-    data.legend.lines.forEach(function (l, i) {
-      var shape = l.shape ? l.shape : data.shape;
-      var size = l.size ? l.size : data.size;
-      var opacity = l.opacity ? l.opacity : data.opacity;
-      var colour = l.colour ? l.colour : data.colour;
-      var colour2 = l.colour2 ? l.colour2 : data.colour2;
+    gLegend.append('text').attr('x', 0).attr('y', lineHeight).attr('font-weight', 'bold').text(legendData.title);
+    legendData.lines.forEach(function (l, i) {
+      var shape = l.shape ? l.shape : legendData.shape;
+      var size = l.size ? l.size : legendData.size;
+      var opacity = l.opacity ? l.opacity : legendData.opacity;
+      var colour = l.colour ? l.colour : legendData.colour;
+      var colour2 = l.colour2 ? l.colour2 : legendData.colour2;
       var dot;
 
       if (shape === 'circle') {
@@ -8657,42 +8753,145 @@
 
       dot.style('fill', colour).style('opacity', opacity);
     });
-    data.legend.lines.forEach(function (l, i) {
+    legendData.lines.forEach(function (l, i) {
       gLegend.append('text').attr('x', swatchPixels * 4).attr('y', lineHeight * (i + 2.5)).text(l.text);
     });
     gLegend.attr("transform", "translate(".concat(legendX, ",").concat(legendY, ") scale(").concat(legendScale, ", ").concat(legendScale, ")"));
   }
 
   /**
-   * #TODO - description and full parameter list.
+   * @typedef {Object} legendOpts
+   * @property {boolean} display - indicates whether or not a legend is to be drawn.
+   * @property {number} scale - a number between 0 and 1 which scales the size of the legend.
+   * @property {number} x - an offset of the top-left corner of the legend from the left margin of the SVG.
+   * @property {number} y - an offset of the top-left corner of the legend from the top margin of the SVG.
+   * @property {legendDefintion} data - a legend defition.
+   */
+
+  /**
+  * @typedef {Object} legendDefintion
+  * @property {string} title - a title caption for the legend.
+  * @property {number} size - a number between 0 and 1.
+  * This is one factor taken into account to calculate the size of the legend dots.
+  * @property {number} precision - should match the precision (in metres) of the map dot, e.g. 2000 for tetrads.
+  * This is one factor taken into account to calculate the size of the legend dots.
+  * @property {number} opacity - a number between 0 and 1 indicating the opacity of the legend symbol. 0 is completely
+  * transparent and 1 is completely opaque.
+  * @property {Array.<legendLine>} lines - an arry of objects representing lines in a legend.
+  */
+
+  /**
+  * @typedef {Object} legendLine
+  * @property {string} color - a colour for the legend symbol which can be hex format, e.g. #FFA500, 
+  * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
+  * @property {string} shape - describes symbol shape for the legend line.
+  * Valid values are: circle, square, diamond, triangle-up, triangle-down.
+  * @property {string} text - specifies the text for the legend line.
+  */
+
+  /**
+  * @typedef {Object} transOptsSel
+  * @property {transOpts} key - there must be at least one, but potentially more, properties
+  * on this object, each describing a map 'transformation'.
+  */
+
+  /**
+   * @typedef {Object} transOpts - A 'transformation' object simply defines the extents of the
+   * map, potentially with insets too.
+   * @property {string} id - this must match the key by which the object is accessed through
+   * the parent object.
+   * @property {string} caption - a human readable name for this transformation options object.
+   * @property {transOptsBounds} bounds - an object defining the extents of the map.
+   * @property {Array.<transOptsInset>} insets - an array of objects defining the inset portions of the map. 
+   */
+
+  /**
+   * @typedef {Object} transOptsInset - an object defining an inset for a map, i.e. part of a map
+   * which will be displayed in a different location to that in which it is actually found 
+   * @property {transOptsBounds} bounds - an object defining the extents of the inset.
+   * @property {number} imageX - a value defining where the inset will be displayed
+   * (displaced) on the SVG. If the number is positive it represents the number of 
+   * pixels the left boundary of the inset will be positioned from the left margin of
+   * the SVG. If it is negative, it represents the number of pixels the right boundary
+   * of the inset will be positioned from the right boundary of the SVG.
+   * @property {number} imageY - a value defining where the inset will be displayed
+   * (displaced) on the SVG. If the number is positive it represents the number of 
+   * pixels the botton boundary of the inset will be positioned from the bottom margin of
+   * the SVG. If it is negative, it represents the number of pixels the top boundary
+   * of the inset will be positioned from the top boundary of the SVG.
+   */
+
+  /**
+  * @typedef {Object} transOptsBounds - an object defining the extents of the map, 
+  * or portion of a mpa, in the projection system
+  * you want to use (either British Nation Gid, Irish National Grid or UTM 30 N for Channel Islands).
+  * properties on this element are xmin, ymin, xmax and ymax.
+  * @property {number} xmin - the x value for the lower left corner.
+  * @property {number} ymin - the y value for the lower left corner.
+  * @property {number} xmax - the x value for the top right corner.
+  * @property {number} ymax - the y value for the top right corner.
+  */
+
+  /**
+  * @typedef {Object} api
+  * @property {function} setBoundaryColour - change the colour of the boundary. Pass a single argument
+  * which is a string specifying the colour which can be hex format, e.g. #FFA500, 
+  * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
+  * @property {setTransform} setTransform - set the transformation options object by passing a single argument
+  * which is a string indicating the key of the transformation in the parent object.
+  * @property {function} animateTransChange - set the transformation options object.
+  * @property {function} setIdentfier - set the transformation options object.
+  * @property {function} setMapType - set the transformation options object.
+  * @property {function} basemapImage - set the transformation options object.
+  * @property {function} baseMapPriorities - set the transformation options object.
+  * @property {function} setLegendOpts - set the transformation options object.
+  * @property {function} redrawMap - set the transformation options object.
+  * @property {function} clearMap - set the transformation options object.
+  */
+
+  /**
    * @param {Object} opts - initialisation options.
    * @param {string} opts.id - the id of the element which will be the parent of the SVG.
-   * @param {number} opts.height - the height of the SVG.
+   * @param {string} opts.proj - the projection of the map, should be 'gb', 'ir' or 'ci'. It should 
+   * reflect the projection of boundary and grid data displayed on the map. It is used to generate the 'dots'
+   * in the correct location.
+   * @param {number} opts.captionId - the id of a DOM element into which feature-specific HTML will be displayed
+   * as the mouse moves over a dot on the map. The HTML markup must be stored in an attribute called 'caption'
+   * in the input data.
+   * @param {number} opts.height - the desired height of the SVG.
    * @param {boolean} opts.expand - indicates whether or not the map will expand to fill parent element.
-   * @param {Object or string} opts.transOptsInit - a transformation object or a string representing a pre-defined transformation.
+   * @param {legendOpts} opts.legendOpts - sets options for a map legend.
+   * @param {transOptsSel} opts.transOptsSel - sets a collection of map transformation options.
+   * @param {string} opts.transOptsKey - sets the key of the selected map transformation options. Must be
+   * present in as a key in the  opts.transOptsSel object.
+   * @param {boolean} opts.transOptsControl - indicates whether or not a control should be shown in the
+   * bottom-right of the map that can be used display a dialog to change the transformation options.
    * @param {string} opts.boundaryGjson - the URL of a boundary geoJson file to display.
    * @param {string} opts.gridGjson - the URL of a grid geoJson file to display.
-   * @returns {null} - there is no return object.
+   * @param {string} opts.gridLineColour - specifies the line colour of grid line geoJson.
+   * @param {string} opts.boundaryColour - specifies the line colour of the boundary geoJson.
+   * @param {string} opts.boundaryFill - specifies the fill colour of the boundary geoJson.
+   * @param {string} opts.seaFill - specifies the fill colour of the area outside the boundary geoJson.
+   * @param {string} opts.insetColour - specifies the line colour of map inset boxes.
+   * @returns {api} api - returns an API for the map.
    */
 
   function svgMap() {
     var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
         _ref$id = _ref.id,
         id = _ref$id === void 0 ? 'body' : _ref$id,
+        _ref$proj = _ref.proj,
+        proj = _ref$proj === void 0 ? 'gb' : _ref$proj,
         _ref$captionId = _ref.captionId,
         captionId = _ref$captionId === void 0 ? '' : _ref$captionId,
         _ref$height = _ref.height,
         height = _ref$height === void 0 ? 500 : _ref$height,
         _ref$expand = _ref.expand,
         expand = _ref$expand === void 0 ? false : _ref$expand,
-        _ref$legend = _ref.legend,
-        legend = _ref$legend === void 0 ? false : _ref$legend,
-        _ref$legendScale = _ref.legendScale,
-        legendScale = _ref$legendScale === void 0 ? 1 : _ref$legendScale,
-        _ref$legendX = _ref.legendX,
-        legendX = _ref$legendX === void 0 ? 10 : _ref$legendX,
-        _ref$legendY = _ref.legendY,
-        legendY = _ref$legendY === void 0 ? 5 : _ref$legendY,
+        _ref$legendOpts = _ref.legendOpts,
+        legendOpts = _ref$legendOpts === void 0 ? {
+      display: false
+    } : _ref$legendOpts,
         _ref$transOptsKey = _ref.transOptsKey,
         transOptsKey = _ref$transOptsKey === void 0 ? 'BI1' : _ref$transOptsKey,
         _ref$transOptsSel = _ref.transOptsSel,
@@ -8702,11 +8901,9 @@
         _ref$mapTypesKey = _ref.mapTypesKey,
         mapTypesKey = _ref$mapTypesKey === void 0 ? 'Standard hectad' : _ref$mapTypesKey,
         _ref$mapTypesSel = _ref.mapTypesSel,
-        mapTypesSel = _ref$mapTypesSel === void 0 ? {
-      'Standard hectad': csvHectad
-    } : _ref$mapTypesSel,
+        mapTypesSel = _ref$mapTypesSel === void 0 ? dataAccessors : _ref$mapTypesSel,
         _ref$mapTypesControl = _ref.mapTypesControl,
-        mapTypesControl = _ref$mapTypesControl === void 0 ? true : _ref$mapTypesControl,
+        mapTypesControl = _ref$mapTypesControl === void 0 ? false : _ref$mapTypesControl,
         _ref$boundaryGjson = _ref.boundaryGjson,
         boundaryGjson = _ref$boundaryGjson === void 0 ? "".concat(constants.cdn, "/assets/GB-I-CI-27700-reduced.geojson") : _ref$boundaryGjson,
         _ref$gridGjson = _ref.gridGjson,
@@ -8744,7 +8941,36 @@
       }); // Create options dialog
 
       optsDialog(id, transOptsSel, transOptsKey, transOptsControl, mapTypesSel, mapTypesKey, mapTypesControl, userChangedOptions);
-    }
+    } // Initialise the display
+
+
+    trans = createTrans(transOptsSel[transOptsKey], height);
+    setSvgSize();
+    drawInsetBoxes(); // Load boundary data
+
+    var pBoundary, pGrid;
+
+    if (boundaryGjson) {
+      pBoundary = d3.json(boundaryGjson).then(function (data) {
+        dataBoundary = data;
+      });
+    } else {
+      pBoundary = Promise.resolve();
+    } // Load grid data
+
+
+    if (gridGjson) {
+      pGrid = d3.json(gridGjson).then(function (data) {
+        dataGrid = data;
+      });
+    } else {
+      pGrid = Promise.resolve();
+    } // Once loaded, draw booundary and grid
+
+
+    Promise.all([pBoundary, pGrid]).then(function () {
+      drawBoundaryAndGrid();
+    }); // End of initialisation
 
     function userChangedOptions(opts) {
       if (opts.transOptsKey && transOptsKey !== opts.transOptsKey) {
@@ -8753,15 +8979,13 @@
         drawBoundaryAndGrid();
         setSvgSize();
         drawInsetBoxes();
-        refreshDots(svg, captionId, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier);
+        refreshMapDots();
         transformImages(basemaps, trans);
       }
 
       if (opts.mapTypesKey && mapTypesKey !== opts.mapTypesKey) {
         mapTypesKey = opts.mapTypesKey;
-        drawDots(svg, captionId, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier).then(function (data) {
-          svgLegend(svg, data, legend, legendX, legendY, legendScale);
-        });
+        drawMapDots();
       }
     }
 
@@ -8787,7 +9011,7 @@
 
       if (dataGrid) {
         grid.selectAll("path").remove();
-        grid.append("path").datum(dataGrid).attr("d", trans.d3Path).style("stroke", gridLineColour);
+        grid.append("path").datum(dataGrid).attr("d", trans.d3Path).style("fill-opacity", 0).style("stroke", gridLineColour);
       }
     }
 
@@ -8797,80 +9021,189 @@
         var margin = 10;
         svg.append('rect').classed('inset', true).attr('x', i.x - margin).attr('y', i.y - margin).attr('width', i.width + 2 * margin).attr('height', i.height + 2 * margin).style('fill', 'transparent').style('stroke', insetColour);
       });
-    } // TODO. Needs enlarging and documenting. 
-    // Define the api that will be exposed.
-
-
-    var api = {
-      setBoundaryColour: function setBoundaryColour(c) {
-        boundary.style("stroke", c);
-      },
-      setTransform: function setTransform(newTransOptsKey) {
-        transOptsKey = newTransOptsKey;
-        trans = createTrans(transOptsSel[transOptsKey], height);
-        drawBoundaryAndGrid();
-        setSvgSize();
-        drawInsetBoxes();
-        refreshDots(svg, captionId, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier);
-        transformImages(basemaps, trans);
-      },
-      setIdentfier: function setIdentfier(identifier) {
-        taxonIdentifier = identifier;
-        drawDots(svg, captionId, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier).then(function (data) {
-          svgLegend(svg, data, legend, legendX, legendY, legendScale);
-        });
-      },
-      setMapType: function setMapType(newMapTypesKey) {
-        mapTypesKey = newMapTypesKey;
-        drawDots(svg, captionId, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier).then(function (data) {
-          svgLegend(svg, data, legend, legendX, legendY, legendScale);
-        });
-      },
-      basemapImage: function basemapImage(mapId, show, imageFile, worldFile) {
-        showImage(mapId, show, basemaps, imageFile, worldFile, trans); // If no base map images shown then set boundary opacity to 1 otherwise 0
-        // const layers = basemaps.selectAll('g')._groups[0].length
-        // const hidden = basemaps.selectAll('g.baseMapHidden')._groups[0].length
-        // if (layers === hidden) {
-        //   boundary.style('fill-opacity', 1)
-        // } else {
-        //   boundary.style('fill-opacity', 0)
-        // }
-      },
-      baseMapPriorities: function setBaseMapPriorities(mapIds) {
-        setImagePriorities(basemaps, mapIds);
-      }
-    }; // Initialise the display
-
-    trans = createTrans(transOptsSel[transOptsKey], height);
-    setSvgSize();
-    drawInsetBoxes();
-    var pBoundary, pGrid;
-
-    if (boundaryGjson) {
-      pBoundary = d3.json(boundaryGjson).then(function (data) {
-        dataBoundary = data;
-      });
-    } else {
-      pBoundary = Promise.resolve();
     }
 
-    if (gridGjson) {
-      pGrid = d3.json(gridGjson).then(function (data) {
-        dataGrid = data;
+    function drawMapDots() {
+      drawDots(svg, captionId, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj).then(function (data) {
+        svg.select('#legend').remove();
+        legendOpts.accessorData = data.legend;
+
+        if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
+          svgLegend(svg, legendOpts);
+        }
       });
-    } else {
-      pGrid = Promise.resolve();
     }
 
-    Promise.all([pBoundary, pGrid]).then(function () {
+    function refreshMapDots() {
+      removeDots(svg);
+      drawMapDots();
+    }
+    /** @function - setTransform
+      * @param {string} newTransOptsKey - specifies the key of the transformation object in the parent object.
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+      * The method sets a map transforamation by selecting the one with the passed in key. It also
+      * redisplays the map 
+      */
+
+
+    function setTransform(newTransOptsKey) {
+      transOptsKey = newTransOptsKey;
+      trans = createTrans(transOptsSel[transOptsKey], height);
       drawBoundaryAndGrid();
-    }); // Return the publicly accessible API
+      setSvgSize();
+      drawInsetBoxes();
+      refreshMapDots();
+      transformImages(basemaps, trans);
+    }
+    /** @function - animateTransChange
+      * @param {string} newTransOptsKey - specifies the key of the transformation object in the parent object.
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+      * The method sets a map transformation by selecting the one with the passed in key. It also
+      * redisplays the map but animates the transition between the new transformation object and the
+      * previous.
+      */
 
-    return api;
+
+    function animateTransChange(newTransOptsKey) {
+      var lastTransOptsKey = transOptsKey;
+      svg.selectAll('.inset').remove(); // remove inset boxes
+
+      removeDots(svg); // remove dots
+
+      var incr = 10;
+
+      var _loop = function _loop(i) {
+        var tto = getTweenTransOpts(lastTransOptsKey, newTransOptsKey, height, i / incr);
+        setTimeout(function () {
+          trans = createTrans(tto, height);
+          drawBoundaryAndGrid();
+          setSvgSize();
+          transformImages(basemaps, trans);
+
+          if (i > incr) {
+            setTransform(newTransOptsKey);
+          }
+        }, 1000 * i / incr);
+      };
+
+      for (var i = 1; i <= incr + 1; i++) {
+        _loop(i);
+      }
+    }
+    /** @function - setBoundaryColour
+      * @param {string} c - a string specifying the colour which can be hex format, e.g. #FFA500, 
+      * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+      * The method sets a map transformation by selecting the one with the passed in key. 
+      * Sets the boundary colour to the specified colour.
+      */
+
+
+    function setBoundaryColour(c) {
+      boundary.style("stroke", c);
+    }
+    /** @function - setIdentfier
+      * @param {string} identifier - a string which identifies some data to 
+      * a data accessor function.
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+      * The data accessor function, specified elsewhere, will use this identifier to access
+      * the correct data.
+      */
+
+
+    function setIdentfier(identifier) {
+      taxonIdentifier = identifier;
+    }
+    /** @function - setMapType
+      * @param {string} newMapTypesKey - a string which a key used to identify a data accessor function. 
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+      * The data accessor is stored in the mapTypesSel object and referenced by this key.
+      */
+
+
+    function setMapType(newMapTypesKey) {
+      mapTypesKey = newMapTypesKey;
+    }
+    /** @function - basemapImage
+      * @param {string} mapId - a string which should specify a unique key by which the image can be referenced. 
+      * @param {boolean} show - a boolean value that indicates whether or not to display this image. 
+      * @param {string} imageFile - a string identifying an image file. 
+      * @param {string} worldFile - a string identifying a 'world' file. 
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+      * The image and world files together make a raster file that can be displayed in GIS. GIS, such as
+      * QGIS can be used to create the image and world file. If you do this, make sure that the image
+      * is created with the same projection as used for the SVG map - i.e. same projection as the vector
+      * data for boundary and/or grid files.
+      */
+
+
+    function basemapImage(mapId, show, imageFile, worldFile) {
+      // API
+      showImage(mapId, show, basemaps, imageFile, worldFile, trans);
+    }
+    /** @function - baseMapPriorities
+      * @param {Array.<string>} mapIds - an array of strings which identify keys of basemap iamges.
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+      * The order the keys appear in the array specifies their priority when more than one is displayed
+      * at the same time. Those at the start of the array have higher priority than those and the end.
+      */
+
+
+    function baseMapPriorities(mapIds) {
+      // API
+      setImagePriorities(basemaps, mapIds);
+    }
+    /** @function - setLegendOpts
+      * @param {legendOpts} lo - a legend options object.
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+      * The legend options object can be used to specify properties of a legend and even the content
+      * of the legend itself.
+      */
+
+
+    function setLegendOpts(lo) {
+      // API
+      legendOpts = lo;
+    }
+    /** @function - redrawMap
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+      * Redraw the map, e.g. after changing map accessor function or map identifier.
+      */
+
+
+    function redrawMap() {
+      // API
+      drawMapDots();
+    }
+    /** @function - clearMap
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+      * Clear the map of dots and legend.
+      */
+
+
+    function clearMap() {
+      // API
+      svg.select('#legend').remove();
+      removeDots(svg);
+    } // Return the publicly accessible API
+
+
+    return {
+      setBoundaryColour: setBoundaryColour,
+      setTransform: setTransform,
+      animateTransChange: animateTransChange,
+      setIdentfier: setIdentfier,
+      setMapType: setMapType,
+      basemapImage: basemapImage,
+      baseMapPriorities: baseMapPriorities,
+      setLegendOpts: setLegendOpts,
+      redrawMap: redrawMap,
+      clearMap: clearMap
+    };
   }
 
   var name = "brcatlas";
-  var version = "0.0.14";
+  var version = "0.1.0";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
@@ -8932,8 +9265,8 @@
 
   console.log("Running ".concat(pkg.name, " version ").concat(pkg.version));
 
+  exports.dataAccessors = dataAccessors;
   exports.namedTransOpts = namedTransOpts;
-  exports.noData = noData;
   exports.svgMap = svgMap;
 
   Object.defineProperty(exports, '__esModule', { value: true });

@@ -28,19 +28,21 @@
         <article>
             <pre class="prettyprint source linenums"><code>/** @module src/coordsToImage */
 
+import * as d3 from 'd3'
+
 /**
- * Given a transform object, describing a bounding rectangle in world coordinates,
+ * Given a transform options object, describing a bounding rectangle in world coordinates,
  * and a height dimension, this function returns an array of objects - one
  * for each inset described in the transform object - that describe a set of
  * rectangles corresponding to each of the insets. Each object has an origin
- * corresponding to the top left of the rectangle, a width and a height dimension.
+ * corresponding to the top-left of the rectangle, a width and a height dimension.
  * The dimensions and coordiates are relative to the height argument. A typical
  * use of these metrics would be to draw an SVG rectagle around an inset.
- * @param {object} transOpts - the transformation object
+ * @param {object} transOpts - the transformation options object.
  * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
  * @returns {Array&lt;Object>}
  */
-export function getInsetDims(transOpts, outputHeight) {
+function getInsetDims(transOpts, outputHeight) {
 
   const outputWidth = widthFromHeight(transOpts, outputHeight)
   const transform = transformFunction(transOpts, outputHeight)
@@ -65,21 +67,21 @@ export function getInsetDims(transOpts, outputHeight) {
 }
 
 /**
- * Given a transform object, describing a bounding rectangle in world coordinates,
+ * Given a transform options object, describing a bounding rectangle in world coordinates,
  * and a height dimension, this function returns a width dimension
  * that respects the aspect ratio described by the bounding rectangle.
- * @param {object} transOpts - the transformation object
+ * @param {object} transOpts - the transformation options object.
  * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
  * @returns {number}
  */
-export function widthFromHeight(transOpts, outputHeight) {
+function widthFromHeight(transOpts, outputHeight) {
   const realWidth = transOpts.bounds.xmax - transOpts.bounds.xmin
   const realHeight = transOpts.bounds.ymax - transOpts.bounds.ymin
   return outputHeight * realWidth/realHeight
 }
 
 /**
- * Given a transform object, describing a bounding rectangle in world coordinates,
+ * Given a transform options object, describing a bounding rectangle in world coordinates,
  * and a height dimension, this function returns a new function that will accept a
  * point argument - normally describing real world coordinates - and returns a 
  * point that is transformed to be within the range 0 - outputHeight (for y)
@@ -88,17 +90,17 @@ export function widthFromHeight(transOpts, outputHeight) {
  * The transOpts argument is an object which can also describe areas which should
  * displaced in the output. This can be used for displaying islands in an
  * inset, e.g. the Channel Islands.
- * @param {object} transOpts - the transformation object
+ * @param {object} transOpts - the transformation options object.
  * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
  * @returns {function}
  */
-export function transformFunction(transOpts, outputHeight) {
+function transformFunction(transOpts, outputHeight) {
 
   const realWidth = transOpts.bounds.xmax - transOpts.bounds.xmin
   const realHeight = transOpts.bounds.ymax - transOpts.bounds.ymin
   const outputWidth = widthFromHeight(transOpts, outputHeight)
 
-  return function(p) {
+  return function(p, ignoreInset) {
     const x = p[0]
     const y = p[1]
     let tX, tY
@@ -106,7 +108,7 @@ export function transformFunction(transOpts, outputHeight) {
     tX = outputWidth * (x-transOpts.bounds.xmin)/realWidth
     tY = outputHeight - outputHeight * (y-transOpts.bounds.ymin)/realHeight
 
-    if (transOpts.insets &amp;&amp; transOpts.insets.length > 0) {
+    if (!ignoreInset &amp;&amp; transOpts.insets &amp;&amp; transOpts.insets.length > 0) {
       transOpts.insets.forEach(function(inset) {
       
         if (x >= inset.bounds.xmin &amp;&amp;  x &lt;= inset.bounds.xmax &amp;&amp; y >= inset.bounds.ymin &amp;&amp;  y &lt;= inset.bounds.ymax) {
@@ -138,6 +140,42 @@ export function transformFunction(transOpts, outputHeight) {
   }
 }
 
+/**
+ * Given a transform options object, describing a bounding rectangle in world coordinates,
+ * and a height dimension, this function returns an object that encapsulates the transformation
+ * options and provides additional transformation functionality and other information.
+ * @param {Object} transOpts - the transformation options object.
+ * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
+ * @returns {Object} transopts - the transformation object.
+ * @returns {Object} transopts.params - The transformation options object.
+ * @returns {Array&lt;Object>} transopts.insetDims - an array of objects defining the position and size of insets.
+ * @returns {number} transopts.height - the height, e.g. height in pixels, of the SVG element.
+ * @returns {number} transopts.width - the width, e.g. width in pixels, of the SVG element.
+ * @returns {function} transopts.point - a function that will take a point object describing real world coordinates and return the SVG coordinates.
+ * @returns {function} transopts.d3Path - a function that will take a geoJson path in real world coordinates and return the SVG path.
+ */
+export function createTrans (transOpts, outputHeight) {
+  const transform = transformFunction(transOpts, outputHeight)
+  return {
+    params: transOpts,
+    insetDims: getInsetDims(transOpts, outputHeight),
+    height: outputHeight,
+    width: widthFromHeight(transOpts, outputHeight),
+    point: transform,
+    d3Path: d3.geoPath()
+      .projection(
+        d3.geoTransform({
+          point: function(x, y) {
+            const tP = transform([x,y])
+            const tX = tP[0]
+            const tY = tP[1]
+            this.stream.point(tX, tY)
+          }
+        })
+      )
+  }
+}
+
 // Defined insets required for namedTransOpts
 const boundsChannelIslands_gb = {
   xmin: 337373,
@@ -157,11 +195,15 @@ const boundsNorthernIsles_gb = {
   * format to be used as transOpts arguments to some of the functions in this module.
   * Using one of these may save you generating one of your own. The main bounds element
   * indicates the extent of the main map (in real world coordinates). The bounds of
-  * inset objects indicate the extent that is to be offset within the map image. The
-  * imageX and imageY values of an inset object indicates the position of the offset
+  * inset objects indicate the extent that is to be offset within the map image.
+  * The imageX and imageY values of an inset object indicates the position of the offset
   * portion within the map in pixels. Positve x and y values offset the inset from the
   * left and bottom of the image respecitvely. Negative x and y values offset the inset
   * from the right and top of the image respectively.
+  * Each transOpts object also has a property called 'id' which must be set to the
+  * value used as a key to the object in the parent object. Each also has a
+  * property called 'caption' which has a name which can be displayed if offering
+  * users a choice between transformation objects.
   * &lt;ul>
   * &lt;li> &lt;b>namedTransOpts.BI1&lt;/b> is a bounding box, in EPSG:27700, for the 
   * British Ilses that includes the Channel Islands in their natural position.
@@ -184,6 +226,8 @@ const boundsNorthernIsles_gb = {
 */
 export const namedTransOpts = {
   BI1: {
+    id: 'BI1',
+    caption: 'No insets',
     bounds: {
       xmin: -213389,
       ymin: -113239,
@@ -192,6 +236,8 @@ export const namedTransOpts = {
     },
   },
   BI2: {
+    id: 'BI2',
+    caption: 'Inset Channel Islands (CI)',
     bounds: {
       xmin: -213389,
       ymin: -9939,
@@ -205,6 +251,8 @@ export const namedTransOpts = {
     }]
   },
   BI3: {
+    id: 'BI3',
+    caption: 'Inset Northern Isles',
     bounds: {
       xmin: -213389,
       ymin: -9939,
@@ -218,6 +266,8 @@ export const namedTransOpts = {
     }]
   },
   BI4: {
+    id: 'BI4',
+    caption: 'Inset CI &amp; Northern Isles',
     bounds: {
       xmin: -213389,
       ymin: -9939,
@@ -238,19 +288,19 @@ export const namedTransOpts = {
 }
 
 /**
- * Given both 'from' and 'to' transform objects, an output height and a
- * 'tween' value between 0 and 1, this function returns a transform object
+ * Given both 'from' and 'to' transform options objects, an output height and a
+ * 'tween' value between 0 and 1, this function returns a transform option object
  * for which the map bounds, the inset bounds and the inset image position
  * are all interpolated between the 'from' and 'to' objects at a position
  * depending on the value of the tween value. Typically this would then be used
  * to help generate a path transformation to use with D3 to animate transitions
  * between different map transformations. Note that this only works with
  * named transformation objects defined in this library.
- * @param {object} from - the 'from' transformation object.
- * @param {object} to - the 'to' transformation object.
+ * @param {object} from - the 'from' transformation options object.
+ * @param {object} to - the 'to' transformation options object.
  * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
  * @param {number} tween - between 0 and 1 indicating the interpolation position.
- * @returns {object} - in intermediate transformation object.
+ * @returns {object} - in intermediate transformation options object.
  */
 export function getTweenTransOpts(from, to, outputHeight, tween){
   
@@ -358,13 +408,13 @@ function copyTransOptsForTween(transOpts, outputHeight) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-src_coordsToImage.html">src/coordsToImage</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-src_coordsToImage.html">src/coordsToImage</a></li><li><a href="module-src_dataAccess.html">src/dataAccess</a></li></ul><h3>Global</h3><ul><li><a href="global.html#-animateTransChange">- animateTransChange</a></li><li><a href="global.html#-basemapImage">- basemapImage</a></li><li><a href="global.html#-baseMapPriorities">- baseMapPriorities</a></li><li><a href="global.html#-clearMap">- clearMap</a></li><li><a href="global.html#-redrawMap">- redrawMap</a></li><li><a href="global.html#-setBoundaryColour">- setBoundaryColour</a></li><li><a href="global.html#-setIdentfier">- setIdentfier</a></li><li><a href="global.html#-setLegendOpts">- setLegendOpts</a></li><li><a href="global.html#-setMapType">- setMapType</a></li><li><a href="global.html#-setTransform">- setTransform</a></li><li><a href="global.html#svgMap">svgMap</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Tue Aug 04 2020 22:28:47 GMT+0100 (British Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Fri Sep 11 2020 20:27:57 GMT+0100 (British Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

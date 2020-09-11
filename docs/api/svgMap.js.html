@@ -1,4 +1,32 @@
-import * as d3 from 'd3'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: svgMap.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: svgMap.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import * as d3 from 'd3'
 import { createTrans, namedTransOpts, getTweenTransOpts } from './coordsToImage.js'
 import { constants } from './constants.js'
 import { optsDialog, showOptsDialog } from './optsDialog.js'
@@ -25,7 +53,7 @@ import { svgLegend } from './svgLegend.js'
  * This is one factor taken into account to calculate the size of the legend dots.
  * @property {number} opacity - a number between 0 and 1 indicating the opacity of the legend symbol. 0 is completely
  * transparent and 1 is completely opaque.
- * @property {Array.<legendLine>} lines - an arry of objects representing lines in a legend.
+ * @property {Array.&lt;legendLine>} lines - an arry of objects representing lines in a legend.
  */
 
   /**
@@ -50,7 +78,7 @@ import { svgLegend } from './svgLegend.js'
  * the parent object.
  * @property {string} caption - a human readable name for this transformation options object.
  * @property {transOptsBounds} bounds - an object defining the extents of the map.
- * @property {Array.<transOptsInset>} insets - an array of objects defining the inset portions of the map. 
+ * @property {Array.&lt;transOptsInset>} insets - an array of objects defining the inset portions of the map. 
  */
 
 /**
@@ -169,8 +197,8 @@ export function svgMap({
   grid = svg.append("g").attr("id", "grid")
 
   // Options dialog. 
-  if ((transOptsControl && Object.keys(transOptsSel).length > 1) || 
-    (mapTypesControl && Object.keys(mapTypesSel).length > 1)) {
+  if ((transOptsControl &amp;&amp; Object.keys(transOptsSel).length > 1) || 
+    (mapTypesControl &amp;&amp; Object.keys(mapTypesSel).length > 1)) {
     // Add gear icon to invoke options dialog
     mainDiv.append("img")
       .attr("src", "../images/gear.png")
@@ -217,7 +245,7 @@ export function svgMap({
   // End of initialisation
 
   function userChangedOptions(opts) {
-    if (opts.transOptsKey && transOptsKey !== opts.transOptsKey){
+    if (opts.transOptsKey &amp;&amp; transOptsKey !== opts.transOptsKey){
       transOptsKey = opts.transOptsKey
       trans = createTrans(transOptsSel[transOptsKey], height)
       drawBoundaryAndGrid()
@@ -226,7 +254,7 @@ export function svgMap({
       refreshMapDots()
       transformImages(basemaps, trans)
     }
-    if (opts.mapTypesKey && mapTypesKey !== opts.mapTypesKey){
+    if (opts.mapTypesKey &amp;&amp; mapTypesKey !== opts.mapTypesKey){
       mapTypesKey = opts.mapTypesKey
       drawMapDots()
     }
@@ -289,7 +317,7 @@ export function svgMap({
       .then (data => {
         svg.select('#legend').remove()
         legendOpts.accessorData = data.legend
-        if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
+        if (legendOpts.display &amp;&amp; (legendOpts.data || legendOpts.accessorData)) {
           svgLegend(svg, legendOpts)
         }  
     })
@@ -302,7 +330,7 @@ export function svgMap({
 
 /** @function - setTransform
   * @param {string} newTransOptsKey - specifies the key of the transformation object in the parent object.
-  * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+  * @description &lt;b>This function is exposed as a method on the API returned from the svgMap function&lt;/b>.
   * The method sets a map transforamation by selecting the one with the passed in key. It also
   * redisplays the map 
   */
@@ -318,7 +346,7 @@ export function svgMap({
 
 /** @function - animateTransChange
   * @param {string} newTransOptsKey - specifies the key of the transformation object in the parent object.
-  * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+  * @description &lt;b>This function is exposed as a method on the API returned from the svgMap function&lt;/b>.
   * The method sets a map transformation by selecting the one with the passed in key. It also
   * redisplays the map but animates the transition between the new transformation object and the
   * previous.
@@ -328,7 +356,7 @@ export function svgMap({
     svg.selectAll('.inset').remove() // remove inset boxes
     removeDots(svg)  // remove dots
     const incr = 10
-    for (let i=1; i<=incr + 1; i++){
+    for (let i=1; i&lt;=incr + 1; i++){
       const tto = getTweenTransOpts(lastTransOptsKey, newTransOptsKey, height, i/incr)
       setTimeout(() => {
         trans = createTrans(tto, height)
@@ -345,7 +373,7 @@ export function svgMap({
 /** @function - setBoundaryColour
   * @param {string} c - a string specifying the colour which can be hex format, e.g. #FFA500, 
   * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
-  * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+  * @description &lt;b>This function is exposed as a method on the API returned from the svgMap function&lt;/b>.
   * The method sets a map transformation by selecting the one with the passed in key. 
   * Sets the boundary colour to the specified colour.
   */
@@ -356,7 +384,7 @@ export function svgMap({
 /** @function - setIdentfier
   * @param {string} identifier - a string which identifies some data to 
   * a data accessor function.
-  * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+  * @description &lt;b>This function is exposed as a method on the API returned from the svgMap function&lt;/b>.
   * The data accessor function, specified elsewhere, will use this identifier to access
   * the correct data.
   */
@@ -366,7 +394,7 @@ export function svgMap({
 
 /** @function - setMapType
   * @param {string} newMapTypesKey - a string which a key used to identify a data accessor function. 
-  * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+  * @description &lt;b>This function is exposed as a method on the API returned from the svgMap function&lt;/b>.
   * The data accessor is stored in the mapTypesSel object and referenced by this key.
   */
   function setMapType(newMapTypesKey) {
@@ -378,7 +406,7 @@ export function svgMap({
   * @param {boolean} show - a boolean value that indicates whether or not to display this image. 
   * @param {string} imageFile - a string identifying an image file. 
   * @param {string} worldFile - a string identifying a 'world' file. 
-  * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+  * @description &lt;b>This function is exposed as a method on the API returned from the svgMap function&lt;/b>.
   * The image and world files together make a raster file that can be displayed in GIS. GIS, such as
   * QGIS can be used to create the image and world file. If you do this, make sure that the image
   * is created with the same projection as used for the SVG map - i.e. same projection as the vector
@@ -390,8 +418,8 @@ export function svgMap({
   }
   
 /** @function - baseMapPriorities
-  * @param {Array.<string>} mapIds - an array of strings which identify keys of basemap iamges.
-  * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+  * @param {Array.&lt;string>} mapIds - an array of strings which identify keys of basemap iamges.
+  * @description &lt;b>This function is exposed as a method on the API returned from the svgMap function&lt;/b>.
   * The order the keys appear in the array specifies their priority when more than one is displayed
   * at the same time. Those at the start of the array have higher priority than those and the end.
   */
@@ -402,7 +430,7 @@ export function svgMap({
 
 /** @function - setLegendOpts
   * @param {legendOpts} lo - a legend options object.
-  * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+  * @description &lt;b>This function is exposed as a method on the API returned from the svgMap function&lt;/b>.
   * The legend options object can be used to specify properties of a legend and even the content
   * of the legend itself.
   */
@@ -412,7 +440,7 @@ export function svgMap({
   }
 
 /** @function - redrawMap
-  * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+  * @description &lt;b>This function is exposed as a method on the API returned from the svgMap function&lt;/b>.
   * Redraw the map, e.g. after changing map accessor function or map identifier.
   */
   function redrawMap(){
@@ -421,7 +449,7 @@ export function svgMap({
   }
 
 /** @function - clearMap
-  * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+  * @description &lt;b>This function is exposed as a method on the API returned from the svgMap function&lt;/b>.
   * Clear the map of dots and legend.
   */
   function clearMap(){
@@ -443,4 +471,26 @@ export function svgMap({
     redrawMap: redrawMap,
     clearMap: clearMap
   }
-}
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-src_coordsToImage.html">src/coordsToImage</a></li><li><a href="module-src_dataAccess.html">src/dataAccess</a></li></ul><h3>Global</h3><ul><li><a href="global.html#-animateTransChange">- animateTransChange</a></li><li><a href="global.html#-basemapImage">- basemapImage</a></li><li><a href="global.html#-baseMapPriorities">- baseMapPriorities</a></li><li><a href="global.html#-clearMap">- clearMap</a></li><li><a href="global.html#-redrawMap">- redrawMap</a></li><li><a href="global.html#-setBoundaryColour">- setBoundaryColour</a></li><li><a href="global.html#-setIdentfier">- setIdentfier</a></li><li><a href="global.html#-setLegendOpts">- setLegendOpts</a></li><li><a href="global.html#-setMapType">- setMapType</a></li><li><a href="global.html#-setTransform">- setTransform</a></li><li><a href="global.html#svgMap">svgMap</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Fri Sep 11 2020 20:27:57 GMT+0100 (British Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

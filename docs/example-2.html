@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>BRC Atlas Library example 2</title>
+</head>
+<body>
+  <div class="content">
+    <h1>Using the BRC Atlas Library</h1>
+    <h2>Animating inset changes on UK map</h2>
+    <div id="map"></div>
+    <input type="radio" id="BI1" name="layout" value="BI1" checked onchange='reDrawBoundaries()'>
+    <label for="BI1">No insets</label>
+    <input type="radio" id="BI2" name="layout" value="BI2" onchange='reDrawBoundaries()'>
+    <label for="BI2">Channel Islands inset</label>
+    <input type="radio" id="BI3" name="layout" value="BI3" onchange='reDrawBoundaries()'>
+    <label for="BI3">Northern Isles inset</label>
+    <input type="radio" id="BI4" name="layout" value="BI4" onchange='reDrawBoundaries()'>
+    <label for="BI4">Channel Islands and Northern Isles inset</label>
+
+    <p>
+      This example demonstrates how to switch beetween different
+      pre-defined views of the UK and
+      animate the transition between them.
+    </p>
+    <p>
+      For an explanation of the code that instantiates the map and displays
+      the data, see <a href='./example-1.html'>example-1.html</a>.
+    </p>
+    <p>
+      By default, the map control exposes a control to switch between
+      different map transformations (views), if more than one is made
+      available (accessed via an 
+      options cog icon in the bottom right of the map). That control
+      switches between views without animation. We are going to override
+      that control by providing our own options. So when we create 
+      the map, we set the 'transOptsControl' option to false to ensure
+      those controls aren't available from the map.
+    </p>
+<pre>
+<code class="javascript">var map = brcatlas.svgMap({
+  id: "map",
+  mapTypesKey: 'Standard hectad',
+  transOptsControl: false
+})</code>
+</pre>
+    <p>
+      Radio buttons for the pre-defined UK transformation options
+      are set up. The value of each option corresponds to the
+      key of the pre-defined transformation options. Each of them
+      binds a 'reDrawBoundaries' function to the change event.
+    </p>
+<pre>
+<code class="html">&lt;input type=&quot;radio&quot; id=&quot;BI1&quot; name=&quot;layout&quot; value=&quot;BI1&quot; checked onchange='reDrawBoundaries()'&gt;
+&lt;label for=&quot;BI1&quot;&gt;No insets&lt;/label&gt;
+&lt;input type=&quot;radio&quot; id=&quot;BI2&quot; name=&quot;layout&quot; value=&quot;BI2&quot; onchange='reDrawBoundaries()'&gt;
+&lt;label for=&quot;BI2&quot;&gt;Channel Islands inset&lt;/label&gt;
+&lt;input type=&quot;radio&quot; id=&quot;BI3&quot; name=&quot;layout&quot; value=&quot;BI3&quot; onchange='reDrawBoundaries()'&gt;
+&lt;label for=&quot;BI3&quot;&gt;Northern Isles inset&lt;/label&gt;
+&lt;input type=&quot;radio&quot; id=&quot;BI4&quot; name=&quot;layout&quot; value=&quot;BI4&quot; onchange='reDrawBoundaries()'&gt;
+&lt;label for=&quot;BI4&quot;&gt;Channel Islands and Northern Isles inset&lt;/label&gt;</code>
+</pre>
+    <p>
+      Radio buttons for the pre-defined UK transformation options
+      are set up. The value of each option corresponds to the
+      key of the pre-defined transformation options. Each of them
+      binds a 'reDrawBoundaries' function to the change event.
+    </p>
+<pre>
+<code class="javascript">function reDrawBoundaries() {
+  var code = d3.select('input[name="layout"]:checked').node().value
+  map.animateTransChange(code)
+}</code>
+</pre>
+    <p>
+      The 'reDrawBoundaries' function gets the value
+      of the checked radio button and calls the 'animateTransChange'
+      method on the map object, passing the value (corresponding to
+      the key of the transformation options object). (For convenience
+      since we have already included the D3 library in the page, we are
+      using D3 to get the checked radio button.)
+    </p>
+
+
+    <!--JS and CSS required for highlighting inline example code-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/a11y-light.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <!--Page CSS-->
+    <link rel="stylesheet" href="example.css" />
+
+    <!--D3 JS required exernal dependency of BRC Atlas library-->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+
+    <!--BRC Atlas library JS and CSS-->
+    <script src="./../../brc-atlas/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="./../../brc-atlas/dist/brcatlas.umd.css">
+    <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas/dist/brcatlas.umd.css"> -->
+
+    <script>
+      var map = brcatlas.svgMap({
+        id: "map",
+        mapTypesKey: 'Standard hectad',
+        transOptsControl: false
+      })
+      map.setIdentfier('./example-hectads-1.csv')
+      map.redrawMap()
+      
+      function reDrawBoundaries() {
+        var code = d3.select('input[name="layout"]:checked').node().value
+        map.animateTransChange(code)
+      }
+    </script>
+  </div>
+</body>
+</html>

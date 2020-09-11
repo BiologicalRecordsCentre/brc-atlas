@@ -1,11 +1,45 @@
-import * as d3 from 'd3'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: svgImages.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: svgImages.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import * as d3 from 'd3'
 
 const basemaps = {}
+
+/**
+ * #TODO - description and full parameter list.
+ * @param {Object} g - the SVG g element that hosts the basemap images.
+ * @returns {null} - there is no return object.
+ */
 
 export function showImage(mapId, show, gBasemaps, imageFile, worldFile, trans) {
 
   // Save the map source details for use with transformImages
-  if (!basemaps[mapId] && show) {
+  if (!basemaps[mapId] &amp;&amp; show) {
     basemaps[mapId] = {
       mapId: mapId,
       imageFile: imageFile,
@@ -28,7 +62,7 @@ export function showImage(mapId, show, gBasemaps, imageFile, worldFile, trans) {
     return
   }
 
-  // Ensure g element exists for this mapId & transId
+  // Ensure g element exists for this mapId &amp; transId
   if (gBasemaps.select(`#basemap-${mapId}-${transId}`).size() === 0) {
     gBasemaps.select(`#basemap-${mapId}`).append('g').attr('id', `basemap-${mapId}-${transId}`) 
   }
@@ -66,7 +100,7 @@ export function showImage(mapId, show, gBasemaps, imageFile, worldFile, trans) {
             const bottomLeft = trans.point([minEasting, minNorthing])
 
             const iInsets = trans.params.insets ? trans.params.insets.length : 0
-            for (let i=0; i <= iInsets; i++) {
+            for (let i=0; i &lt;= iInsets; i++) {
               let xShift = 0, yShift = 0
               if (i > 0) {
                 // Inset
@@ -89,6 +123,12 @@ export function showImage(mapId, show, gBasemaps, imageFile, worldFile, trans) {
                     .attr('height', dims.height)
               }
               const img = gBasemaps.select(`#basemap-${mapId}-${transId}`).append('image')
+                // .attr('data-xResolution', xResolution)
+                // .attr('data-yResolution', yResolution)
+                // .attr('data-minEasting', minEasting)
+                // .attr('data-maxNorthing', maxNorthing)
+                // .attr('data-imageWidth', imageWidth)
+                // .attr('data-imageHeight', imageHeight)
                 .attr('href', imageFile)
                 .attr('x', topLeft[0] + xShift)
                 .attr('y', topLeft[1] + yShift) 
@@ -113,6 +153,7 @@ export function showImage(mapId, show, gBasemaps, imageFile, worldFile, trans) {
 
 export function transformImages(gBasemaps, trans) {
 
+  //showImage(mapId, show, gBasemaps, imageFile, worldFile, trans)
   Object.keys(basemaps).forEach(k => {
     const b = basemaps[k]
     if (b.imageFile) {
@@ -121,6 +162,32 @@ export function transformImages(gBasemaps, trans) {
       showImage(b.mapId, !hidden, gBasemaps, b.imageFile, b.worldFile, trans)
     }
   })
+  // gBasemaps.selectAll('image')
+  //   .each(function(){
+  //     // Don't use fat arrow above because this needs to
+  //     // resolve correctly below.
+  //     const img = d3.select(this)
+
+  //     const minEasting = Number(img.attr('data-minEasting'))
+  //     const maxNorthing = Number(img.attr('data-maxNorthing'))
+  //     const imageWidth = Number(img.attr('data-imageWidth'))
+  //     const imageHeight = Number(img.attr('data-imageHeight'))
+  //     const xResolution = Number(img.attr('data-xResolution'))
+  //     const yResolution = Number(img.attr('data-yResolution'))
+
+  //     const maxEasting = minEasting + imageWidth * xResolution
+  //     const minNorthing = maxNorthing + imageHeight * yResolution
+
+  //     const topLeft = trans.point([minEasting, maxNorthing])
+  //     const topRight = trans.point([maxEasting, maxNorthing])
+  //     const bottomLeft = trans.point([minEasting, minNorthing])
+
+  //     img
+  //       .attr('x', topLeft[0])
+  //       .attr('y', topLeft[1])
+  //       .attr('width', topRight[0]-topLeft[0])
+  //       .attr('height', bottomLeft[1]-topLeft[1])
+  //   })
 }
 
 export function setImagePriorities(gBasemaps, mapIds){
@@ -129,4 +196,26 @@ export function setImagePriorities(gBasemaps, mapIds){
       .attr('id', `basemap-${mapId}`)
       .classed('baseMapHidden', true)
   })
-}
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-src_coordsToImage.html">src/coordsToImage</a></li><li><a href="module-src_dataAccess.html">src/dataAccess</a></li></ul><h3>Global</h3><ul><li><a href="global.html#showImage">showImage</a></li><li><a href="global.html#svgMap">svgMap</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Fri Sep 11 2020 17:05:58 GMT+0100 (British Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

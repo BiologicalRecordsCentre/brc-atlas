@@ -3,14 +3,14 @@
 import * as d3 from 'd3'
 
 /**
- * Given a transform object, describing a bounding rectangle in world coordinates,
+ * Given a transform options object, describing a bounding rectangle in world coordinates,
  * and a height dimension, this function returns an array of objects - one
  * for each inset described in the transform object - that describe a set of
  * rectangles corresponding to each of the insets. Each object has an origin
- * corresponding to the top left of the rectangle, a width and a height dimension.
+ * corresponding to the top-left of the rectangle, a width and a height dimension.
  * The dimensions and coordiates are relative to the height argument. A typical
  * use of these metrics would be to draw an SVG rectagle around an inset.
- * @param {object} transOpts - the transformation object
+ * @param {object} transOpts - the transformation options object.
  * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
  * @returns {Array<Object>}
  */
@@ -39,10 +39,10 @@ function getInsetDims(transOpts, outputHeight) {
 }
 
 /**
- * Given a transform object, describing a bounding rectangle in world coordinates,
+ * Given a transform options object, describing a bounding rectangle in world coordinates,
  * and a height dimension, this function returns a width dimension
  * that respects the aspect ratio described by the bounding rectangle.
- * @param {object} transOpts - the transformation object
+ * @param {object} transOpts - the transformation options object.
  * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
  * @returns {number}
  */
@@ -53,7 +53,7 @@ function widthFromHeight(transOpts, outputHeight) {
 }
 
 /**
- * Given a transform object, describing a bounding rectangle in world coordinates,
+ * Given a transform options object, describing a bounding rectangle in world coordinates,
  * and a height dimension, this function returns a new function that will accept a
  * point argument - normally describing real world coordinates - and returns a 
  * point that is transformed to be within the range 0 - outputHeight (for y)
@@ -62,7 +62,7 @@ function widthFromHeight(transOpts, outputHeight) {
  * The transOpts argument is an object which can also describe areas which should
  * displaced in the output. This can be used for displaying islands in an
  * inset, e.g. the Channel Islands.
- * @param {object} transOpts - the transformation object
+ * @param {object} transOpts - the transformation options object.
  * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
  * @returns {function}
  */
@@ -113,7 +113,18 @@ function transformFunction(transOpts, outputHeight) {
 }
 
 /**
- * TODO document
+ * Given a transform options object, describing a bounding rectangle in world coordinates,
+ * and a height dimension, this function returns an object that encapsulates the transformation
+ * options and provides additional transformation functionality and other information.
+ * @param {Object} transOpts - the transformation options object.
+ * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
+ * @returns {Object} transopts - the transformation object.
+ * @returns {Object} transopts.params - The transformation options object.
+ * @returns {Array<Object>} transopts.insetDims - an array of objects defining the position and size of insets.
+ * @returns {number} transopts.height - the height, e.g. height in pixels, of the SVG element.
+ * @returns {number} transopts.width - the width, e.g. width in pixels, of the SVG element.
+ * @returns {function} transopts.point - a function that will take a point object describing real world coordinates and return the SVG coordinates.
+ * @returns {function} transopts.d3Path - a function that will take a geoJson path in real world coordinates and return the SVG path.
  */
 export function createTrans (transOpts, outputHeight) {
   const transform = transformFunction(transOpts, outputHeight)
@@ -156,11 +167,15 @@ const boundsNorthernIsles_gb = {
   * format to be used as transOpts arguments to some of the functions in this module.
   * Using one of these may save you generating one of your own. The main bounds element
   * indicates the extent of the main map (in real world coordinates). The bounds of
-  * inset objects indicate the extent that is to be offset within the map image. The
-  * imageX and imageY values of an inset object indicates the position of the offset
+  * inset objects indicate the extent that is to be offset within the map image.
+  * The imageX and imageY values of an inset object indicates the position of the offset
   * portion within the map in pixels. Positve x and y values offset the inset from the
   * left and bottom of the image respecitvely. Negative x and y values offset the inset
   * from the right and top of the image respectively.
+  * Each transOpts object also has a property called 'id' which must be set to the
+  * value used as a key to the object in the parent object. Each also has a
+  * property called 'caption' which has a name which can be displayed if offering
+  * users a choice between transformation objects.
   * <ul>
   * <li> <b>namedTransOpts.BI1</b> is a bounding box, in EPSG:27700, for the 
   * British Ilses that includes the Channel Islands in their natural position.
@@ -245,19 +260,19 @@ export const namedTransOpts = {
 }
 
 /**
- * Given both 'from' and 'to' transform objects, an output height and a
- * 'tween' value between 0 and 1, this function returns a transform object
+ * Given both 'from' and 'to' transform options objects, an output height and a
+ * 'tween' value between 0 and 1, this function returns a transform option object
  * for which the map bounds, the inset bounds and the inset image position
  * are all interpolated between the 'from' and 'to' objects at a position
  * depending on the value of the tween value. Typically this would then be used
  * to help generate a path transformation to use with D3 to animate transitions
  * between different map transformations. Note that this only works with
  * named transformation objects defined in this library.
- * @param {object} from - the 'from' transformation object.
- * @param {object} to - the 'to' transformation object.
+ * @param {object} from - the 'from' transformation options object.
+ * @param {object} to - the 'to' transformation options object.
  * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
  * @param {number} tween - between 0 and 1 indicating the interpolation position.
- * @returns {object} - in intermediate transformation object.
+ * @returns {object} - in intermediate transformation options object.
  */
 export function getTweenTransOpts(from, to, outputHeight, tween){
   

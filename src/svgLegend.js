@@ -1,12 +1,11 @@
 import * as d3 from 'd3'
 
-export function svgLegend(svg, data, legend, legendX, legendY, legendScale) {
+export function svgLegend(svg, legendOpts) {
 
-  if (!legend) return
-
-  svg.select('#legend').remove()
-  if (!data.legend) return
-
+  const legendData = legendOpts.data ? legendOpts.data : legendOpts.accessorData
+  const legendX = legendOpts.x
+  const legendY = legendOpts.y
+  const legendScale = legendOpts.scale
   const lineHeight = 20
   const swatchPixels = lineHeight / 3
 
@@ -15,15 +14,15 @@ export function svgLegend(svg, data, legend, legendX, legendY, legendScale) {
     .attr('x', 0)
     .attr('y', lineHeight)
     .attr('font-weight', 'bold')
-    .text(data.legend.title)
+    .text(legendData.title)
 
-  data.legend.lines.forEach((l, i) => {
+  legendData.lines.forEach((l, i) => {
     
-    let shape = l.shape ? l.shape : data.shape
-    let size = l.size ? l.size : data.size
-    let opacity = l.opacity ? l.opacity : data.opacity
-    let colour = l.colour ? l.colour : data.colour
-    let colour2 = l.colour2 ? l.colour2 : data.colour2
+    let shape = l.shape ? l.shape : legendData.shape
+    let size = l.size ? l.size : legendData.size
+    let opacity = l.opacity ? l.opacity : legendData.opacity
+    let colour = l.colour ? l.colour : legendData.colour
+    let colour2 = l.colour2 ? l.colour2 : legendData.colour2
     let dot
 
     if (shape === 'circle') {
@@ -60,7 +59,7 @@ export function svgLegend(svg, data, legend, legendX, legendY, legendScale) {
     dot.style('fill', colour).style('opacity', opacity)
   })
 
-  data.legend.lines.forEach((l, i) => {
+  legendData.lines.forEach((l, i) => {
     gLegend.append('text')
       .attr('x', swatchPixels * 4)
       .attr('y', lineHeight * (i + 2.5))

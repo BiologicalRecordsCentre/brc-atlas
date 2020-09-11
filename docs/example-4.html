@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>BRC Atlas Library example 4</title>
+  <style>
+    .flex-container {
+      display: flex;
+    }
+    #controls {
+      margin-left: 1em;
+    }  
+  </style>
+</head>
+<body>
+  <div class="content">
+    <h1>Using the BRC Atlas Library</h1>
+    <h2>Local atlas maps example</h2>
+    <div class="flex-container">
+      <div id="map"></div>
+      <div id="controls">
+        <input type="radio" id="radAd" name="mapdata" value="./chesh-lancs-araneus-diadematus-tetrads.csv" onchange='reDrawDots()'>
+        <label for="radAd"><i>Araneus diadematus</i> tetrad distribution</label><br/>
+        <input type="radio" id="radAq" name="mapdata" value="./chesh-lancs-araneus-quadratus-tetrads.csv" onchange='reDrawDots()'>
+        <label for="radAq"><i>Araneus quadratus</i> tetrad distribution</label><br/>
+        <input type="radio" id="radCoin" name="mapdata" value="./chesh-lancs-araneus-diadematus-and-quadratus-tetrads.csv" onchange='reDrawDots()'>
+        <label for="radCoin">Tetrad coincidence of <i>A. diadematus</i> and <i>A. quadratus</i></label><br/>
+        <input type="radio" id="radRichness" name="mapdata" value="./chesh-lancs-arachnid-richness-tetrads.csv" onchange='reDrawDots()'>
+        <label for="radRichness">Tetrad species richness for all Arachnids</label><br/>
+        <div style='margin-top: 1em' id='dotCaption'></div>
+      </div>
+    </div>
+    
+    <p>
+      This example demonstrates a local atlas
+      created using the BRC Atlas library. You can consult some
+      other examples, <a href='./example-1.html'>example-1.html</a>
+      and <a href='./example-3.html'>example-3.html</a>. To learn about
+      some of the techniques used to create it.
+    </p>
+    <p>
+      The techniques used here but not described in those examples will
+      be documented in time. Until then, you can view the source and
+      download the various data files, images etc to work out how it
+      is put together.
+    </p>
+    <p>
+      Also look at the <a href='https://biologicalrecordscentre.github.io/brc-atlas/docs/api/'>BRC Altas API documentation</a>.
+    </p>
+
+    <!--JS and CSS required for highlighting inline example code-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/a11y-light.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <!--Page CSS-->
+    <link rel="stylesheet" href="example.css" />
+
+    <!--D3 JS required exernal dependency of BRC Atlas library-->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+
+    <!--BRC Atlas library JS and CSS-->
+    <script src="./../../brc-atlas/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="./../../brc-atlas/dist/brcatlas.umd.css">
+    <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas/dist/brcatlas.umd.css"> -->
+
+    <script>
+      const dataAccessors = brcatlas.dataAccessors
+      dataAccessors['Species richness'] = function (file) {
+        // Here we're adding a custom data accessor to the defaults supplied
+        // by brcatlas to deal with our species richness CSV which is not in
+        // the format expeceted by the stadard data accessors.
+        return new Promise((resolve, reject) => {
+          d3.csv(file).then(function(data) {
+            const richness = data.map(function(d){return Number(d.richness)})
+            const maxRichness = Math.max.apply(null, richness)
+            const colours = d3.scaleLinear()
+              .domain([0, maxRichness])
+              .range(['green', 'magenta'])
+            data.forEach(function(d){
+              d.colour = colours(Number(d.richness))
+            })
+
+            let lines = [{
+              colour: 'green',
+              text: '1 species'
+            }]
+            for (let i=1; i<5; i++){
+              const n = maxRichness / 4 * i
+              lines.push({
+                colour: colours(n),
+                text: Math.floor(n) + ' species'
+              })
+            }
+            resolve({
+              records: data,
+              precision: 2000,
+              shape: 'circle',
+              opacity: 0.6,
+              size: 1,
+              legend: {
+                title: 'Species richness',
+                size: 1,
+                shape: 'circle',
+                precision: 2000,
+                opacity: 0.6,
+                lines: lines
+              }
+            })
+          }).catch(function(e){
+            reject(e)
+          })
+        })
+      }
+
+      var map = brcatlas.svgMap({
+        id: 'map',
+        captionId: 'dotCaption',
+        height: 600,
+        mapTypesKey: 'Standard tetrad',
+        mapTypesSel: dataAccessors,
+        transOptsKey: 'clvc',
+        transOptsSel: {
+          clvc: {
+            id: 'clvc',
+            caption: 'Cheshire Lancashire VCs',
+            bounds: {
+              xmin: 302500,
+              ymin: 326000,
+              xmax: 428000,
+              ymax: 494000
+            },
+          },
+        },
+        boundaryGjson: './chesh-lancs-vcs-27700.geojson',
+        gridGjson: './chesh-lancs-hectad-grid-27700.geojson',
+        proj: "gb",
+        gridLineColour: 'grey',
+        boundaryColour: 'black',
+      })
+      map.basemapImage('background', true, './chesh-lancs-background.png', './chesh-lancs-background.pgw')
+
+      const legendOptsRichness = {
+        display: true,
+        scale: 0.8,
+        x: 300,
+        y: 5
+        // Data is built by data accessor
+      }
+      const legendOptsCoincidence = {
+        display: true,
+        scale: 0.8,
+        x: 255,
+        y: 53,
+        data: {
+          title: 'Concidence of species',
+          size: 1,
+          precision: 2000,
+          opacity: 0.6,
+          lines: [
+            {
+              colour: 'magenta',
+              shape: 'triangle-up',
+              text: 'Araneus diadematus only'
+            },
+            {
+              colour: 'blue',
+              shape: 'triangle-down',
+              text: 'Araneus quadratus only only'
+            },
+            {
+              colour: 'green',
+              shape: 'square',
+              text: 'Both species'
+            },
+          ]
+        }
+      }
+
+      function reDrawDots() {
+        var mapdata = d3.select('input[name="mapdata"]:checked').node().value
+        if (mapdata.indexOf('richness') > -1) {
+          map.setLegendOpts(legendOptsRichness) 
+          map.setMapType('Species richness')
+        } else if (mapdata.indexOf('-and-') > -1) {
+          map.setLegendOpts(legendOptsCoincidence)
+          map.setMapType('Standard tetrad') 
+        } else {
+          map.setLegendOpts({display: false}) // No legend
+          map.setMapType('Standard tetrad')
+        }
+        map.setIdentfier(mapdata)
+        map.redrawMap()
+      }
+    </script>
+  </div>
+</body>
+</html>
