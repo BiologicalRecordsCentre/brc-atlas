@@ -1,7 +1,7 @@
 ### BRC Atlas library examples
 
 ## API documentation
-For API details - [JSDoc API documentation](https://biologicalrecordscentre.github.io/brc-atlas/api/).
+For API details - [JSDoc API documentation](https://biologicalrecordscentre.github.io/brc-atlas/docs/api/).
 
 ## Working examples
 - [A basic UK hectad distribution map](example-1.html)
