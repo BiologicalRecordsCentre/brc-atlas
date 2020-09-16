@@ -8,3 +8,5 @@ For API details - [JSDoc API documentation](https://biologicalrecordscentre.gith
 - [A basic Irish hectad distribution map](example-3.html)
 - [A local atlas map](example-4.html)
 - [Animate transition between core UK transformation types](example-2.html)
+- [User defined map inset demo (Channel Islands)](example-5.html)
+- [User defined multiple map inset demo (Channel Islands)](example-6.html)

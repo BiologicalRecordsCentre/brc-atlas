@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>BRC Atlas Library example 6</title>
+</head>
+<body>
+  <div class="content">
+    <h1>Using the BRC Atlas Library</h1>
+    <h2>Show a Channel Islands map using insets for island groups</h2>
+    <div id="map"></div>
+    <p>
+      This example demonstrates using user-defined insets 
+      with the BRC Atlas library, using the Channel Islands 
+      as an example. You can consult some
+      other examples, <a href='./example-1.html'>example-1.html</a>
+      and <a href='./example-3.html'>example-3.html</a>. To learn about
+      some of the techniques used to create it.
+    </p>
+    <p>
+      The techniques used here but not described in those examples will
+      be documented in time. Until then, you can view the source and
+      download the various data files, images etc to work out how it
+      is put together.
+    </p>
+    <p>
+      Also look at the <a href='https://biologicalrecordscentre.github.io/brc-atlas/docs/api/'>BRC Altas API documentation</a>.
+    </p>
+<pre>
+<code class="javascript">var map = brcatlas.svgMap({
+  id: "map",
+  mapTypesKey: 'Standard tetrad',
+  transOptsKey: 'CI1',
+  transOptsSel: {
+    CI1: {
+      id: 'CI1',
+      caption: 'Channel Islands',
+      bounds: {
+        xmin: 520000,
+        ymin: 5440000,
+        xmax: 560000,
+        ymax: 5520000
+      },
+      insets: [{
+        bounds: {
+          xmin: 540000,
+          ymin: 5500000,
+          xmax: 570000,
+          ymax: 5510000
+        },
+        imageX: 30,
+        imageY: 410
+      },{
+        bounds: {
+          xmin: 520000,
+          ymin: 5470000,
+          xmax: 550000,
+          ymax: 5490000
+        },
+        imageX: 30,
+        imageY: 250
+      },
+      {
+        bounds: {
+          xmin: 550000,
+          ymin: 5440000,
+          xmax: 580000,
+          ymax: 5470000
+        },
+        imageX: 30,
+        imageY: 30
+      }]
+    }
+  },
+  insetColour: 'transparent',
+  boundaryGjson: './ci-32630.geojson',
+  gridGjson: './ci-grid-32630.geojson',
+  proj: "ci",
+})
+map.setIdentfier('./example-ci-tetrads.csv')
+map.redrawMap()</code>
+
+    <!--JS and CSS required for highlighting inline example code-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/a11y-light.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <!--Page CSS-->
+    <link rel="stylesheet" href="example.css" />
+
+    <!--D3 JS required exernal dependency of BRC Atlas library-->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+
+    <!--BRC Atlas library JS and CSS-->
+    <script src="./../../brc-atlas/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="./../../brc-atlas/dist/brcatlas.umd.css">
+    <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
+
+    <script>
+      var map = brcatlas.svgMap({
+        id: "map",
+        mapTypesKey: 'Standard tetrad',
+        transOptsKey: 'CI1',
+        transOptsSel: {
+          CI1: {
+            id: 'CI1',
+            caption: 'Channel Islands',
+            bounds: {
+              xmin: 520000,
+              ymin: 5440000,
+              xmax: 560000,
+              ymax: 5520000
+            },
+            insets: [{
+              bounds: {
+                xmin: 540000,
+                ymin: 5500000,
+                xmax: 570000,
+                ymax: 5510000
+              },
+              imageX: 30,
+              imageY: 410
+            },{
+              bounds: {
+                xmin: 520000,
+                ymin: 5470000,
+                xmax: 550000,
+                ymax: 5490000
+              },
+              imageX: 30,
+              imageY: 250
+            },
+            {
+              bounds: {
+                xmin: 550000,
+                ymin: 5440000,
+                xmax: 580000,
+                ymax: 5470000
+              },
+              imageX: 30,
+              imageY: 30
+            }]
+          }
+        },
+        insetColour: 'transparent',
+        boundaryGjson: './ci-32630.geojson',
+        gridGjson: './ci-grid-32630.geojson',
+        proj: "ci",
+      })
+      map.setIdentfier('./example-ci-tetrads.csv')
+      map.redrawMap()
+    </script>
+  </div>
+</body>
+</html>

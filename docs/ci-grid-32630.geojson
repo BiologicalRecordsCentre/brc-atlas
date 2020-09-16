@@ -1,0 +1,24 @@
+{
+"type": "FeatureCollection",
+"name": "ci-grid-32630",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::32630" } },
+"features": [
+{ "type": "Feature", "properties": { "GridType": "Hectad (10 km square)", "GridRef": "" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 520000.0, 5470000.0 ], [ 520000.0, 5480000.0 ], [ 530000.0, 5480000.0 ], [ 530000.0, 5470000.0 ], [ 520000.0, 5470000.0 ] ] ] } },
+{ "type": "Feature", "properties": { "GridType": "Hectad (10 km square)", "GridRef": "" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 520000.0, 5480000.0 ], [ 520000.0, 5490000.0 ], [ 530000.0, 5490000.0 ], [ 530000.0, 5480000.0 ], [ 520000.0, 5480000.0 ] ] ] } },
+{ "type": "Feature", "properties": { "GridType": "Hectad (10 km square)", "GridRef": "" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 530000.0, 5470000.0 ], [ 530000.0, 5480000.0 ], [ 540000.0, 5480000.0 ], [ 540000.0, 5470000.0 ], [ 530000.0, 5470000.0 ] ] ] } },
+{ "type": "Feature", "properties": { "GridType": "Hectad (10 km square)", "GridRef": "" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 530000.0, 5480000.0 ], [ 530000.0, 5490000.0 ], [ 540000.0, 5490000.0 ], [ 540000.0, 5480000.0 ], [ 530000.0, 5480000.0 ] ] ] } },
+{ "type": "Feature", "properties": { "GridType": "Hectad (10 km square)", "GridRef": "" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 540000.0, 5470000.0 ], [ 540000.0, 5480000.0 ], [ 550000.0, 5480000.0 ], [ 549999.0, 5470000.0 ], [ 540000.0, 5470000.0 ] ] ] } },
+{ "type": "Feature", "properties": { "GridType": "Hectad (10 km square)", "GridRef": "" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 540000.0, 5480000.0 ], [ 540000.0, 5490000.0 ], [ 550000.0, 5490000.0 ], [ 550000.0, 5480000.0 ], [ 540000.0, 5480000.0 ] ] ] } },
+{ "type": "Feature", "properties": { "GridType": "Hectad (10 km square)", "GridRef": "" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 540000.0, 5500000.0 ], [ 540000.0, 5510000.0 ], [ 550000.0, 5510000.0 ], [ 550000.0, 5500000.0 ], [ 540000.0, 5500000.0 ] ] ] } },
+{ "type": "Feature", "properties": { "GridType": "Hectad (10 km square)", "GridRef": "" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 550000.0, 5440000.0 ], [ 550000.0, 5450000.0 ], [ 560000.0, 5450000.0 ], [ 560000.0, 5440000.0 ], [ 550000.0, 5440000.0 ] ] ] } },
+{ "type": "Feature", "properties": { "GridType": "Hectad (10 km square)", "GridRef": "" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 550000.0, 5450000.0 ], [ 550000.0, 5460000.0 ], [ 560000.0, 5460000.0 ], [ 560000.0, 5450000.0 ], [ 550000.0, 5450000.0 ] ] ] } },
+{ "type": "Feature", "properties": { "GridType": "Hectad (10 km square)", "GridRef": "" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 550000.0, 5500000.0 ], [ 550000.0, 5510000.0 ], [ 560000.0, 5510000.0 ], [ 560000.0, 5500000.0 ], [ 550000.0, 5500000.0 ] ] ] } },
+{ "type": "Feature", "properties": { "GridType": "Hectad (10 km square)", "GridRef": "" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 560000.0, 5420000.0 ], [ 560000.0, 5430000.0 ], [ 570000.0, 5430000.0 ], [ 570000.0, 5420000.0 ], [ 560000.0, 5420000.0 ] ] ] } },
+{ "type": "Feature", "properties": { "GridType": "Hectad (10 km square)", "GridRef": "" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 560000.0, 5440000.0 ], [ 560000.0, 5450000.0 ], [ 570000.0, 5450000.0 ], [ 570000.0, 5440000.0 ], [ 560000.0, 5440000.0 ] ] ] } },
+{ "type": "Feature", "properties": { "GridType": "Hectad (10 km square)", "GridRef": "" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 560000.0, 5450000.0 ], [ 560000.0, 5460000.0 ], [ 570000.0, 5460000.0 ], [ 570000.0, 5450000.0 ], [ 560000.0, 5450000.0 ] ] ] } },
+{ "type": "Feature", "properties": { "GridType": "Hectad (10 km square)", "GridRef": "" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 560000.0, 5500000.0 ], [ 560000.0, 5510000.0 ], [ 570000.0, 5510000.0 ], [ 570000.0, 5500000.0 ], [ 560000.0, 5500000.0 ] ] ] } },
+{ "type": "Feature", "properties": { "GridType": "Hectad (10 km square)", "GridRef": "" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 570000.0, 5440000.0 ], [ 570000.0, 5450000.0 ], [ 580000.0, 5450000.0 ], [ 580000.0, 5440000.0 ], [ 570000.0, 5440000.0 ] ] ] } },
+{ "type": "Feature", "properties": { "GridType": "Hectad (10 km square)", "GridRef": "" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 570000.0, 5450000.0 ], [ 570000.0, 5460000.0 ], [ 580000.0, 5460000.0 ], [ 580000.0, 5450000.0 ], [ 570000.0, 5450000.0 ] ] ] } },
+{ "type": "Feature", "properties": { "GridType": "Hectad (10 km square)", "GridRef": "" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 570000.0, 5460000.0 ], [ 570000.0, 5470000.0 ], [ 580000.0, 5470000.0 ], [ 580000.0, 5460000.0 ], [ 570000.0, 5460000.0 ] ] ] } }
+]
+}
