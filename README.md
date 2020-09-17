@@ -28,4 +28,4 @@ The CDN also exposes some geojson assets including:
 ## API documentation and code examples
 For details of the API, view the [JSDoc API documentation](https://biologicalrecordscentre.github.io/brc-atlas/docs/api/).
 
-There are also a number of [working examples](https://biologicalrecordscentre.github.io/brc-atlas/docs/readme.md).
+There are also a number of [working examples](https://biologicalrecordscentre.github.io/brc-atlas/docs/).
