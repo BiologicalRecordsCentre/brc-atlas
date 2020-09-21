@@ -61,10 +61,10 @@
     <script src="https://d3js.org/d3.v5.min.js"></script>
 
     <!--BRC Atlas library JS and CSS-->
-    <!-- <script src="./../../brc-atlas/dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="./../../brc-atlas/dist/brcatlas.umd.css"> -->
-    <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css">
+    <script src="./../../brc-atlas/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="./../../brc-atlas/dist/brcatlas.umd.css">
+    <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
 
     <script>
       const dataAccessors = brcatlas.dataAccessors
@@ -80,16 +80,17 @@
               .domain([0, maxRichness])
               .range(['green', 'magenta'])
             data.forEach(function(d){
-              d.colour = colours(Number(d.richness))
+              d.colour = colours(Number(d.richness)),
+              d.caption = `Richness: <strong>${d.richness}</strong> species`
             })
 
-            let lines = [{
+            let legendLines = [{
               colour: 'green',
               text: '1 species'
             }]
             for (let i=1; i<5; i++){
               const n = maxRichness / 4 * i
-              lines.push({
+              legendLines.push({
                 colour: colours(n),
                 text: Math.floor(n) + ' species'
               })
@@ -106,7 +107,7 @@
                 shape: 'circle',
                 precision: 2000,
                 opacity: 0.6,
-                lines: lines
+                lines: legendLines
               }
             })
           }).catch(function(e){

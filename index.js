@@ -1,4 +1,4 @@
-import { namedTransOpts } from './src/coordsToImage'
+import { namedTransOpts } from './src/svgCoords'
 import { dataAccessors } from './src/dataAccess'
 import { svgMap } from './src/svgMap'
 import pkg from './package.json'

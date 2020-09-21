@@ -4,7 +4,7 @@
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.brcatlas = {}, global.d3));
 }(this, (function (exports, d3) { 'use strict';
 
-  /** @module src/coordsToImage */
+  /** @module src/svgCoords */
   /**
    * Given a transform options object, describing a bounding rectangle in world coordinates,
    * and a height dimension, this function returns an array of objects - one
@@ -367,6 +367,10 @@
     return tto;
   }
 
+  function getRadiusPixels(transform, precision) {
+    return Math.abs(transform([300000, 300000])[0] - transform([300000 + precision / 2, 300000])[0]);
+  }
+
   /** @module src/dataAccess */
 
   function csvMonad(file) {
@@ -387,7 +391,7 @@
         if (r.gr) {
           return {
             gr: r.gr,
-            caption: "<strong>Grid ref: </strong>".concat(r.gr),
+            caption: "<strong>Gridx ref: </strong>".concat(r.gr),
             colour: r.colour,
             shape: r.shape,
             opacity: r.opacity,
@@ -8526,10 +8530,6 @@
     };
   }
 
-  function getRadiusPixels(transform, precision) {
-    return Math.abs(transform([300000, 300000])[0] - transform([300000 + precision / 2, 300000])[0]);
-  }
-
   function removeDots(svg) {
     svg.selectAll('.dotCircle').remove();
     svg.selectAll('.dotSquare').remove();
@@ -8722,6 +8722,7 @@
   }
 
   function svgLegend(svg, legendOpts) {
+    console.log(legendOpts);
     var legendData = legendOpts.data ? legendOpts.data : legendOpts.accessorData;
     var legendX = legendOpts.x;
     var legendY = legendOpts.y;

@@ -2,6 +2,8 @@ import * as d3 from 'd3'
 
 export function svgLegend(svg, legendOpts) {
 
+  console.log(legendOpts)
+
   const legendData = legendOpts.data ? legendOpts.data : legendOpts.accessorData
   const legendX = legendOpts.x
   const legendY = legendOpts.y

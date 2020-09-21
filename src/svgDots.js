@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 import { getCentroid, checkGr } from 'brc-atlas-bigr'
-import { getRadiusPixels } from './general.js'
+import { getRadiusPixels } from './svgCoords.js'
 
 export function removeDots(svg) {
   svg.selectAll('.dotCircle').remove()
