@@ -8,36 +8,6 @@ import { drawDots, removeDots } from './svgDots.js'
 import { svgLegend } from './svgLegend.js'
 
 /**
- * @typedef {Object} legendOpts
- * @property {boolean} display - indicates whether or not a legend is to be drawn.
- * @property {number} scale - a number between 0 and 1 which scales the size of the legend.
- * @property {number} x - an offset of the top-left corner of the legend from the left margin of the SVG.
- * @property {number} y - an offset of the top-left corner of the legend from the top margin of the SVG.
- * @property {legendDefintion} data - a legend defition.
- */
-
- /**
- * @typedef {Object} legendDefintion
- * @property {string} title - a title caption for the legend.
- * @property {number} size - a number between 0 and 1.
- * This is one factor taken into account to calculate the size of the legend dots.
- * @property {number} precision - should match the precision (in metres) of the map dot, e.g. 2000 for tetrads.
- * This is one factor taken into account to calculate the size of the legend dots.
- * @property {number} opacity - a number between 0 and 1 indicating the opacity of the legend symbol. 0 is completely
- * transparent and 1 is completely opaque.
- * @property {Array.<legendLine>} lines - an arry of objects representing lines in a legend.
- */
-
-  /**
- * @typedef {Object} legendLine
- * @property {string} color - a colour for the legend symbol which can be hex format, e.g. #FFA500, 
- * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
- * @property {string} shape - describes symbol shape for the legend line.
- * Valid values are: circle, square, diamond, triangle-up, triangle-down.
- * @property {string} text - specifies the text for the legend line.
- */
-
- /**
  * @typedef {Object} transOptsSel
  * @property {transOpts} key - there must be at least one, but potentially more, properties
  * on this object, each describing a map 'transformation'.
@@ -80,26 +50,28 @@ import { svgLegend } from './svgLegend.js'
  * @property {number} ymax - the y value for the top right corner.
  */
 
- /**
+/**
  * @typedef {Object} api
  * @property {function} setBoundaryColour - change the colour of the boundary. Pass a single argument
  * which is a string specifying the colour which can be hex format, e.g. #FFA500, 
  * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
- * @property {setTransform} setTransform - set the transformation options object by passing a single argument
+ * @property {function} setTransform - set the transformation options object by passing a single argument
  * which is a string indicating the key of the transformation in the parent object.
- * @property {function} animateTransChange - set the transformation options object.
- * @property {function} setIdentfier - set the transformation options object.
- * @property {function} setMapType - set the transformation options object.
- * @property {function} basemapImage - set the transformation options object.
- * @property {function} baseMapPriorities - set the transformation options object.
- * @property {function} setLegendOpts - set the transformation options object.
- * @property {function} redrawMap - set the transformation options object.
- * @property {function} clearMap - set the transformation options object.
+ * @property {function} getMapWidth - gets and returns the current width of the SVG map. 
+ * @property {function} animateTransChange - set the a new transormation object and animates the transition.
+ * @property {function} setIdentfier - identifies data to the data accessor function.
+ * @property {function} setMapType - set the key of the data accessor function.
+ * @property {function} basemapImage - specifies an image and world file for a basemap.
+ * @property {function} baseMapPriorities - identifies the display order of the basemap images.
+ * @property {function} setLegendOpts - sets options for the legend.
+ * @property {function} redrawMap - redraw the map.
+ * @property {function} clearMap - clear the map.
  */
 
 /**
  * @param {Object} opts - initialisation options.
- * @param {string} opts.id - the id of the element which will be the parent of the SVG.
+ * @param {string} opts.selector - the CSS selector of the element which will be the parent of the SVG.
+ * @param {string} opts.mapid - the id for the static map to be created.
  * @param {string} opts.proj - the projection of the map, should be 'gb', 'ir' or 'ci'. It should 
  * reflect the projection of boundary and grid data displayed on the map. It is used to generate the 'dots'
  * in the correct location.
@@ -111,9 +83,14 @@ import { svgLegend } from './svgLegend.js'
  * @param {legendOpts} opts.legendOpts - sets options for a map legend.
  * @param {transOptsSel} opts.transOptsSel - sets a collection of map transformation options.
  * @param {string} opts.transOptsKey - sets the key of the selected map transformation options. Must be
- * present in as a key in the  opts.transOptsSel object.
+ * present in as a key in the opts.transOptsSel object.
  * @param {boolean} opts.transOptsControl - indicates whether or not a control should be shown in the
  * bottom-right of the map that can be used display a dialog to change the transformation options.
+ * @param {Object} opts.mapTypesSel - sets an object whose properties are data access functions. The property
+ * names are the 'keys' which should be human readable descriptiosn of the map types.
+ * @param {string} opts.mapTypesKey - sets the key of the selected data accessor function (map type).
+ * @param {boolean} opts.mapTypesControl - indicates whether or not a control should be shown in the
+ * bottom-right of the map that can be used display a dialog to change the data accessor (map type) options.
  * @param {string} opts.boundaryGjson - the URL of a boundary geoJson file to display.
  * @param {string} opts.gridGjson - the URL of a grid geoJson file to display.
  * @param {string} opts.gridLineColour - specifies the line colour of grid line geoJson.
@@ -121,11 +98,13 @@ import { svgLegend } from './svgLegend.js'
  * @param {string} opts.boundaryFill - specifies the fill colour of the boundary geoJson.
  * @param {string} opts.seaFill - specifies the fill colour of the area outside the boundary geoJson.
  * @param {string} opts.insetColour - specifies the line colour of map inset boxes.
+ * @param {function} opts.callbackOptions - specifies a callback function to be executed if user options dialog used.
  * @returns {api} api - returns an API for the map.
  */
 export function svgMap({
   // Default options in here
-  id = 'body',
+  selector = 'body',
+  mapid = 'svgMap',
   proj = 'gb',
   captionId = '',
   height = 500,
@@ -143,20 +122,23 @@ export function svgMap({
   boundaryColour = '7C7CD3',
   boundaryFill = 'white',
   seaFill = 'E6EFFF',
-  insetColour = '7C7CD3'
+  insetColour = '7C7CD3',
+  callbackOptions=null
 } = {}) {
 
   let trans, basemaps, boundary, boundaryf, dataBoundary, grid, dataGrid, taxonIdentifier
 
   // Create a parent div for the SVG within the parent element passed
   // as an argument. Allows us to style correctly for positioning etc.
-  const mainDiv = d3.select(`#${id}`)
+  const mainDiv = d3.select(`${selector}`)
     .append("div")
+    .attr('id', mapid)
     .style("position", "relative")
     .style("display", "inline")
 
   // Create the SVG.
   const svg = mainDiv.append("svg")
+    //.attr('id', mapid)
     .style("background-color", seaFill)
   svg.append('defs')
 
@@ -182,7 +164,7 @@ export function svgMap({
         showOptsDialog(mapTypesKey, transOptsSel, transOptsKey)
       })
     // Create options dialog
-    optsDialog(id, transOptsSel, transOptsKey, transOptsControl, mapTypesSel, mapTypesKey, mapTypesControl, userChangedOptions)
+    optsDialog(selector, transOptsSel, transOptsKey, transOptsControl, mapTypesSel, mapTypesKey, mapTypesControl, userChangedOptions)
   }
 
   // Initialise the display
@@ -229,6 +211,9 @@ export function svgMap({
     if (opts.mapTypesKey && mapTypesKey !== opts.mapTypesKey){
       mapTypesKey = opts.mapTypesKey
       drawMapDots()
+    }
+    if (callbackOptions) {
+      callbackOptions()
     }
   }
 
@@ -430,10 +415,20 @@ export function svgMap({
     removeDots(svg)
   }
 
+/** @function - getMapWidth
+  * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+  * Return the width of the map.
+  */
+ function getMapWidth(){
+  // API
+  return trans.width
+}
+
   // Return the publicly accessible API
   return {
     setBoundaryColour: setBoundaryColour,
     setTransform: setTransform,
+    getMapWidth: getMapWidth,
     animateTransChange: animateTransChange,
     setIdentfier: setIdentfier,
     setMapType: setMapType,

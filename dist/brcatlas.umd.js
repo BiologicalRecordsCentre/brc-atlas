@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('d3')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'd3'], factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.brcatlas = {}, global.d3));
-}(this, (function (exports, d3) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('d3'), require('leaflet')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'd3', 'leaflet'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.brcatlas = {}, global.d3, global.L));
+}(this, (function (exports, d3, L) { 'use strict';
 
   /** @module src/svgCoords */
   /**
@@ -391,7 +391,7 @@
         if (r.gr) {
           return {
             gr: r.gr,
-            caption: "<strong>Gridx ref: </strong>".concat(r.gr),
+            caption: "<strong>Grid ref: </strong>".concat(r.gr),
             colour: r.colour,
             shape: r.shape,
             opacity: r.opacity,
@@ -888,9 +888,9 @@
 
   window.MicroModal = MicroModal;
 
-  function optsDialog(parentId, transOptsSel, transOptsKey, transOptsControl, mapTypesSel, mapTypesKey, mapTypesControl, applyFunction) {
+  function optsDialog(parentSelector, transOptsSel, transOptsKey, transOptsControl, mapTypesSel, mapTypesKey, mapTypesControl, applyFunction) {
     // Create map SVG in given parent
-    var div1 = d3.select("#".concat(parentId)).append("div").classed("modal micromodal-slide", true).attr("id", "modal-1").attr("aria-hidden", "true");
+    var div1 = d3.select("".concat(parentSelector)).append("div").classed("modal micromodal-slide", true).attr("id", "modal-1").attr("aria-hidden", "true");
     var div2 = div1.append("div").classed("modal__overlay", true).attr("tabindex", "-1").attr("data-micromodal-close", "");
     var div3 = div2.append("div").classed("modal__container", true).attr("role", "dialog").attr("aria-modal", "true").attr("aria-labelledby", "modal-1-title");
     var header = div3.append("header").classed("modal__header", true);
@@ -8529,6 +8529,74 @@
       proj: km100.proj
     };
   }
+  /** @module src/getGjson */
+
+
+  function convertCoords(fromProjection, toProjection, x, y) {
+    var outCoords; // If the required output projection does not match the projection of the input GR
+    // then use proj4 to reproject
+
+    if (toProjection !== fromProjection) {
+      outCoords = proj4(projections$1[fromProjection].proj4, projections$1[toProjection].proj4, [x, y]);
+    } else {
+      outCoords = [x, y];
+    }
+
+    return outCoords;
+  }
+  /**
+   * Given a grid reference (British National Grid, Irish Grid or UTM zone 30N shorthand),
+   * a two-letter code defining the requested output projection, and a string indicating
+   * the shape of the required 'symbol', this function returns a GeoJson pth geometry object.
+   * @param {string} gr - the grid reference.
+   * @param {string} toProjection - two letter code specifying the required output CRS.
+   * @param {string} shape - string specifying the requested output shape type.
+   * @returns {object} - a GeoJson path geometry object.
+   * @todo Extend to return all symbol types
+   */
+
+
+  function getGjson(gr, toProjection, shape) {
+    var grType = checkGr(gr);
+    var km100 = km100s[grType.prefix];
+    var centroid = getCentroid(gr, km100.proj).centroid;
+    var xmin = centroid[0] - grType.precision / 2;
+    var xmax = centroid[0] + grType.precision / 2;
+    var ymin = centroid[1] - grType.precision / 2;
+    var ymax = centroid[1] + grType.precision / 2;
+    var xmid = xmin + (xmax - xmin) / 2;
+    var ymid = ymin + (ymax - ymin) / 2;
+    var coords;
+    var type = "Polygon";
+
+    if (shape === "square") {
+      coords = [[convertCoords(km100.proj, toProjection, xmin, ymin), convertCoords(km100.proj, toProjection, xmax, ymin), convertCoords(km100.proj, toProjection, xmax, ymax), convertCoords(km100.proj, toProjection, xmin, ymax), convertCoords(km100.proj, toProjection, xmin, ymin)]];
+    } else if (shape === "triangle-up") {
+      coords = [[convertCoords(km100.proj, toProjection, xmin, ymin), convertCoords(km100.proj, toProjection, xmax, ymin), convertCoords(km100.proj, toProjection, xmid, ymax), convertCoords(km100.proj, toProjection, xmin, ymin)]];
+    } else if (shape === "triangle-down") {
+      coords = [[convertCoords(km100.proj, toProjection, xmid, ymin), convertCoords(km100.proj, toProjection, xmax, ymax), convertCoords(km100.proj, toProjection, xmin, ymax), convertCoords(km100.proj, toProjection, xmid, ymin)]];
+    } else if (shape === "diamond") {
+      coords = [[convertCoords(km100.proj, toProjection, xmid, ymin), convertCoords(km100.proj, toProjection, xmax, ymid), convertCoords(km100.proj, toProjection, xmid, ymax), convertCoords(km100.proj, toProjection, xmin, ymid), convertCoords(km100.proj, toProjection, xmid, ymin)]];
+    } else if (shape === "circle") {
+      var rad = grType.precision / 2;
+      coords = [[]];
+
+      for (var deg = 0; deg <= 360; deg += 15) {
+        var angle = deg * Math.PI / 180;
+        var x = rad * Math.cos(angle) + centroid[0];
+        var y = rad * Math.sin(angle) + centroid[1];
+        coords[0].push(convertCoords(km100.proj, toProjection, x, y));
+      }
+    } else if (shape === "cross") {
+      type = "MultiLineString";
+      coords = [[convertCoords(km100.proj, toProjection, xmin, ymin), convertCoords(km100.proj, toProjection, xmax, ymin), convertCoords(km100.proj, toProjection, xmax, ymax), convertCoords(km100.proj, toProjection, xmin, ymax), convertCoords(km100.proj, toProjection, xmin, ymin)], [convertCoords(km100.proj, toProjection, xmin, ymin), convertCoords(km100.proj, toProjection, xmax, ymax)], [convertCoords(km100.proj, toProjection, xmin, ymax), convertCoords(km100.proj, toProjection, xmax, ymin)]];
+    }
+
+    return {
+      "type": type,
+      "coordinates": coords
+    };
+  }
 
   function removeDots(svg) {
     svg.selectAll('.dotCircle').remove();
@@ -8721,6 +8789,38 @@
     });
   }
 
+  /** @module svgLegend */
+  /**
+   * @typedef module:svgLegend.legendOpts
+   * @type {Object}
+   * @property {boolean} display - indicates whether or not a legend is to be drawn.
+   * @property {number} scale - a number between 0 and 1 which scales the size of the legend.
+   * @property {number} x - an offset of the top-left corner of the legend from the left margin of the SVG.
+   * @property {number} y - an offset of the top-left corner of the legend from the top margin of the SVG.
+   * @property {legendDefintion} data - a legend defition.
+   */
+
+  /**
+   * @typedef {Object} legendDefintion
+   * @property {string} title - a title caption for the legend.
+   * @property {number} size - a number between 0 and 1.
+   * This is one factor taken into account to calculate the size of the legend dots.
+   * @property {number} precision - should match the precision (in metres) of the map dot, e.g. 2000 for tetrads.
+   * This is one factor taken into account to calculate the size of the legend dots.
+   * @property {number} opacity - a number between 0 and 1 indicating the opacity of the legend symbol. 0 is completely
+   * transparent and 1 is completely opaque.
+   * @property {Array.<legendLine>} lines - an arry of objects representing lines in a legend.
+   */
+
+  /**
+   * @typedef {Object} legendLine
+   * @property {string} color - a colour for the legend symbol which can be hex format, e.g. #FFA500, 
+   * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
+   * @property {string} shape - describes symbol shape for the legend line.
+   * Valid values are: circle, square, diamond, triangle-up, triangle-down.
+   * @property {string} text - specifies the text for the legend line.
+   */
+
   function svgLegend(svg, legendOpts) {
     console.log(legendOpts);
     var legendData = legendOpts.data ? legendOpts.data : legendOpts.accessorData;
@@ -8761,40 +8861,10 @@
   }
 
   /**
-   * @typedef {Object} legendOpts
-   * @property {boolean} display - indicates whether or not a legend is to be drawn.
-   * @property {number} scale - a number between 0 and 1 which scales the size of the legend.
-   * @property {number} x - an offset of the top-left corner of the legend from the left margin of the SVG.
-   * @property {number} y - an offset of the top-left corner of the legend from the top margin of the SVG.
-   * @property {legendDefintion} data - a legend defition.
+   * @typedef {Object} transOptsSel
+   * @property {transOpts} key - there must be at least one, but potentially more, properties
+   * on this object, each describing a map 'transformation'.
    */
-
-  /**
-  * @typedef {Object} legendDefintion
-  * @property {string} title - a title caption for the legend.
-  * @property {number} size - a number between 0 and 1.
-  * This is one factor taken into account to calculate the size of the legend dots.
-  * @property {number} precision - should match the precision (in metres) of the map dot, e.g. 2000 for tetrads.
-  * This is one factor taken into account to calculate the size of the legend dots.
-  * @property {number} opacity - a number between 0 and 1 indicating the opacity of the legend symbol. 0 is completely
-  * transparent and 1 is completely opaque.
-  * @property {Array.<legendLine>} lines - an arry of objects representing lines in a legend.
-  */
-
-  /**
-  * @typedef {Object} legendLine
-  * @property {string} color - a colour for the legend symbol which can be hex format, e.g. #FFA500, 
-  * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
-  * @property {string} shape - describes symbol shape for the legend line.
-  * Valid values are: circle, square, diamond, triangle-up, triangle-down.
-  * @property {string} text - specifies the text for the legend line.
-  */
-
-  /**
-  * @typedef {Object} transOptsSel
-  * @property {transOpts} key - there must be at least one, but potentially more, properties
-  * on this object, each describing a map 'transformation'.
-  */
 
   /**
    * @typedef {Object} transOpts - A 'transformation' object simply defines the extents of the
@@ -8834,25 +8904,27 @@
   */
 
   /**
-  * @typedef {Object} api
-  * @property {function} setBoundaryColour - change the colour of the boundary. Pass a single argument
-  * which is a string specifying the colour which can be hex format, e.g. #FFA500, 
-  * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
-  * @property {setTransform} setTransform - set the transformation options object by passing a single argument
-  * which is a string indicating the key of the transformation in the parent object.
-  * @property {function} animateTransChange - set the transformation options object.
-  * @property {function} setIdentfier - set the transformation options object.
-  * @property {function} setMapType - set the transformation options object.
-  * @property {function} basemapImage - set the transformation options object.
-  * @property {function} baseMapPriorities - set the transformation options object.
-  * @property {function} setLegendOpts - set the transformation options object.
-  * @property {function} redrawMap - set the transformation options object.
-  * @property {function} clearMap - set the transformation options object.
-  */
+   * @typedef {Object} api
+   * @property {function} setBoundaryColour - change the colour of the boundary. Pass a single argument
+   * which is a string specifying the colour which can be hex format, e.g. #FFA500, 
+   * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
+   * @property {function} setTransform - set the transformation options object by passing a single argument
+   * which is a string indicating the key of the transformation in the parent object.
+   * @property {function} getMapWidth - gets and returns the current width of the SVG map. 
+   * @property {function} animateTransChange - set the a new transormation object and animates the transition.
+   * @property {function} setIdentfier - identifies data to the data accessor function.
+   * @property {function} setMapType - set the key of the data accessor function.
+   * @property {function} basemapImage - specifies an image and world file for a basemap.
+   * @property {function} baseMapPriorities - identifies the display order of the basemap images.
+   * @property {function} setLegendOpts - sets options for the legend.
+   * @property {function} redrawMap - redraw the map.
+   * @property {function} clearMap - clear the map.
+   */
 
   /**
    * @param {Object} opts - initialisation options.
-   * @param {string} opts.id - the id of the element which will be the parent of the SVG.
+   * @param {string} opts.selector - the CSS selector of the element which will be the parent of the SVG.
+   * @param {string} opts.mapid - the id for the static map to be created.
    * @param {string} opts.proj - the projection of the map, should be 'gb', 'ir' or 'ci'. It should 
    * reflect the projection of boundary and grid data displayed on the map. It is used to generate the 'dots'
    * in the correct location.
@@ -8864,9 +8936,14 @@
    * @param {legendOpts} opts.legendOpts - sets options for a map legend.
    * @param {transOptsSel} opts.transOptsSel - sets a collection of map transformation options.
    * @param {string} opts.transOptsKey - sets the key of the selected map transformation options. Must be
-   * present in as a key in the  opts.transOptsSel object.
+   * present in as a key in the opts.transOptsSel object.
    * @param {boolean} opts.transOptsControl - indicates whether or not a control should be shown in the
    * bottom-right of the map that can be used display a dialog to change the transformation options.
+   * @param {Object} opts.mapTypesSel - sets an object whose properties are data access functions. The property
+   * names are the 'keys' which should be human readable descriptiosn of the map types.
+   * @param {string} opts.mapTypesKey - sets the key of the selected data accessor function (map type).
+   * @param {boolean} opts.mapTypesControl - indicates whether or not a control should be shown in the
+   * bottom-right of the map that can be used display a dialog to change the data accessor (map type) options.
    * @param {string} opts.boundaryGjson - the URL of a boundary geoJson file to display.
    * @param {string} opts.gridGjson - the URL of a grid geoJson file to display.
    * @param {string} opts.gridLineColour - specifies the line colour of grid line geoJson.
@@ -8874,13 +8951,16 @@
    * @param {string} opts.boundaryFill - specifies the fill colour of the boundary geoJson.
    * @param {string} opts.seaFill - specifies the fill colour of the area outside the boundary geoJson.
    * @param {string} opts.insetColour - specifies the line colour of map inset boxes.
+   * @param {function} opts.callbackOptions - specifies a callback function to be executed if user options dialog used.
    * @returns {api} api - returns an API for the map.
    */
 
   function svgMap() {
     var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-        _ref$id = _ref.id,
-        id = _ref$id === void 0 ? 'body' : _ref$id,
+        _ref$selector = _ref.selector,
+        selector = _ref$selector === void 0 ? 'body' : _ref$selector,
+        _ref$mapid = _ref.mapid,
+        mapid = _ref$mapid === void 0 ? 'svgMap' : _ref$mapid,
         _ref$proj = _ref.proj,
         proj = _ref$proj === void 0 ? 'gb' : _ref$proj,
         _ref$captionId = _ref.captionId,
@@ -8918,14 +8998,17 @@
         _ref$seaFill = _ref.seaFill,
         seaFill = _ref$seaFill === void 0 ? 'E6EFFF' : _ref$seaFill,
         _ref$insetColour = _ref.insetColour,
-        insetColour = _ref$insetColour === void 0 ? '7C7CD3' : _ref$insetColour;
+        insetColour = _ref$insetColour === void 0 ? '7C7CD3' : _ref$insetColour,
+        _ref$callbackOptions = _ref.callbackOptions,
+        callbackOptions = _ref$callbackOptions === void 0 ? null : _ref$callbackOptions;
 
     var trans, basemaps, boundary, boundaryf, dataBoundary, grid, dataGrid, taxonIdentifier; // Create a parent div for the SVG within the parent element passed
     // as an argument. Allows us to style correctly for positioning etc.
 
-    var mainDiv = d3.select("#".concat(id)).append("div").style("position", "relative").style("display", "inline"); // Create the SVG.
+    var mainDiv = d3.select("".concat(selector)).append("div").attr('id', mapid).style("position", "relative").style("display", "inline"); // Create the SVG.
 
-    var svg = mainDiv.append("svg").style("background-color", seaFill);
+    var svg = mainDiv.append("svg") //.attr('id', mapid)
+    .style("background-color", seaFill);
     svg.append('defs'); // Create the SVG graphic objects that store the major map elements.
     // The order these is created is important since it affects the order
     // in which they are rendered (i.e. what is drawn over what).
@@ -8941,7 +9024,7 @@
         showOptsDialog(mapTypesKey, transOptsSel, transOptsKey);
       }); // Create options dialog
 
-      optsDialog(id, transOptsSel, transOptsKey, transOptsControl, mapTypesSel, mapTypesKey, mapTypesControl, userChangedOptions);
+      optsDialog(selector, transOptsSel, transOptsKey, transOptsControl, mapTypesSel, mapTypesKey, mapTypesControl, userChangedOptions);
     } // Initialise the display
 
 
@@ -8987,6 +9070,10 @@
       if (opts.mapTypesKey && mapTypesKey !== opts.mapTypesKey) {
         mapTypesKey = opts.mapTypesKey;
         drawMapDots();
+      }
+
+      if (callbackOptions) {
+        callbackOptions();
       }
     }
 
@@ -9186,12 +9273,23 @@
       // API
       svg.select('#legend').remove();
       removeDots(svg);
+    }
+    /** @function - getMapWidth
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+      * Return the width of the map.
+      */
+
+
+    function getMapWidth() {
+      // API
+      return trans.width;
     } // Return the publicly accessible API
 
 
     return {
       setBoundaryColour: setBoundaryColour,
       setTransform: setTransform,
+      getMapWidth: getMapWidth,
       animateTransChange: animateTransChange,
       setIdentfier: setIdentfier,
       setMapType: setMapType,
@@ -9203,8 +9301,281 @@
     };
   }
 
+  /**
+   * @typedef {Object} api
+   * @property {function} setIdentfier - identifies data to the data accessor function.
+   * @property {function} setMapType - set the key of the data accessor function.
+   * @property {function} redrawMap - redraw the map.
+   * @property {function} clearMap - clear the map.
+   * @property {function} setSize - reset the size of the leaflet map.
+   * @property {function} invalidateSize - invoke leaflet's invalidate size method.
+   */
+
+  /**
+   * @param {Object} opts - initialisation options.
+   * @param {string} opts.selector - the CSS selector of the element which will be the parent of the leaflet map.
+   * @param {string} opts.mapid - the id for the slippy map to be created.
+   * @param {number} opts.captionId - the id of a DOM element into which feature-specific HTML will be displayed
+   * as the mouse moves over a dot on the map. The HTML markup must be stored in an attribute called 'caption'
+   * in the input data.
+   * @param {number} opts.height - the desired height of the leaflet map.
+   * @param {number} opts.width - the desired width of the leaflet map.
+   * @param {Object} opts.mapTypesSel - sets an object whose properties are data access functions. The property
+   * names are the 'keys' which should be human readable descriptiosn of the map types.
+   * @param {string} opts.mapTypesKey - sets the key of the selected data accessor function (map type).
+   * @param {legendOpts} opts.legendOpts - sets options for a map legend.
+   * @returns {api} api - returns an API for the map.
+   */
+
+  function leafletMap() {
+    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+        _ref$selector = _ref.selector,
+        selector = _ref$selector === void 0 ? 'body' : _ref$selector,
+        _ref$mapid = _ref.mapid,
+        mapid = _ref$mapid === void 0 ? 'leafletMap' : _ref$mapid,
+        _ref$captionId = _ref.captionId,
+        captionId = _ref$captionId === void 0 ? '' : _ref$captionId,
+        _ref$height = _ref.height,
+        height = _ref$height === void 0 ? 500 : _ref$height,
+        _ref$width = _ref.width,
+        width = _ref$width === void 0 ? 300 : _ref$width,
+        _ref$mapTypesKey = _ref.mapTypesKey,
+        mapTypesKey = _ref$mapTypesKey === void 0 ? 'Standard hectad' : _ref$mapTypesKey,
+        _ref$mapTypesSel = _ref.mapTypesSel,
+        mapTypesSel = _ref$mapTypesSel === void 0 ? dataAccessors : _ref$mapTypesSel,
+        _ref$legendOpts = _ref.legendOpts,
+        legendOpts = _ref$legendOpts === void 0 ? {
+      display: false
+    } : _ref$legendOpts;
+
+    var taxonIdentifier, precision;
+    var dots = {};
+    d3.select(selector).append('div').attr('id', mapid).style('width', "".concat(width, "px")).style('height', "".concat(height, "px"));
+    var osm = new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
+    var map = new L.Map(mapid, {
+      center: [55, -4],
+      zoom: 6,
+      layers: [osm]
+    });
+    map.on("viewreset", reset); // Not firing on current version - seems to be a bug
+
+    map.on("zoomend", reset);
+    map.on("moveend", reset); // Legend custom control
+
+    L.Control.Legend = L.Control.extend({
+      onAdd: function onAdd() {
+        var div = L.DomUtil.create('div', 'legendDiv leaflet-control leaflet-bar');
+        return div;
+      },
+      onRemove: function onRemove() {}
+    });
+
+    L.control.Legend = function (opts) {
+      return new L.Control.Legend(opts);
+    };
+
+    L.control.Legend({
+      position: 'topleft'
+    }).addTo(map);
+    map.zoomControl.setPosition('topright'); // Move zoom control to top right
+
+    function projectPoint(x, y) {
+      var point = map.latLngToLayerPoint(new L.LatLng(y, x));
+      this.stream.point(point.x, point.y);
+    }
+
+    var transform = d3.geoTransform({
+      point: projectPoint
+    });
+    var path = d3.geoPath().projection(transform);
+    var svg = d3.select(map.getPanes().overlayPane).append("svg");
+    var g = svg.append("g").attr("class", "leaflet-zoom-hide"); // 
+
+    function reset() {
+      var zoomThreshold = 7;
+      var zoomThreshold2 = 9;
+      var view = map.getBounds();
+      var deg5km = 0.0447;
+      var data, buffer;
+
+      if (precision === 10000 || precision === 0 && map.getZoom() <= zoomThreshold) {
+        data = dots.p10000;
+        buffer = deg5km * 1.5;
+      } else if (precision === 2000 || precision === 0 && map.getZoom() <= zoomThreshold2 || !dots.p1000 || !dots.p1000.length) {
+        data = dots.p2000;
+        buffer = deg5km / 4;
+      } else {
+        data = dots.p1000;
+        buffer = deg5km / 2;
+      }
+
+      if (!data || !data.records || !data.records.length) {
+        d3.select('.legendDiv').style('display', 'none');
+        svg.style('display', 'none');
+        return;
+      } else {
+        d3.select('.legendDiv').style('display', 'block');
+        svg.style('display', 'block');
+      }
+
+      var filteredData = data.records.filter(function (d) {
+        if (d.lng < view._southWest.lng - buffer || d.lng > view._northEast.lng + buffer || d.lat < view._southWest.lat - buffer || d.lat > view._northEast.lat + buffer) {
+          return false;
+        } else {
+          if (!d.geometry) {
+            var shape = d.shape ? d.shape : data.shape;
+            d.geometry = getGjson(d.gr, 'wg', shape);
+          }
+
+          return true;
+        }
+      });
+      var bounds = path.bounds({
+        type: "FeatureCollection",
+        features: filteredData.map(function (d) {
+          return {
+            type: "Feature",
+            geometry: d.geometry
+          };
+        })
+      });
+      var topLeft = bounds[0];
+      var bottomRight = bounds[1];
+      svg.attr("width", bottomRight[0] - topLeft[0]).attr("height", bottomRight[1] - topLeft[1]).style("left", topLeft[0] + "px").style("top", topLeft[1] + "px");
+      g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")"); // Update the features
+
+      var u = g.selectAll("path").data(filteredData, function (d) {
+        return d.gr;
+      });
+      u.enter().append("path").style("pointer-events", "all").on('mouseover', function (d) {
+
+        if (captionId) {
+          if (d.caption) {
+            d3.select("#".concat(captionId)).html(d.caption);
+          } else {
+            d3.select("#".concat(captionId)).html('');
+          }
+        }
+      }).merge(u).attr("d", function (d) {
+        return path(d.geometry);
+      }).attr("opacity", function (d) {
+        return d.opacity ? d.opacity : data.opacity;
+      }).style("fill", function (d) {
+        return d.colour ? d.colour : data.colour;
+      }).attr("fill", function (d) {
+        return d.colour;
+      }).attr("stroke-width", function () {
+        {
+          return '1';
+        }
+      });
+      u.exit().remove();
+    }
+    /** @function - setMapType
+      * @param {string} newMapTypesKey - a string which a key used to identify a data accessor function. 
+      * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+      * The data accessor is stored in the mapTypesSel object and referenced by this key.
+      */
+
+
+    function setMapType(newMapTypesKey) {
+      mapTypesKey = newMapTypesKey;
+    }
+    /** @function - setIdentfier
+      * @param {string} identifier - a string which identifies some data to 
+      * a data accessor function.
+      * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+      * The data accessor function, specified elsewhere, will use this identifier to access
+      * the correct data.
+      */
+
+
+    function setIdentfier(identifier) {
+      taxonIdentifier = identifier;
+    }
+    /** @function - redrawMap
+      * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+      * Redraw the map, e.g. after changing map accessor function or map identifier.
+      */
+
+
+    function redrawMap() {
+      // API
+      var accessFunction = mapTypesSel[mapTypesKey];
+      accessFunction(taxonIdentifier).then(function (data) {
+        data.records = data.records.map(function (d) {
+          var ll = getCentroid(d.gr, 'wg').centroid;
+          d.lat = ll[1];
+          d.lng = ll[0];
+          return d;
+        });
+        dots["p".concat(data.precision)] = data;
+        precision = data.precision; //Legend
+
+        legendOpts.accessorData = data.legend;
+
+        if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
+          var legendSvg = d3.select(selector).append('svg'); //.style('display', 'none')
+
+          svgLegend(legendSvg, legendOpts);
+          var bbox = legendSvg.node().getBBox();
+          var w = bbox.x + bbox.width + bbox.x;
+          var h = bbox.y + bbox.height + bbox.y;
+          d3.select('.legendDiv').html("<svg width=\"".concat(w, "\" height=\"").concat(h, "\">").concat(legendSvg.html(), "</svg>"));
+          legendSvg.remove();
+        }
+
+        reset();
+      });
+    }
+    /** @function - clearMap
+      * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+      * Clear the map of dots and legend.
+      */
+
+
+    function clearMap() {
+      // API
+      d3.select('.legendDiv').style('display', 'none');
+      svg.style('display', 'none');
+    }
+    /** @function - setSize
+      * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+      * Change the size of the leaflet map.
+      * @param {number} width - width of the map. 
+      * @param {number} height - height of the map. 
+      */
+
+
+    function setSize(width, height) {
+      // API
+      d3.select("#".concat(mapid)).style('width', "".concat(width, "px")).style('height', "".concat(height, "px"));
+      map.invalidateSize();
+    }
+    /** @function - invalidateSize
+      * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+      * Expose the leaflet map invalidate size method.
+      */
+
+
+    function invalidateSize() {
+      // API
+      map.invalidateSize();
+    } // Return the publicly accessible API
+
+
+    return {
+      setIdentfier: setIdentfier,
+      redrawMap: redrawMap,
+      setMapType: setMapType,
+      clearMap: clearMap,
+      setSize: setSize,
+      invalidateSize: invalidateSize
+    };
+  }
+
   var name = "brcatlas";
-  var version = "0.1.1";
+  var version = "0.2.0";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
@@ -9228,6 +9599,8 @@
   var dependencies = {
   	"brc-atlas-bigr": "^2.0.1",
   	d3: "^5.16.0",
+  	leaflet: "^1.7.1",
+  	"leaflet-control-custom": "^1.0.0",
   	micromodal: "^0.4.6"
   };
   var devDependencies = {
@@ -9267,6 +9640,7 @@
   console.log("Running ".concat(pkg.name, " version ").concat(pkg.version));
 
   exports.dataAccessors = dataAccessors;
+  exports.leafletMap = leafletMap;
   exports.namedTransOpts = namedTransOpts;
   exports.svgMap = svgMap;
 

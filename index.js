@@ -1,6 +1,7 @@
 import { namedTransOpts } from './src/svgCoords'
 import { dataAccessors } from './src/dataAccess'
 import { svgMap } from './src/svgMap'
+import { leafletMap } from './src/leafletMap'
 import pkg from './package.json'
 
 // Output version from package json to console
@@ -11,4 +12,5 @@ export {
   namedTransOpts,
   dataAccessors,
   svgMap,
+  leafletMap
 } 

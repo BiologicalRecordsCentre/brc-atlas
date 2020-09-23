@@ -1,6 +1,6 @@
 {
   "name": "brcatlas",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Javascript library for web-based biological records atlas mapping in the British Isles.",
   "type": "module",
   "main": "dist/brcatlas.umd.js",
@@ -24,6 +24,8 @@
   "dependencies": {
     "brc-atlas-bigr": "^2.0.1",
     "d3": "^5.16.0",
+    "leaflet": "^1.7.1",
+    "leaflet-control-custom": "^1.0.0",
     "micromodal": "^0.4.6"
   },
   "devDependencies": {
