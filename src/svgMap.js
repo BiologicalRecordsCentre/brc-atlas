@@ -1,3 +1,5 @@
+/** @module svgMap */
+
 import * as d3 from 'd3'
 import { createTrans, namedTransOpts, getTweenTransOpts } from './svgCoords.js'
 import { constants } from './constants.js'
@@ -7,99 +9,38 @@ import { showImage, setImagePriorities, transformImages } from './svgImages.js'
 import { drawDots, removeDots } from './svgDots.js'
 import { svgLegend } from './svgLegend.js'
 
-/**
- * @typedef {Object} transOptsSel
- * @property {transOpts} key - there must be at least one, but potentially more, properties
- * on this object, each describing a map 'transformation'.
- */
-
-/**
- * @typedef {Object} transOpts - A 'transformation' object simply defines the extents of the
- * map, potentially with insets too.
- * @property {string} id - this must match the key by which the object is accessed through
- * the parent object.
- * @property {string} caption - a human readable name for this transformation options object.
- * @property {transOptsBounds} bounds - an object defining the extents of the map.
- * @property {Array.<transOptsInset>} insets - an array of objects defining the inset portions of the map. 
- */
-
-/**
- * @typedef {Object} transOptsInset - an object defining an inset for a map, i.e. part of a map
- * which will be displayed in a different location to that in which it is actually found 
- * @property {transOptsBounds} bounds - an object defining the extents of the inset.
- * @property {number} imageX - a value defining where the inset will be displayed
- * (displaced) on the SVG. If the number is positive it represents the number of 
- * pixels the left boundary of the inset will be positioned from the left margin of
- * the SVG. If it is negative, it represents the number of pixels the right boundary
- * of the inset will be positioned from the right boundary of the SVG.
- * @property {number} imageY - a value defining where the inset will be displayed
- * (displaced) on the SVG. If the number is positive it represents the number of 
- * pixels the botton boundary of the inset will be positioned from the bottom margin of
- * the SVG. If it is negative, it represents the number of pixels the top boundary
- * of the inset will be positioned from the top boundary of the SVG.
- */
-
- /**
- * @typedef {Object} transOptsBounds - an object defining the extents of the map, 
- * or portion of a mpa, in the projection system
- * you want to use (either British Nation Gid, Irish National Grid or UTM 30 N for Channel Islands).
- * properties on this element are xmin, ymin, xmax and ymax.
- * @property {number} xmin - the x value for the lower left corner.
- * @property {number} ymin - the y value for the lower left corner.
- * @property {number} xmax - the x value for the top right corner.
- * @property {number} ymax - the y value for the top right corner.
- */
-
-/**
- * @typedef {Object} api
- * @property {function} setBoundaryColour - change the colour of the boundary. Pass a single argument
- * which is a string specifying the colour which can be hex format, e.g. #FFA500, 
- * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
- * @property {function} setTransform - set the transformation options object by passing a single argument
- * which is a string indicating the key of the transformation in the parent object.
- * @property {function} getMapWidth - gets and returns the current width of the SVG map. 
- * @property {function} animateTransChange - set the a new transormation object and animates the transition.
- * @property {function} setIdentfier - identifies data to the data accessor function.
- * @property {function} setMapType - set the key of the data accessor function.
- * @property {function} basemapImage - specifies an image and world file for a basemap.
- * @property {function} baseMapPriorities - identifies the display order of the basemap images.
- * @property {function} setLegendOpts - sets options for the legend.
- * @property {function} redrawMap - redraw the map.
- * @property {function} clearMap - clear the map.
- */
-
-/**
- * @param {Object} opts - initialisation options.
- * @param {string} opts.selector - the CSS selector of the element which will be the parent of the SVG.
- * @param {string} opts.mapid - the id for the static map to be created.
- * @param {string} opts.proj - the projection of the map, should be 'gb', 'ir' or 'ci'. It should 
+/** 
+ * @param {Object} opts - Initialisation options.
+ * @param {string} opts.selector - The CSS selector of the element which will be the parent of the SVG.
+ * @param {string} opts.mapid - The id for the static map to be created.
+ * @param {string} opts.proj - The projection of the map, should be 'gb', 'ir' or 'ci'. It should 
  * reflect the projection of boundary and grid data displayed on the map. It is used to generate the 'dots'
  * in the correct location.
- * @param {number} opts.captionId - the id of a DOM element into which feature-specific HTML will be displayed
+ * @param {number} opts.captionId - The id of a DOM element into which feature-specific HTML will be displayed
  * as the mouse moves over a dot on the map. The HTML markup must be stored in an attribute called 'caption'
  * in the input data.
- * @param {number} opts.height - the desired height of the SVG.
- * @param {boolean} opts.expand - indicates whether or not the map will expand to fill parent element.
- * @param {legendOpts} opts.legendOpts - sets options for a map legend.
- * @param {transOptsSel} opts.transOptsSel - sets a collection of map transformation options.
- * @param {string} opts.transOptsKey - sets the key of the selected map transformation options. Must be
+ * @param {number} opts.height - The desired height of the SVG.
+ * @param {boolean} opts.expand - Indicates whether or not the map will expand to fill parent element.
+ * @param {legendOpts} opts.legendOpts - Sets options for a map legend.
+ * @param {module:svgCoords~transOptsSel} opts.transOptsSel - Sets a collection of map transformation options.
+ * @param {string} opts.transOptsKey - Sets the key of the selected map transformation options. Must be
  * present in as a key in the opts.transOptsSel object.
- * @param {boolean} opts.transOptsControl - indicates whether or not a control should be shown in the
+ * @param {boolean} opts.transOptsControl - Indicates whether or not a control should be shown in the
  * bottom-right of the map that can be used display a dialog to change the transformation options.
- * @param {Object} opts.mapTypesSel - sets an object whose properties are data access functions. The property
+ * @param {Object} opts.mapTypesSel - Sets an object whose properties are data access functions. The property
  * names are the 'keys' which should be human readable descriptiosn of the map types.
- * @param {string} opts.mapTypesKey - sets the key of the selected data accessor function (map type).
- * @param {boolean} opts.mapTypesControl - indicates whether or not a control should be shown in the
+ * @param {string} opts.mapTypesKey - Sets the key of the selected data accessor function (map type).
+ * @param {boolean} opts.mapTypesControl - Indicates whether or not a control should be shown in the
  * bottom-right of the map that can be used display a dialog to change the data accessor (map type) options.
- * @param {string} opts.boundaryGjson - the URL of a boundary geoJson file to display.
- * @param {string} opts.gridGjson - the URL of a grid geoJson file to display.
- * @param {string} opts.gridLineColour - specifies the line colour of grid line geoJson.
- * @param {string} opts.boundaryColour - specifies the line colour of the boundary geoJson.
- * @param {string} opts.boundaryFill - specifies the fill colour of the boundary geoJson.
- * @param {string} opts.seaFill - specifies the fill colour of the area outside the boundary geoJson.
- * @param {string} opts.insetColour - specifies the line colour of map inset boxes.
- * @param {function} opts.callbackOptions - specifies a callback function to be executed if user options dialog used.
- * @returns {api} api - returns an API for the map.
+ * @param {string} opts.boundaryGjson - The URL of a boundary geoJson file to display.
+ * @param {string} opts.gridGjson - The URL of a grid geoJson file to display.
+ * @param {string} opts.gridLineColour - Specifies the line colour of grid line geoJson.
+ * @param {string} opts.boundaryColour - Specifies the line colour of the boundary geoJson.
+ * @param {string} opts.boundaryFill - Specifies the fill colour of the boundary geoJson.
+ * @param {string} opts.seaFill - Specifies the fill colour of the area outside the boundary geoJson.
+ * @param {string} opts.insetColour - Specifies the line colour of map inset boxes.
+ * @param {function} opts.callbackOptions - Specifies a callback function to be executed if user options dialog used.
+ * @returns {module:svgMap~api} api - Returns an API for the map.
  */
 export function svgMap({
   // Default options in here
@@ -285,7 +226,7 @@ export function svgMap({
     drawMapDots()
   }
 
-/** @function - setTransform
+/** @function setTransform
   * @param {string} newTransOptsKey - specifies the key of the transformation object in the parent object.
   * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
   * The method sets a map transforamation by selecting the one with the passed in key. It also
@@ -301,7 +242,7 @@ export function svgMap({
     transformImages(basemaps, trans)
   }
 
-/** @function - animateTransChange
+/** @function animateTransChange
   * @param {string} newTransOptsKey - specifies the key of the transformation object in the parent object.
   * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
   * The method sets a map transformation by selecting the one with the passed in key. It also
@@ -327,7 +268,7 @@ export function svgMap({
     }
   }
 
-/** @function - setBoundaryColour
+/** @function setBoundaryColour
   * @param {string} c - a string specifying the colour which can be hex format, e.g. #FFA500, 
   * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
   * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
@@ -338,7 +279,7 @@ export function svgMap({
     boundary.style("stroke", c)
   }
 
-/** @function - setIdentfier
+/** @function setIdentfier
   * @param {string} identifier - a string which identifies some data to 
   * a data accessor function.
   * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
@@ -349,7 +290,7 @@ export function svgMap({
     taxonIdentifier = identifier
   }
 
-/** @function - setMapType
+/** @function setMapType
   * @param {string} newMapTypesKey - a string which a key used to identify a data accessor function. 
   * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
   * The data accessor is stored in the mapTypesSel object and referenced by this key.
@@ -358,7 +299,7 @@ export function svgMap({
     mapTypesKey = newMapTypesKey
   }
 
-/** @function - basemapImage
+/** @function basemapImage
   * @param {string} mapId - a string which should specify a unique key by which the image can be referenced. 
   * @param {boolean} show - a boolean value that indicates whether or not to display this image. 
   * @param {string} imageFile - a string identifying an image file. 
@@ -370,61 +311,71 @@ export function svgMap({
   * data for boundary and/or grid files.
   */
   function basemapImage(mapId, show, imageFile, worldFile) {
-    // API
     showImage(mapId, show, basemaps, imageFile, worldFile, trans)
   }
   
-/** @function - baseMapPriorities
+/** @function baseMapPriorities
   * @param {Array.<string>} mapIds - an array of strings which identify keys of basemap iamges.
   * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
   * The order the keys appear in the array specifies their priority when more than one is displayed
   * at the same time. Those at the start of the array have higher priority than those and the end.
   */
   function baseMapPriorities(mapIds) {
-    // API
     setImagePriorities(basemaps, mapIds)
   }
 
-/** @function - setLegendOpts
+/** @function setLegendOpts
   * @param {legendOpts} lo - a legend options object.
   * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
   * The legend options object can be used to specify properties of a legend and even the content
   * of the legend itself.
   */
   function setLegendOpts(lo) {
-    // API
     legendOpts = lo
   }
 
-/** @function - redrawMap
+/** @function redrawMap
   * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
   * Redraw the map, e.g. after changing map accessor function or map identifier.
   */
   function redrawMap(){
-    // API
     drawMapDots()
   }
 
-/** @function - clearMap
+/** @function clearMap
   * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
   * Clear the map of dots and legend.
   */
   function clearMap(){
-    // API
     svg.select('#legend').remove()
     removeDots(svg)
   }
 
-/** @function - getMapWidth
+/** @function getMapWidth
   * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
   * Return the width of the map.
   */
- function getMapWidth(){
-  // API
-  return trans.width
-}
+  function getMapWidth(){
+    return trans.width
+  }
 
-  // Return the publicly accessible API
+  /**
+   * @typedef {Object} api
+   * @property {module:svgMap~setBoundaryColour} setBoundaryColour - Change the colour of the boundary. Pass a single argument
+   * which is a string specifying the colour which can be hex format, e.g. #FFA500, 
+   * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
+   * @property {module:svgMap~setTransform} setTransform - Set the transformation options object by passing a single argument
+   * which is a string indicating the key of the transformation in the parent object.
+   * @property {module:svgMap~getMapWidth} getMapWidth - Gets and returns the current width of the SVG map. 
+   * @property {module:svgMap~animateTransChange} animateTransChange - Set the a new transormation object and animates the transition.
+   * @property {module:svgMap~setIdentfier} setIdentfier - Identifies data to the data accessor function.
+   * @property {module:svgMap~setMapType} setMapType - Set the key of the data accessor function.
+   * @property {module:svgMap~basemapImage} basemapImage - Specifies an image and world file for a basemap.
+   * @property {module:svgMap~baseMapPriorities} baseMapPriorities - Identifies the display order of the basemap images.
+   * @property {module:svgMap~setLegendOpts} setLegendOpts - Sets options for the legend.
+   * @property {module:svgMap~redrawMap} redrawMap - Redraw the map.
+   * @property {module:svgMap~clearMap} clearMap - Clear the map.
+   */
   return {
     setBoundaryColour: setBoundaryColour,
     setTransform: setTransform,

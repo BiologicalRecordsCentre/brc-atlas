@@ -1,3 +1,5 @@
+/** @module slippyMap */
+
 import * as L from 'leaflet'
 import * as d3 from 'd3'
 import { getCentroid, getGjson } from 'brc-atlas-bigr'
@@ -5,31 +7,20 @@ import { dataAccessors } from './dataAccess.js'
 import { svgLegend } from './svgLegend.js'
 
 /**
- * @typedef {Object} api
- * @property {function} setIdentfier - identifies data to the data accessor function.
- * @property {function} setMapType - set the key of the data accessor function.
- * @property {function} redrawMap - redraw the map.
- * @property {function} clearMap - clear the map.
- * @property {function} setSize - reset the size of the leaflet map.
- * @property {function} invalidateSize - invoke leaflet's invalidate size method.
- */
-
-/**
- * @param {Object} opts - initialisation options.
- * @param {string} opts.selector - the CSS selector of the element which will be the parent of the leaflet map.
- * @param {string} opts.mapid - the id for the slippy map to be created.
- * @param {number} opts.captionId - the id of a DOM element into which feature-specific HTML will be displayed
+ * @param {Object} opts - Initialisation options.
+ * @param {string} opts.selector - The CSS selector of the element which will be the parent of the leaflet map.
+ * @param {string} opts.mapid - The id for the slippy map to be created.
+ * @param {number} opts.captionId - The id of a DOM element into which feature-specific HTML will be displayed
  * as the mouse moves over a dot on the map. The HTML markup must be stored in an attribute called 'caption'
  * in the input data.
- * @param {number} opts.height - the desired height of the leaflet map.
- * @param {number} opts.width - the desired width of the leaflet map.
- * @param {Object} opts.mapTypesSel - sets an object whose properties are data access functions. The property
+ * @param {number} opts.height - The desired height of the leaflet map.
+ * @param {number} opts.width - The desired width of the leaflet map.
+ * @param {Object} opts.mapTypesSel - Sets an object whose properties are data access functions. The property
  * names are the 'keys' which should be human readable descriptiosn of the map types.
- * @param {string} opts.mapTypesKey - sets the key of the selected data accessor function (map type).
- * @param {legendOpts} opts.legendOpts - sets options for a map legend.
- * @returns {api} api - returns an API for the map.
+ * @param {string} opts.mapTypesKey - Sets the key of the selected data accessor function (map type).
+ * @param {legendOpts} opts.legendOpts - Sets options for a map legend.
+ * @returns {module:slippyMap~api} Returns an API for the map.
  */
-
 export function leafletMap({
   // Default options in here
   selector = 'body',
@@ -179,17 +170,17 @@ export function leafletMap({
       .remove()
   }
 
-/** @function - setMapType
-  * @param {string} newMapTypesKey - a string which a key used to identify a data accessor function. 
+/** @function setMapType
+  * @param {string} newMapTypesKey - A string which a key used to identify a data accessor function. 
   * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
   * The data accessor is stored in the mapTypesSel object and referenced by this key.
   */
- function setMapType(newMapTypesKey) {
-  mapTypesKey = newMapTypesKey
-}
+  function setMapType(newMapTypesKey) {
+    mapTypesKey = newMapTypesKey
+  }
 
-/** @function - setIdentfier
-  * @param {string} identifier - a string which identifies some data to 
+/** @function setIdentfier
+  * @param {string} identifier - A string which identifies some data to 
   * a data accessor function.
   * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
   * The data accessor function, specified elsewhere, will use this identifier to access
@@ -199,12 +190,11 @@ export function leafletMap({
     taxonIdentifier = identifier
   }
 
-/** @function - redrawMap
+/** @function redrawMap
   * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
   * Redraw the map, e.g. after changing map accessor function or map identifier.
   */
   function redrawMap(){
-    // API
     const accessFunction = mapTypesSel[mapTypesKey]
     accessFunction(taxonIdentifier).then(data => {
       data.records = data.records.map(d => {
@@ -231,41 +221,46 @@ export function leafletMap({
     })
   }
 
-/** @function - clearMap
+/** @function clearMap
   * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
   * Clear the map of dots and legend.
   */
  function clearMap(){
-  // API
   d3.select('.legendDiv').style('display', 'none')
   svg.style('display', 'none')
 }
 
-/** @function - setSize
+/** @function setSize
   * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
   * Change the size of the leaflet map.
-  * @param {number} width - width of the map. 
-  * @param {number} height - height of the map. 
+  * @param {number} width - Width of the map. 
+  * @param {number} height - Height of the map. 
   */
  function setSize(width, height){
-  // API
   d3.select(`#${mapid}`)
     .style('width', `${width}px`)
     .style('height', `${height}px`)
   map.invalidateSize()
 }
 
-/** @function - invalidateSize
+ /** @function invalidateSize
   * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
   * Expose the leaflet map invalidate size method.
   */
- function invalidateSize(){
-  // API
-  map.invalidateSize()
-}
+  function invalidateSize(){
+    map.invalidateSize()
+  }
 
-  // Return the publicly accessible API
-  return {
+  /**
+   * @typedef {Object} api
+   * @property {module:slippyMap~setIdentfier} setIdentfier - Identifies data to the data accessor function.
+   * @property {module:slippyMap~setMapType} setMapType - Set the key of the data accessor function.
+   * @property {module:slippyMap~redrawMap} redrawMap - Redraw the map.
+   * @property {module:slippyMap~clearMap} clearMap - Clear the map.
+   * @property {module:slippyMap~setSize} setSize - Reset the size of the leaflet map.
+   * @property {module:slippyMap~invalidateSize} invalidateSize - Access Leaflet's invalidateSize method.
+   */
+  return  {
     setIdentfier: setIdentfier,
     redrawMap: redrawMap,
     setMapType: setMapType,
@@ -273,5 +268,4 @@ export function leafletMap({
     setSize: setSize,
     invalidateSize: invalidateSize
   }
-
 }

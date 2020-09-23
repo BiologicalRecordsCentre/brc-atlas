@@ -1,6 +1,49 @@
-/** @module src/svgCoords */
+/** @module svgCoords */
 
 import * as d3 from 'd3'
+
+/**
+ * @typedef {Object} transOptsSel
+ * @property {string} key - there must be at least one, but potentially more, properties
+ * on this object, each describing a map 'transformation'.
+ */
+
+/**
+ * @typedef {Object} transOpts - A 'transformation' options object simply defines the extents of the
+ * map, potentially with insets too.
+ * @property {string} id - this must match the key by which the object is accessed through
+ * the parent object.
+ * @property {string} caption - a human readable name for this transformation options object.
+ * @property {module:svgCoords~transOptsBounds} bounds - an object defining the extents of the map.
+ * @property {Array.<module:svgCoords~transOptsInset>} insets - an array of objects defining the inset portions of the map. 
+ */
+
+/**
+ * @typedef {Object} transOptsInset - an object defining an inset for a map, i.e. part of a map
+ * which will be displayed in a different location to that in which it is actually found 
+ * @property {module:svgCoords~transOptsBounds} bounds - an object defining the extents of the inset.
+ * @property {number} imageX - a value defining where the inset will be displayed
+ * (displaced) on the SVG. If the number is positive it represents the number of 
+ * pixels the left boundary of the inset will be positioned from the left margin of
+ * the SVG. If it is negative, it represents the number of pixels the right boundary
+ * of the inset will be positioned from the right boundary of the SVG.
+ * @property {number} imageY - a value defining where the inset will be displayed
+ * (displaced) on the SVG. If the number is positive it represents the number of 
+ * pixels the botton boundary of the inset will be positioned from the bottom margin of
+ * the SVG. If it is negative, it represents the number of pixels the top boundary
+ * of the inset will be positioned from the top boundary of the SVG.
+ */
+
+ /**
+ * @typedef {Object} transOptsBounds - an object defining the extents of the map, 
+ * or portion of a mpa, in the projection system
+ * you want to use (either British Nation Gid, Irish National Grid or UTM 30 N for Channel Islands).
+ * properties on this element are xmin, ymin, xmax and ymax.
+ * @property {number} xmin - the x value for the lower left corner.
+ * @property {number} ymin - the y value for the lower left corner.
+ * @property {number} xmax - the x value for the top right corner.
+ * @property {number} ymax - the y value for the top right corner.
+ */
 
 /**
  * Given a transform options object, describing a bounding rectangle in world coordinates,
@@ -10,8 +53,8 @@ import * as d3 from 'd3'
  * corresponding to the top-left of the rectangle, a width and a height dimension.
  * The dimensions and coordiates are relative to the height argument. A typical
  * use of these metrics would be to draw an SVG rectagle around an inset.
- * @param {object} transOpts - the transformation options object.
- * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
+ * @param {module:svgCoords~transOpts} transOpts - The transformation options object.
+ * @param {number} outputHeight - The height, e.g. height in pixels, of an SVG element.
  * @returns {Array<Object>}
  */
 function getInsetDims(transOpts, outputHeight) {
@@ -42,8 +85,8 @@ function getInsetDims(transOpts, outputHeight) {
  * Given a transform options object, describing a bounding rectangle in world coordinates,
  * and a height dimension, this function returns a width dimension
  * that respects the aspect ratio described by the bounding rectangle.
- * @param {object} transOpts - the transformation options object.
- * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
+ * @param {module:svgCoords~transOpts} transOpts - The transformation options object.
+ * @param {number} outputHeight - The height, e.g. height in pixels, of an SVG element.
  * @returns {number}
  */
 function widthFromHeight(transOpts, outputHeight) {
@@ -62,8 +105,8 @@ function widthFromHeight(transOpts, outputHeight) {
  * The transOpts argument is an object which can also describe areas which should
  * displaced in the output. This can be used for displaying islands in an
  * inset, e.g. the Channel Islands.
- * @param {object} transOpts - the transformation options object.
- * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
+ * @param {module:svgCoords~transOpts} transOpts - The transformation options object.
+ * @param {number} outputHeight - The height, e.g. height in pixels, of an SVG element.
  * @returns {function}
  */
 function transformFunction(transOpts, outputHeight) {
@@ -116,15 +159,15 @@ function transformFunction(transOpts, outputHeight) {
  * Given a transform options object, describing a bounding rectangle in world coordinates,
  * and a height dimension, this function returns an object that encapsulates the transformation
  * options and provides additional transformation functionality and other information.
- * @param {Object} transOpts - the transformation options object.
- * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
- * @returns {Object} transopts - the transformation object.
+ * @param {module:svgCoords~transOpts} transOpts - The transformation options object.
+ * @param {number} outputHeight - The height, e.g. height in pixels, of an SVG element.
+ * @returns {Object} transopts - The transformation object.
  * @returns {Object} transopts.params - The transformation options object.
- * @returns {Array<Object>} transopts.insetDims - an array of objects defining the position and size of insets.
- * @returns {number} transopts.height - the height, e.g. height in pixels, of the SVG element.
- * @returns {number} transopts.width - the width, e.g. width in pixels, of the SVG element.
- * @returns {function} transopts.point - a function that will take a point object describing real world coordinates and return the SVG coordinates.
- * @returns {function} transopts.d3Path - a function that will take a geoJson path in real world coordinates and return the SVG path.
+ * @returns {Array<Object>} transopts.insetDims - An array of objects defining the position and size of insets.
+ * @returns {number} transopts.height - The height, e.g. height in pixels, of the SVG element.
+ * @returns {number} transopts.width - The width, e.g. width in pixels, of the SVG element.
+ * @returns {function} transopts.point - A function that will take a point object describing real world coordinates and return the SVG coordinates.
+ * @returns {function} transopts.d3Path - A function that will take a geoJson path in real world coordinates and return the SVG path.
  */
 export function createTrans (transOpts, outputHeight) {
   const transform = transformFunction(transOpts, outputHeight)
@@ -268,11 +311,11 @@ export const namedTransOpts = {
  * to help generate a path transformation to use with D3 to animate transitions
  * between different map transformations. Note that this only works with
  * named transformation objects defined in this library.
- * @param {object} from - the 'from' transformation options object.
- * @param {object} to - the 'to' transformation options object.
- * @param {number} outputHeight - the height, e.g. height in pixels, of an SVG element.
- * @param {number} tween - between 0 and 1 indicating the interpolation position.
- * @returns {object} - in intermediate transformation options object.
+ * @param {module:svgCoords~transOpts} from - The 'from' transformation options object.
+ * @param {module:svgCoords~transOpts} to - The 'to' transformation options object.
+ * @param {number} outputHeight - The height, e.g. height in pixels, of an SVG element.
+ * @param {number} tween - Between 0 and 1 indicating the interpolation position.
+ * @returns {module:svgCoords~transOpts} - Intermediate transformation options object.
  */
 export function getTweenTransOpts(from, to, outputHeight, tween){
   

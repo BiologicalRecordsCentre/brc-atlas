@@ -1,4 +1,4 @@
-/** @module src/dataAccess */
+/** @module dataAccess */
 
 import * as d3 from 'd3'
 
