@@ -1,11 +1,4 @@
-.hidden {
-  visibility: hidden;
-}
-
-.legendDiv {
-  font-size: 16px;
-  background-color: rgba(255,255,255,0.7)
-}/**************************\
+/**************************\
   Basic Modal Styles
 \**************************/
 
@@ -154,4 +147,11 @@
   .micromodal-slide .modal__container,
   .micromodal-slide .modal__overlay {
     will-change: transform;
-  }
+  }.hidden {
+  visibility: hidden;
+}
+
+.legendDiv {
+  font-size: 16px;
+  background-color: rgba(255,255,255,0.7)
+}
