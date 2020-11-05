@@ -931,17 +931,16 @@
 
   window.MicroModal = MicroModal;
 
-  function optsDialog(parentSelector, transOptsSel, transOptsKey, transOptsControl, mapTypesSel, mapTypesKey, mapTypesControl, applyFunction) {
-    // Create map SVG in given parent
-    var div1 = d3.select("".concat(parentSelector)).append("div").classed("modal micromodal-slide", true).attr("id", "modal-1").attr("aria-hidden", "true");
+  function optsDialog(mapid, transOptsSel, transOptsKey, transOptsControl, mapTypesSel, mapTypesKey, mapTypesControl, applyFunction) {
+    var div1 = d3.select("body").append("div").classed("modal micromodal-slide brc-atlas-map-opts", true).attr("id", "mapOptsModal-".concat(mapid)).attr("aria-hidden", "true");
     var div2 = div1.append("div").classed("modal__overlay", true).attr("tabindex", "-1").attr("data-micromodal-close", "");
-    var div3 = div2.append("div").classed("modal__container", true).attr("role", "dialog").attr("aria-modal", "true").attr("aria-labelledby", "modal-1-title");
+    var div3 = div2.append("div").classed("modal__container", true).attr("role", "dialog").attr("aria-modal", "true").attr("aria-labelledby", "mapOptsModal-".concat(mapid, "-title"));
     var header = div3.append("header").classed("modal__header", true);
-    header.append("h2").classed("modal__title", true).attr("id", "modal-1-title").text("Map options");
+    header.append("h2").classed("modal__title", true).attr("id", "mapOptsModal-".concat(mapid, "-title")).text("Map options");
     header.append("button").classed("modal__close", true).attr("aria-label", "Close modal").attr("data-micromodal-close", "");
-    var main = div3.append("main").classed("modal__content", true).attr("id", "modal-1-content");
-    transOptsSelection(main, transOptsSel, transOptsKey, transOptsControl);
-    mapTypeSelection(main, mapTypesSel, mapTypesKey, mapTypesControl);
+    var main = div3.append("main").classed("modal__content", true).attr("id", "mapOptsModal-".concat(mapid, "-content"));
+    transOptsSelection(mapid, main, transOptsSel, transOptsKey, transOptsControl);
+    mapTypeSelection(mapid, main, mapTypesSel, mapTypesKey, mapTypesControl);
     var footer = div3.append("main").classed("modal__footer", true);
     var apply = footer.append("button").classed("modal__btn modal__btn-primary", true).attr("data-micromodal-close", "").text("Okay");
     footer.append("button").classed("modal__btn", true).attr("data-micromodal-close", "").attr("aria-label", "Close this dialog window").text("Cancel");
@@ -950,36 +949,36 @@
       var ret = {};
 
       if (transOptsControl && Object.keys(transOptsSel).length > 1) {
-        ret.transOptsKey = d3.select('input[name="transOptsRadio"]:checked').node().value;
+        ret.transOptsKey = div1.select("input[name=\"trans-opts-radio-".concat(mapid, "\"]:checked")).node().value;
       }
 
       if (mapTypesControl && Object.keys(mapTypesSel).length > 1) {
-        ret.mapTypesKey = d3.select('input[name="mapTypeRadio"]:checked').node().value;
+        ret.mapTypesKey = div1.select("input[name=\"map-type-radio-".concat(mapid, "\"]:checked")).node().value;
       }
 
       applyFunction(ret);
     });
   }
-  function showOptsDialog(mapTypesKey, transOptsSel, transOptsKey) {
-    if (document.getElementById(transOptsSel[transOptsKey])) {
-      document.getElementById(transOptsSel[transOptsKey]).checked = true;
+  function showOptsDialog(mapid, mapTypesKey, transOptsSel, transOptsKey) {
+    if (document.getElementById("trans-opts-radio-".concat(mapid, "-").concat(transOptsKey))) {
+      document.getElementById("trans-opts-radio-".concat(mapid, "-").concat(transOptsKey)).checked = true;
     }
 
     var id = mapTypesKey.replace(/ /g, '');
 
-    if (document.getElementById(id)) {
-      document.getElementById(id).checked = true;
+    if (document.getElementById("map-type-radio-".concat(mapid, "-").concat(id))) {
+      document.getElementById("map-type-radio-".concat(mapid, "-").concat(id)).checked = true;
     }
 
-    MicroModal.show('modal-1');
+    MicroModal.show("mapOptsModal-".concat(mapid));
   }
 
-  function transOptsSelection(el, transOptsSel, transOptsKey, transOptsControl) {
+  function transOptsSelection(mapid, el, transOptsSel, transOptsKey, transOptsControl) {
     if (transOptsControl && Object.keys(transOptsSel).length > 1) {
       el.append("h3").text("Extent & view");
       Object.keys(transOptsSel).forEach(function (k) {
-        var radio = el.append("input").attr("type", "radio").attr("id", "trans-opts-radio-".concat(k)).attr("name", "transOptsRadio").attr("value", k);
-        el.append("label").attr("for", "trans-opts-radio-".concat(k)).text(transOptsSel[k].caption);
+        var radio = el.append("input").attr("type", "radio").attr("id", "trans-opts-radio-".concat(mapid, "-").concat(k)).attr("name", "trans-opts-radio-".concat(mapid)).attr("value", k);
+        el.append("label").attr("for", "trans-opts-radio-".concat(mapid, "-").concat(k)).text(transOptsSel[k].caption);
 
         if (k === transOptsKey) {
           radio.attr("checked", "checked");
@@ -992,14 +991,13 @@
     }
   }
 
-  function mapTypeSelection(el, mapTypesSel, mapTypesKey, mapTypesControl) {
-    var id = mapTypesKey.replace(/ /g, '');
-
+  function mapTypeSelection(mapid, el, mapTypesSel, mapTypesKey, mapTypesControl) {
     if (mapTypesControl && Object.keys(mapTypesSel).length > 1) {
       el.append("h3").text("Map information type");
       Object.keys(mapTypesSel).forEach(function (k) {
-        var radio = el.append("input").attr("type", "radio").attr("id", id).attr("name", "mapTypeRadio").attr("value", k);
-        el.append("label").attr("for", id).text(k);
+        var id = k.replace(/ /g, '');
+        var radio = el.append("input").attr("type", "radio").attr("id", "map-type-radio-".concat(mapid, "-").concat(id)).attr("name", "map-type-radio-".concat(mapid)).attr("value", k);
+        el.append("label").attr("for", "map-type-radio-".concat(mapid, "-").concat(id)).text(k);
 
         if (k === mapTypesKey) {
           radio.attr("checked", "checked");
@@ -8990,8 +8988,7 @@
 
     var mainDiv = d3.select("".concat(selector)).append("div").attr('id', mapid).style("position", "relative").style("display", "inline"); // Create the SVG.
 
-    var svg = mainDiv.append("svg") //.attr('id', mapid)
-    .style("background-color", seaFill);
+    var svg = mainDiv.append("svg").style("background-color", seaFill);
     svg.append('defs'); // Create the SVG graphic objects that store the major map elements.
     // The order these is created is important since it affects the order
     // in which they are rendered (i.e. what is drawn over what).
@@ -9005,10 +9002,10 @@
       // Add gear icon to invoke options dialog
       mainDiv.append("img") //.attr("src", "../images/gear.png")
       .attr("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAD8AAAA/CAYAAABXXxDfAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsIAAA7CARUoSoAAAAPlSURBVGhD7ZprT+pAEIYLKBrjDULiH+SjGo0kahQMASLGmBiF+Bf9YowEvOseXp1i4fQys93WYnkS425Ttvvuzu7sTJtRSllpJUv/U0mqxcdm9sfHx2p+fp5q7ry9vVnNZjND1ciJbeaDhAPOPSaZrfm0MhOvQ6VSYe+UNzc3kdwr6YMbYvHX19eqXq+rlZUVC//psi8PDw9UCoZ7r7QPbohc3dnZmXp+fqbaD4uLi9b+/r6ni6rVaiqXy1HNn8/PTwjybOv09FS9vr5S7Yd8Pm8dHh6K3CR75of+11U4wHX4caqO0e122cJBNuvdpWq16ioc4DoGhqosWDN/fn6uHh8fqebPycnJ1+hLZtsLpxVwzXttbc3a2dlhWQBLfJh19RvYExBEoNlPm3DA7bO2q/sLBIrnmlCSMGb2YJoGQNJXttnPzc1RKblIvQtb/NHRUQbxdlKBnx+eNUQWKtrwTCYaMJBeBxYdWq2WuG/iTE6n01F3d3dU48PJ0nCyPW4Ui0Vra2srevE6fl+6YcbxDCAyeykwa51O4Tdx7C8i8cNNjz0j6LzOOrTBEpEMgFdg5YdIPMJGLiY2R0kbOnvF2Jpvt9vq5eXFQgQHobq+vVAoWNvb26HFg4uLC9Xv96kmA5bz8fHxpWV9fd3a3d0d69PYzEM4WFpaCnWoMSUc7O3tabcFa0CiBTmCXq9HV38YiUeWhoqheH9/p5I5TLU5qXEk/unpiUrh2NjYoJI5Go2GEUsaDAZU+mYk3jb5sGxubhozedNg/TsR7fbTDtJiTkbi/RKHf5WpEI8MMBVDsbCwQKVvRoqXl5epFA6kl6lojNvbWyqFA27PyUi830sHCVEkPUy1WSqVqPTNmK3jJIRdP2ycjVMZFX8daME5AVmecrk8NsGikFYSaupEc25E+UzRLhd1lDWJpA2dEFgkXhplhRkAaVZHJ4oUiZeCzutkZfAbnRBVijiNdXV1pe7v76nGB2YZNDvS2bZJdA5vEuy+8CqZTCZU3sCJzgYrEq87M3GAAZVGf+w1j1g4qcIBrAeZKKqyYIv3+iojSUjDcpZ4E+s8LiR9DRQ/TcJtuH2O1M8nnUDxps7occLtM2vmkcrmggfjz0TGFW3Y7dGlQCZjdj/Yfn7oQ9VkDsyJ1wlO50To9TlZ0DkDh6ZarcYeKPaar1arw7bd20Ws7HV0xQuMyaypH7jX6zs6PMPrlRn8vEQ4EB9vLy8vlfP7WI5J2q/BOCDPdnBwENimc0dfXV3971UUB/Fuj1mxBXPXIjrHhXuvsw86woF45nXh+l7ugJpg5ufTykx8Woltw0siM7NPJ5b1D5gX4NZABY0OAAAAAElFTkSuQmCC").style("width", "16px").style("position", "absolute").style("right", "5px").style("bottom", "7px").on("click", function () {
-        showOptsDialog(mapTypesKey, transOptsSel, transOptsKey);
+        showOptsDialog(mapid, mapTypesKey, transOptsSel, transOptsKey);
       }); // Create options dialog
 
-      optsDialog(selector, transOptsSel, transOptsKey, transOptsControl, mapTypesSel, mapTypesKey, mapTypesControl, userChangedOptions);
+      optsDialog(mapid, transOptsSel, transOptsKey, transOptsControl, mapTypesSel, mapTypesKey, mapTypesControl, userChangedOptions);
     } // Initialise the display
 
 
@@ -9566,7 +9563,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.2.1";
+  var version = "0.2.2";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";

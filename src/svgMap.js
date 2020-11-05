@@ -79,7 +79,6 @@ export function svgMap({
 
   // Create the SVG.
   const svg = mainDiv.append("svg")
-    //.attr('id', mapid)
     .style("background-color", seaFill)
   svg.append('defs')
 
@@ -103,10 +102,10 @@ export function svgMap({
       .style("right", "5px")
       .style("bottom", "7px")
       .on("click", function(){
-        showOptsDialog(mapTypesKey, transOptsSel, transOptsKey)
+        showOptsDialog(mapid, mapTypesKey, transOptsSel, transOptsKey)
       })
     // Create options dialog
-    optsDialog(selector, transOptsSel, transOptsKey, transOptsControl, mapTypesSel, mapTypesKey, mapTypesControl, userChangedOptions)
+    optsDialog(mapid, transOptsSel, transOptsKey, transOptsControl, mapTypesSel, mapTypesKey, mapTypesControl, userChangedOptions)
   }
 
   // Initialise the display

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>BRC Atlas Library example 8</title>
+</head>
+<body>
+  <div class="content">
+    <h1>Using the BRC Atlas Library</h1>
+    <h2>Show two maps on one page</h2>
+    <div id="map"></div>
+    <p>
+      For testing. Ensure that all works for page with more than one map.
+    </p>
+
+    <div>
+      <div style="float:left; padding-right: 1em;" id="map1"></div>
+      <div id="map2"></div>
+    </div>
+    <button onclick='setInset("map1")'>Map 1 - no insets</button>
+    <button onclick='setMap("map1")'>Map 1 - hectads</button><br/><br/>
+    <button onclick='setInset("map2")'>Map 2 - no insets</button>
+    <button onclick='setMap("map2")'>Map 2 - hectads</button>
+
+    <!--JS and CSS required for highlighting inline example code-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/a11y-light.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <!--Page CSS-->
+    <link rel="stylesheet" href="example.css" />
+
+    <!--D3 JS required exernal dependency of BRC Atlas library-->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+
+    <!--BRC Atlas library JS and CSS-->
+    <script src="./../../brc-atlas/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="./../../brc-atlas/dist/brcatlas.umd.css">
+    <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
+
+    <script>
+      var map1 = brcatlas.svgMap({
+        selector: "#map1",
+        mapid: "map1",
+        mapTypesKey: 'Standard hectad',
+        transOptsControl: true,
+        mapTypesControl: true,
+      })
+      map1.setIdentfier('./example-hectads-1.csv')
+      map1.redrawMap()
+
+      var map2 = brcatlas.svgMap({
+        selector: "#map2",
+        mapid: "map2",
+        mapTypesKey: 'Standard hectad',
+        transOptsControl: true,
+        mapTypesControl: true,
+      })
+      map2.setIdentfier('./example-hectads-1.csv')
+      map2.redrawMap()
+
+      function setInset(id) {
+        var map
+        if (id === "map1") {
+          map = map1
+        } else {
+          map = map2
+        }
+        map.setTransform('BI1')
+        map.redrawMap()
+      }
+      function setMap(id) {
+        var map
+        if (id === "map1") {
+          map = map1
+        } else {
+          map = map2
+        }
+        map.setMapType('Standard hectad')
+        map.redrawMap()
+      }
+    </script>
+  </div>
+</body>
+</html>
