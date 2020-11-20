@@ -77,6 +77,16 @@ export function svgMap({
     .style("position", "relative")
     .style("display", "inline")
 
+  // Map loading spinner
+  const mapLoader = mainDiv.append("div")
+    .classed('map-loader', true)
+  const mapLoaderInner = mapLoader.append("div")
+    .classed('map-loader-inner', true)
+  mapLoaderInner.append("div")
+    .classed('map-loader-spinner', true)
+  mapLoaderInner.append("div").text("Loading map data...")
+    .classed('map-loader-text', true)
+
   // Create the SVG.
   const svg = mainDiv.append("svg")
     .style("background-color", seaFill)
@@ -135,6 +145,7 @@ export function svgMap({
   // Once loaded, draw booundary and grid
   Promise.all([pBoundary, pGrid]).then(() => {
     drawBoundaryAndGrid()
+    mapLoader.classed('map-loader-hidden', true)
   })
 
   // End of initialisation
@@ -272,12 +283,22 @@ export function svgMap({
   * @param {string} c - a string specifying the colour which can be hex format, e.g. #FFA500, 
   * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
   * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
-  * The method sets a map transformation by selecting the one with the passed in key. 
   * Sets the boundary colour to the specified colour.
   */
   function setBoundaryColour(c){
     boundary.style("stroke", c)
   }
+
+/** @function setGridColour
+  * @param {string} c - a string specifying the colour which can be hex format, e.g. #FFA500, 
+  * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
+  * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+  * Sets the grid colour to the specified colour.
+  */
+  function setGridColour(c){
+    grid.style("stroke", c)
+  }
+  
 
 /** @function setIdentfier
   * @param {string} identifier - a string which identifies some data to 
@@ -364,6 +385,9 @@ export function svgMap({
    * @property {module:svgMap~setBoundaryColour} setBoundaryColour - Change the colour of the boundary. Pass a single argument
    * which is a string specifying the colour which can be hex format, e.g. #FFA500, 
    * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
+   * @property {module:svgMap~setGridColour} setGridColour - Change the colour of the grid. Pass a single argument
+   * which is a string specifying the colour which can be hex format, e.g. #FFA500, 
+   * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
    * @property {module:svgMap~setTransform} setTransform - Set the transformation options object by passing a single argument
    * which is a string indicating the key of the transformation in the parent object.
    * @property {module:svgMap~getMapWidth} getMapWidth - Gets and returns the current width of the SVG map. 
@@ -378,6 +402,7 @@ export function svgMap({
    */
   return {
     setBoundaryColour: setBoundaryColour,
+    setGridColour: setGridColour,
     setTransform: setTransform,
     getMapWidth: getMapWidth,
     animateTransChange: animateTransChange,

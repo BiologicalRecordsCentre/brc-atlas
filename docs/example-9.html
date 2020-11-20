@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>BRC Atlas Library example 9</title>
+</head>
+<style>
+  .split.split-horizontal {
+      background-color: lightgray;
+      height: 100%;
+      float: left;
+  }
+  .gutter.gutter-horizontal {
+      background-color: darkgray;
+      cursor: col-resize;
+      height: 100%;
+      float: left;
+ }
+</style>
+<body>
+  <div id="main">
+    <div id="left" class="split split-horizontal">
+      <div class="inner" id="map"></div>
+    </div>
+    <div id="right" class="split split-horizontal">
+      <div style="padding: 1em">
+        <h2>Right</h2>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
+          sed do eiusmod tempor incididunt ut labore et dolore magna 
+          aliqua. Ut enim ad minim veniam, quis nostrud exercitation 
+          ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+          Duis aute irure dolor in reprehenderit in voluptate velit 
+          esse cillum dolore eu fugiat nulla pariatur. Excepteur sint 
+          occaecat cupidatat non proident, sunt in culpa qui officia 
+          deserunt mollit anim id est laborum.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!--For dynamic resizing splitter-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.2.0/split.min.js"></script>
+
+  <!--Page CSS-->
+  <link rel="stylesheet" href="example.css" />
+
+  <!--D3 JS required exernal dependency of BRC Atlas library-->
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+
+  <!--BRC Atlas library JS and CSS-->
+  <!-- <script src="./../../brc-atlas/dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="./../../brc-atlas/dist/brcatlas.umd.css"> -->
+  <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css">
+
+  <script>
+
+    var height=500
+    // The height of the container must be set for splitter to work
+    d3.select('#main').style('height', height + 'px')
+
+    Split(['#left', '#right'], {
+      gutterSize: 5,
+      sizes: [30,70]
+    })
+    var map = brcatlas.svgMap({
+      selector: "#map",
+      height: height,
+      expand: true,
+      mapTypesKey: 'Standard hectad'
+    })
+    map.setIdentfier('./example-hectads-1.csv')
+    map.redrawMap()
+
+  </script>
+</body>
+</html>

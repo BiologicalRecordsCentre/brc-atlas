@@ -8986,7 +8986,12 @@
     var trans, basemaps, boundary, boundaryf, dataBoundary, grid, dataGrid, taxonIdentifier; // Create a parent div for the SVG within the parent element passed
     // as an argument. Allows us to style correctly for positioning etc.
 
-    var mainDiv = d3.select("".concat(selector)).append("div").attr('id', mapid).style("position", "relative").style("display", "inline"); // Create the SVG.
+    var mainDiv = d3.select("".concat(selector)).append("div").attr('id', mapid).style("position", "relative").style("display", "inline"); // Map loading spinner
+
+    var mapLoader = mainDiv.append("div").classed('map-loader', true);
+    var mapLoaderInner = mapLoader.append("div").classed('map-loader-inner', true);
+    mapLoaderInner.append("div").classed('map-loader-spinner', true);
+    mapLoaderInner.append("div").text("Loading map data...").classed('map-loader-text', true); // Create the SVG.
 
     var svg = mainDiv.append("svg").style("background-color", seaFill);
     svg.append('defs'); // Create the SVG graphic objects that store the major map elements.
@@ -9035,6 +9040,7 @@
 
     Promise.all([pBoundary, pGrid]).then(function () {
       drawBoundaryAndGrid();
+      mapLoader.classed('map-loader-hidden', true);
     }); // End of initialisation
 
     function userChangedOptions(opts) {
@@ -9163,13 +9169,23 @@
       * @param {string} c - a string specifying the colour which can be hex format, e.g. #FFA500, 
       * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
       * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
-      * The method sets a map transformation by selecting the one with the passed in key. 
       * Sets the boundary colour to the specified colour.
       */
 
 
     function setBoundaryColour(c) {
       boundary.style("stroke", c);
+    }
+    /** @function setGridColour
+      * @param {string} c - a string specifying the colour which can be hex format, e.g. #FFA500, 
+      * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+      * Sets the grid colour to the specified colour.
+      */
+
+
+    function setGridColour(c) {
+      grid.style("stroke", c);
     }
     /** @function setIdentfier
       * @param {string} identifier - a string which identifies some data to 
@@ -9264,6 +9280,9 @@
      * @property {module:svgMap~setBoundaryColour} setBoundaryColour - Change the colour of the boundary. Pass a single argument
      * which is a string specifying the colour which can be hex format, e.g. #FFA500, 
      * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
+     * @property {module:svgMap~setGridColour} setGridColour - Change the colour of the grid. Pass a single argument
+     * which is a string specifying the colour which can be hex format, e.g. #FFA500, 
+     * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
      * @property {module:svgMap~setTransform} setTransform - Set the transformation options object by passing a single argument
      * which is a string indicating the key of the transformation in the parent object.
      * @property {module:svgMap~getMapWidth} getMapWidth - Gets and returns the current width of the SVG map. 
@@ -9280,6 +9299,7 @@
 
     return {
       setBoundaryColour: setBoundaryColour,
+      setGridColour: setGridColour,
       setTransform: setTransform,
       getMapWidth: getMapWidth,
       animateTransChange: animateTransChange,
@@ -9563,7 +9583,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.2.3";
+  var version = "0.3.0";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
