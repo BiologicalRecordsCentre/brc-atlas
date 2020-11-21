@@ -97,7 +97,11 @@ export function leafletMap({
       svg.style('display', 'none')
       return
     } else {
-      d3.select('.legendDiv').style('display', 'block')
+      if (legendOpts.display) {
+        d3.select('.legendDiv').style('display', 'block')
+      } else {
+        d3.select('.legendDiv').style('display', 'none')
+      }
       svg.style('display', 'block')
     }
 
@@ -195,6 +199,8 @@ export function leafletMap({
   * Redraw the map, e.g. after changing map accessor function or map identifier.
   */
   function redrawMap(){
+
+    console.log(legendOpts)
     const accessFunction = mapTypesSel[mapTypesKey]
     accessFunction(taxonIdentifier).then(data => {
       data.records = data.records.map(d => {
@@ -209,17 +215,27 @@ export function leafletMap({
       //Legend
       legendOpts.accessorData = data.legend
       if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
-        const legendSvg = d3.select(selector).append('svg') //.style('display', 'none')
+        const legendSvg = d3.select(selector).append('svg') 
         svgLegend(legendSvg, legendOpts)
         const bbox = legendSvg.node().getBBox()
-        const w = bbox.x + bbox.width + bbox.x
-        const h = bbox.y + bbox.height + bbox.y
-        d3.select('.legendDiv').html(`<svg width="${w}" height="${h}">${legendSvg.html()}</svg>`)
+        const w = legendOpts.width ? legendOpts.width : bbox.x + bbox.width + bbox.x
+        const h = legendOpts.height ? legendOpts.height : bbox.y + bbox.height + bbox.y
+        d3.select('.legendDiv').html(`<svg class="legendSvg" width="${w}" height="${h}">${legendSvg.html()}</svg>`)
         legendSvg.remove()
-      }  
+      }
       reset ()
     })
   }
+
+/** @function setLegendOpts
+  * @param {legendOpts} lo - a legend options object.
+  * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+  * The legend options object can be used to specify properties of a legend and even the content
+  * of the legend itself.
+  */
+ function setLegendOpts(lo) {
+  legendOpts = lo
+}
 
 /** @function clearMap
   * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
@@ -255,6 +271,7 @@ export function leafletMap({
    * @typedef {Object} api
    * @property {module:slippyMap~setIdentfier} setIdentfier - Identifies data to the data accessor function.
    * @property {module:slippyMap~setMapType} setMapType - Set the key of the data accessor function.
+   * @property {module:slippyMap~setLegendOpts} setLegendOpts - Sets options for the legend.
    * @property {module:slippyMap~redrawMap} redrawMap - Redraw the map.
    * @property {module:slippyMap~clearMap} clearMap - Clear the map.
    * @property {module:slippyMap~setSize} setSize - Reset the size of the leaflet map.
@@ -262,6 +279,7 @@ export function leafletMap({
    */
   return  {
     setIdentfier: setIdentfier,
+    setLegendOpts: setLegendOpts,
     redrawMap: redrawMap,
     setMapType: setMapType,
     clearMap: clearMap,

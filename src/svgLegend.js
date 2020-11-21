@@ -9,6 +9,8 @@ import * as d3 from 'd3'
  * @property {number} scale - a number between 0 and 1 which scales the size of the legend.
  * @property {number} x - an offset of the top-left corner of the legend from the left margin of the SVG.
  * @property {number} y - an offset of the top-left corner of the legend from the top margin of the SVG.
+ * @property {number} width - can be used to specify a width (for leaflet legend).
+ * @property {number} height - can be used to specify a height (for leaflet legend).
  * @property {legendDefintion} data - a legend defition.
  */
 
@@ -34,8 +36,6 @@ import * as d3 from 'd3'
  */
 
 export function svgLegend(svg, legendOpts) {
-
-  console.log(legendOpts)
 
   const legendData = legendOpts.data ? legendOpts.data : legendOpts.accessorData
   const legendX = legendOpts.x

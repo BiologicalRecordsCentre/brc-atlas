@@ -8838,6 +8838,8 @@
    * @property {number} scale - a number between 0 and 1 which scales the size of the legend.
    * @property {number} x - an offset of the top-left corner of the legend from the left margin of the SVG.
    * @property {number} y - an offset of the top-left corner of the legend from the top margin of the SVG.
+   * @property {number} width - can be used to specify a width (for leaflet legend).
+   * @property {number} height - can be used to specify a height (for leaflet legend).
    * @property {legendDefintion} data - a legend defition.
    */
 
@@ -8863,7 +8865,6 @@
    */
 
   function svgLegend(svg, legendOpts) {
-    console.log(legendOpts);
     var legendData = legendOpts.data ? legendOpts.data : legendOpts.accessorData;
     var legendX = legendOpts.x;
     var legendY = legendOpts.y;
@@ -9417,7 +9418,12 @@
         svg.style('display', 'none');
         return;
       } else {
-        d3.select('.legendDiv').style('display', 'block');
+        if (legendOpts.display) {
+          d3.select('.legendDiv').style('display', 'block');
+        } else {
+          d3.select('.legendDiv').style('display', 'none');
+        }
+
         svg.style('display', 'block');
       }
 
@@ -9503,6 +9509,7 @@
 
 
     function redrawMap() {
+      console.log(legendOpts);
       var accessFunction = mapTypesSel[mapTypesKey];
       accessFunction(taxonIdentifier).then(function (data) {
         data.records = data.records.map(function (d) {
@@ -9517,18 +9524,28 @@
         legendOpts.accessorData = data.legend;
 
         if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
-          var legendSvg = d3.select(selector).append('svg'); //.style('display', 'none')
-
+          var legendSvg = d3.select(selector).append('svg');
           svgLegend(legendSvg, legendOpts);
           var bbox = legendSvg.node().getBBox();
-          var w = bbox.x + bbox.width + bbox.x;
-          var h = bbox.y + bbox.height + bbox.y;
-          d3.select('.legendDiv').html("<svg width=\"".concat(w, "\" height=\"").concat(h, "\">").concat(legendSvg.html(), "</svg>"));
+          var w = legendOpts.width ? legendOpts.width : bbox.x + bbox.width + bbox.x;
+          var h = legendOpts.height ? legendOpts.height : bbox.y + bbox.height + bbox.y;
+          d3.select('.legendDiv').html("<svg class=\"legendSvg\" width=\"".concat(w, "\" height=\"").concat(h, "\">").concat(legendSvg.html(), "</svg>"));
           legendSvg.remove();
         }
 
         reset();
       });
+    }
+    /** @function setLegendOpts
+      * @param {legendOpts} lo - a legend options object.
+      * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+      * The legend options object can be used to specify properties of a legend and even the content
+      * of the legend itself.
+      */
+
+
+    function setLegendOpts(lo) {
+      legendOpts = lo;
     }
     /** @function clearMap
       * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
@@ -9565,6 +9582,7 @@
      * @typedef {Object} api
      * @property {module:slippyMap~setIdentfier} setIdentfier - Identifies data to the data accessor function.
      * @property {module:slippyMap~setMapType} setMapType - Set the key of the data accessor function.
+     * @property {module:slippyMap~setLegendOpts} setLegendOpts - Sets options for the legend.
      * @property {module:slippyMap~redrawMap} redrawMap - Redraw the map.
      * @property {module:slippyMap~clearMap} clearMap - Clear the map.
      * @property {module:slippyMap~setSize} setSize - Reset the size of the leaflet map.
@@ -9574,6 +9592,7 @@
 
     return {
       setIdentfier: setIdentfier,
+      setLegendOpts: setLegendOpts,
       redrawMap: redrawMap,
       setMapType: setMapType,
       clearMap: clearMap,
@@ -9583,7 +9602,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.3.0";
+  var version = "0.3.1";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
