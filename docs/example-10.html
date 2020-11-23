@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>BRC Atlas Library example 10</title>
+</head>
+<body>
+  <div class="content">
+    <h1>Using the BRC Atlas Library</h1>
+    <h2>Configure basemap layers demo</h2>
+    <div id="map"></div>
+    <p>
+      Include the required Javascript libraries and CSS in the page. We need the BRC Atlas JS libary and the associated
+      CSS. We also need the D3 and Leaflet libraries which are external dependecies of 
+      the BRC Atlas library. In this example they are all included from CDNs.
+    </p>
+    <button onclick="removeLayer('OpenStreetMap')">Remove OpenStreetMap</button>
+    <button onclick="removeLayer('OpenTopoMap')">Remove OpenTopoMap</button>
+    <button onclick="removeLayer('NLS historic')">NLS historic</button>
+    <br/>
+    <button onclick="addLayer('OpenStreetMap')">Add OpenStreetMap</button>
+    <button onclick="addLayer('OpenTopoMap')">Add OpenTopoMap</button>
+    <button onclick="addLayer('NLS historic')">NLS historic</button>
+
+    <!--JS and CSS required for highlighting inline example code-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/a11y-light.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <!--Page CSS-->
+    <link rel="stylesheet" href="example.css" />
+
+    <!--D3 JS required exernal dependency of BRC Atlas library-->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <!--Leaflet JS required exernal dependency of BRC Atlas library-->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+    <!--BRC Atlas library JS and CSS-->
+    <script src="./../../brc-atlas/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="./../../brc-atlas/dist/brcatlas.umd.css">
+    <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
+
+    <script>
+      var basemapConfigs = [
+        {
+          name: 'OpenStreetMap',
+          type: 'tileLayer',
+          selected: true,
+          url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          opts: {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          }
+        },
+        {
+          name: 'OpenTopoMap',
+          type: 'tileLayer',
+          selected: false,
+          url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+          opts: {
+            maxZoom: 17,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+          }
+        },
+      ]
+
+      const nls = {
+        name: 'NLS historic',
+        type: 'wms',
+        selected: true,
+        url: 'https://nls-{s}.tileserver.com/nls/{z}/{x}/{y}.jpg', 
+        opts: {
+          attribution: '<a href="https://maps.nls.uk/projects/api//">National Library of Scotland Historic Maps</a>',
+          bounds: [[49.6, -12], [61.7, 3]],
+          minZoom: 1,
+          maxZoom: 18,
+          subdomains: '0123'
+        }
+      }
+
+      var map = brcatlas.leafletMap({
+        selector: "#map",
+        basemapConfigs: basemapConfigs
+      })
+      map.setIdentfier('./example-hectads-1.csv')
+      map.redrawMap()
+
+      function removeLayer(lyrName) {
+        map.removeBasemapLayer(lyrName)
+      }
+
+      function addLayer(lyrName) {
+        if (lyrName === 'NLS historic') {
+          map.addBasemapLayer(nls)
+        } else if (lyrName === 'OpenStreetMap') {
+          map.addBasemapLayer(basemapConfigs[0])
+        } else {
+          map.addBasemapLayer(basemapConfigs[1])
+        }
+      }
+    </script>
+  </div>
+</body>
+</html>

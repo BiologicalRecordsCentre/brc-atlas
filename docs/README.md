@@ -10,3 +10,5 @@ For API details - [JSDoc API documentation](https://biologicalrecordscentre.gith
 - [Animate transition between core UK & Ireland transformation types](example-2.html)
 - [User defined map inset demo (Channel Islands)](example-5.html)
 - [User defined multiple map inset demo (Channel Islands)](example-6.html)
+- [Slippy map displaying CSV](example-7.html)
+- [Configuring, adding and removing Slippy basemaps](example-10.html)
