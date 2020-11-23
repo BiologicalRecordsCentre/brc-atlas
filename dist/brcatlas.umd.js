@@ -9316,6 +9316,15 @@
 
   /** @module slippyMap */
   /**
+   * @typedef {Object} basemapConfig
+   * @property {string} name - name of layer to be displayer in layer control.
+   * @property {string} type - either 'tileLayer' or 'wms'.
+   * @property {boolean} selected - indicate whether or not this is to be the layer initially selected.
+   * @property {string} url - the standard leaflet formatted URL for the layer.
+   * @property {Object} opts - standard leaflet layer options.
+   */
+
+  /**
    * @param {Object} opts - Initialisation options.
    * @param {string} opts.selector - The CSS selector of the element which will be the parent of the leaflet map.
    * @param {string} opts.mapid - The id for the slippy map to be created.
@@ -9324,6 +9333,7 @@
    * in the input data.
    * @param {number} opts.height - The desired height of the leaflet map.
    * @param {number} opts.width - The desired width of the leaflet map.
+   * @param {Array.<basemapConfig>} opts.basemapConfigs - An array of map layer configuration objects.
    * @param {Object} opts.mapTypesSel - Sets an object whose properties are data access functions. The property
    * names are the 'keys' which should be human readable descriptiosn of the map types.
    * @param {string} opts.mapTypesKey - Sets the key of the selected data accessor function (map type).
@@ -9343,6 +9353,8 @@
         height = _ref$height === void 0 ? 500 : _ref$height,
         _ref$width = _ref.width,
         width = _ref$width === void 0 ? 300 : _ref$width,
+        _ref$basemapConfigs = _ref.basemapConfigs,
+        basemapConfigs = _ref$basemapConfigs === void 0 ? [] : _ref$basemapConfigs,
         _ref$mapTypesKey = _ref.mapTypesKey,
         mapTypesKey = _ref$mapTypesKey === void 0 ? 'Standard hectad' : _ref$mapTypesKey,
         _ref$mapTypesSel = _ref.mapTypesSel,
@@ -9354,17 +9366,62 @@
 
     var taxonIdentifier, precision;
     var dots = {};
-    d3.select(selector).append('div').attr('id', mapid).style('width', "".concat(width, "px")).style('height', "".concat(height, "px"));
-    var osm = new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
+    d3.select(selector).append('div').attr('id', mapid).style('width', "".concat(width, "px")).style('height', "".concat(height, "px")); // Create basemaps from config
+
+    var selectedBaselayerName;
+    var baseMaps = basemapConfigs.reduce(function (bm, c) {
+      var lyrFn;
+
+      if (c.type === 'tileLayer') {
+        lyrFn = L.tileLayer;
+      } else if (c.type === 'wms') {
+        lyrFn = L.tileLayer.wms;
+      } else {
+        return bm;
+      }
+
+      bm[c.name] = lyrFn(c.url, c.opts);
+
+      if (c.selected) {
+        selectedBaselayerName = c.name;
+      }
+
+      return bm;
+    }, {}); // If no basemaps configured, provide a default
+
+    if (basemapConfigs.length === 0) {
+      baseMaps['OpenStreetMap'] = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      });
+    } // If no basemap selected, select the first
+
+
+    if (!selectedBaselayerName) {
+      selectedBaselayerName = Object.keys(baseMaps)[0];
+    }
+
     var map = new L.Map(mapid, {
       center: [55, -4],
       zoom: 6,
-      layers: [osm]
+      layers: [baseMaps[selectedBaselayerName]]
     });
     map.on("viewreset", reset); // Not firing on current version - seems to be a bug
 
     map.on("zoomend", reset);
-    map.on("moveend", reset); // Legend custom control
+    map.on("moveend", reset);
+    map.zoomControl.setPosition('topright'); // Record the currently selected basemap layer
+
+    map.on('baselayerchange', function (e) {
+      selectedBaselayerName = e.name;
+    }); // Add layer selection control to map if there is more than one layer
+
+    var mapLayerControl;
+
+    if (basemapConfigs.length > 0) {
+      mapLayerControl = L.control.layers(baseMaps).addTo(map);
+    } // Legend custom control
+
 
     L.Control.Legend = L.Control.extend({
       onAdd: function onAdd() {
@@ -9381,7 +9438,6 @@
     L.control.Legend({
       position: 'topleft'
     }).addTo(map);
-    map.zoomControl.setPosition('topright'); // Move zoom control to top right
 
     function projectPoint(x, y) {
       var point = map.latLngToLayerPoint(new L.LatLng(y, x));
@@ -9578,6 +9634,66 @@
     function invalidateSize() {
       map.invalidateSize();
     }
+    /** @function addBasemapLayer
+     * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+     * Provides a method to add a basemap layer after the map is created.
+     * @param {basemapConfig} config - a configuration object to define the new layer. 
+     */
+
+
+    function addBasemapLayer(config) {
+      if (!baseMaps[config.name]) {
+        // Add config to baseMaps
+        var lyrFn;
+
+        if (config.type === 'tileLayer') {
+          lyrFn = L.tileLayer;
+        } else if (config.type === 'wms') {
+          lyrFn = L.tileLayer.wms;
+        }
+
+        if (lyrFn) {
+          baseMaps[config.name] = lyrFn(config.url, config.opts);
+
+          if (Object.keys(baseMaps).length === 2) {
+            // This is the second base layer - create mapLayerControl
+            mapLayerControl = L.control.layers(baseMaps).addTo(map);
+          } else {
+            mapLayerControl.addBaseLayer(baseMaps[config.name], config.name);
+          }
+
+          if (config.selected) {
+            map.removeLayer(baseMaps[selectedBaselayerName]);
+            map.addLayer(baseMaps[config.name]);
+          }
+        }
+      }
+    }
+    /** @function removeBasemapLayer
+     * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+     * Provides a method to remove a basemap layer after the map is created.
+     * @param {string} mapName - the name by which the map layer is identified (appears in layer selection). 
+     */
+
+
+    function removeBasemapLayer(mapName) {
+      if (baseMaps[mapName] && Object.keys(baseMaps).length > 1) {
+        map.removeLayer(baseMaps[mapName]);
+        mapLayerControl.removeLayer(baseMaps[mapName]);
+        delete baseMaps[mapName];
+
+        if (selectedBaselayerName === mapName) {
+          // If the removed layer was previously displayed, then
+          // display first basemap.
+          map.addLayer(baseMaps[Object.keys(baseMaps)[0]]);
+        }
+
+        if (Object.keys(baseMaps).length === 1) {
+          // Only one base layer - remove mapLayerControl
+          mapLayerControl.remove();
+        }
+      }
+    }
     /**
      * @typedef {Object} api
      * @property {module:slippyMap~setIdentfier} setIdentfier - Identifies data to the data accessor function.
@@ -9587,6 +9703,8 @@
      * @property {module:slippyMap~clearMap} clearMap - Clear the map.
      * @property {module:slippyMap~setSize} setSize - Reset the size of the leaflet map.
      * @property {module:slippyMap~invalidateSize} invalidateSize - Access Leaflet's invalidateSize method.
+     * @property {module:slippyMap~invalidateSize} addBasemapLayer - Add a basemap to the map.
+     * @property {module:slippyMap~invalidateSize} removeBasemapLayer - Remove a basemap from the map.
      */
 
 
@@ -9597,12 +9715,14 @@
       setMapType: setMapType,
       clearMap: clearMap,
       setSize: setSize,
-      invalidateSize: invalidateSize
+      invalidateSize: invalidateSize,
+      addBasemapLayer: addBasemapLayer,
+      removeBasemapLayer: removeBasemapLayer
     };
   }
 
   var name = "brcatlas";
-  var version = "0.3.1";
+  var version = "0.4.0";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";

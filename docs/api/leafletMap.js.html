@@ -35,6 +35,15 @@ import { dataAccessors } from './dataAccess.js'
 import { svgLegend } from './svgLegend.js'
 
 /**
+ * @typedef {Object} basemapConfig
+ * @property {string} name - name of layer to be displayer in layer control.
+ * @property {string} type - either 'tileLayer' or 'wms'.
+ * @property {boolean} selected - indicate whether or not this is to be the layer initially selected.
+ * @property {string} url - the standard leaflet formatted URL for the layer.
+ * @property {Object} opts - standard leaflet layer options.
+ */
+
+/**
  * @param {Object} opts - Initialisation options.
  * @param {string} opts.selector - The CSS selector of the element which will be the parent of the leaflet map.
  * @param {string} opts.mapid - The id for the slippy map to be created.
@@ -43,6 +52,7 @@ import { svgLegend } from './svgLegend.js'
  * in the input data.
  * @param {number} opts.height - The desired height of the leaflet map.
  * @param {number} opts.width - The desired width of the leaflet map.
+ * @param {Array.&lt;basemapConfig>} opts.basemapConfigs - An array of map layer configuration objects.
  * @param {Object} opts.mapTypesSel - Sets an object whose properties are data access functions. The property
  * names are the 'keys' which should be human readable descriptiosn of the map types.
  * @param {string} opts.mapTypesKey - Sets the key of the selected data accessor function (map type).
@@ -56,6 +66,7 @@ export function leafletMap({
   captionId = '',
   height = 500,
   width = 300,
+  basemapConfigs = [],
   mapTypesKey = 'Standard hectad',
   mapTypesSel = dataAccessors,
   legendOpts = {display: false},
@@ -68,11 +79,54 @@ export function leafletMap({
     .attr('id', mapid)
     .style('width', `${width}px`)
     .style('height', `${height}px`)
-  const osm = new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")
-  const map = new L.Map(mapid, {center: [55, -4], zoom: 6, layers:[osm]})
+
+  // Create basemaps from config
+  let selectedBaselayerName
+  const baseMaps = basemapConfigs.reduce((bm, c) => {
+    let lyrFn
+    if (c.type === 'tileLayer') {
+      lyrFn = L.tileLayer
+    } else if (c.type === 'wms') {
+      lyrFn = L.tileLayer.wms
+    } else {
+      return bm
+    }
+    bm[c.name] = lyrFn(c.url, c.opts)
+    if (c.selected) {
+      selectedBaselayerName = c.name
+    }
+    return bm
+  }, {})
+  // If no basemaps configured, provide a default
+  if (basemapConfigs.length === 0) {
+    baseMaps['OpenStreetMap'] = L.tileLayer ('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        {
+          maxZoom: 19,
+          attribution: '&amp;copy; &lt;a href="https://www.openstreetmap.org/copyright">OpenStreetMap&lt;/a> contributors'
+        }
+      )
+  }
+  // If no basemap selected, select the first
+  if (!selectedBaselayerName) {
+    selectedBaselayerName = Object.keys(baseMaps)[0]
+  }
+
+  const map = new L.Map(mapid, {center: [55, -4], zoom: 6, layers:[baseMaps[selectedBaselayerName]]})
   map.on("viewreset", reset) // Not firing on current version - seems to be a bug
   map.on("zoomend", reset)
   map.on("moveend", reset)
+  map.zoomControl.setPosition('topright')
+
+  // Record the currently selected basemap layer
+  map.on('baselayerchange', function (e) {
+    selectedBaselayerName = e.name
+  })
+
+  // Add layer selection control to map if there is more than one layer
+  let mapLayerControl
+  if (basemapConfigs.length > 0) {
+    mapLayerControl = L.control.layers(baseMaps).addTo(map)
+  }
 
   // Legend custom control
   L.Control.Legend = L.Control.extend({
@@ -87,10 +141,7 @@ export function leafletMap({
       return new L.Control.Legend(opts)
   }
   L.control.Legend({ position: 'topleft' }).addTo(map)
-  map.zoomControl.setPosition('topright')
-
-  // Move zoom control to top right
-
+  
   function projectPoint(x, y) {
     const point = map.latLngToLayerPoint(new L.LatLng(y, x))
     this.stream.point(point.x, point.y)
@@ -263,7 +314,7 @@ export function leafletMap({
   */
  function setLegendOpts(lo) {
   legendOpts = lo
-}
+ }
 
 /** @function clearMap
   * @description &lt;b>This function is exposed as a method on the API returned from the leafletMap function&lt;/b>.
@@ -295,6 +346,58 @@ export function leafletMap({
     map.invalidateSize()
   }
 
+ /** @function addBasemapLayer
+  * @description &lt;b>This function is exposed as a method on the API returned from the leafletMap function&lt;/b>.
+  * Provides a method to add a basemap layer after the map is created.
+  * @param {basemapConfig} config - a configuration object to define the new layer. 
+  */
+  function addBasemapLayer(config){
+    if (!baseMaps[config.name]) {
+      // Add config to baseMaps
+      let lyrFn
+      if (config.type === 'tileLayer') {
+        lyrFn = L.tileLayer
+      } else if (config.type === 'wms') {
+        lyrFn = L.tileLayer.wms
+      }
+      if (lyrFn) {
+        baseMaps[config.name] = lyrFn(config.url, config.opts)
+        if (Object.keys(baseMaps).length === 2) {
+          // This is the second base layer - create mapLayerControl
+          mapLayerControl = L.control.layers(baseMaps).addTo(map)
+        } else {
+          mapLayerControl.addBaseLayer(baseMaps[config.name], config.name)
+        }
+        if (config.selected) {
+          map.removeLayer(baseMaps[selectedBaselayerName])
+          map.addLayer(baseMaps[config.name])
+        }
+      }
+    }
+  }
+
+ /** @function removeBasemapLayer
+  * @description &lt;b>This function is exposed as a method on the API returned from the leafletMap function&lt;/b>.
+  * Provides a method to remove a basemap layer after the map is created.
+  * @param {string} mapName - the name by which the map layer is identified (appears in layer selection). 
+  */
+  function removeBasemapLayer(mapName){
+    if (baseMaps[mapName] &amp;&amp; Object.keys(baseMaps).length > 1) {
+      map.removeLayer(baseMaps[mapName])
+      mapLayerControl.removeLayer(baseMaps[mapName])
+      delete baseMaps[mapName]
+      if (selectedBaselayerName === mapName) {
+        // If the removed layer was previously displayed, then
+        // display first basemap.
+        map.addLayer(baseMaps[Object.keys(baseMaps)[0]])
+      }
+      if (Object.keys(baseMaps).length === 1) {
+        // Only one base layer - remove mapLayerControl
+        mapLayerControl.remove()
+      }
+    }
+  }
+
   /**
    * @typedef {Object} api
    * @property {module:slippyMap~setIdentfier} setIdentfier - Identifies data to the data accessor function.
@@ -304,6 +407,8 @@ export function leafletMap({
    * @property {module:slippyMap~clearMap} clearMap - Clear the map.
    * @property {module:slippyMap~setSize} setSize - Reset the size of the leaflet map.
    * @property {module:slippyMap~invalidateSize} invalidateSize - Access Leaflet's invalidateSize method.
+   * @property {module:slippyMap~invalidateSize} addBasemapLayer - Add a basemap to the map.
+   * @property {module:slippyMap~invalidateSize} removeBasemapLayer - Remove a basemap from the map.
    */
   return  {
     setIdentfier: setIdentfier,
@@ -312,7 +417,9 @@ export function leafletMap({
     setMapType: setMapType,
     clearMap: clearMap,
     setSize: setSize,
-    invalidateSize: invalidateSize
+    invalidateSize: invalidateSize,
+    addBasemapLayer: addBasemapLayer,
+    removeBasemapLayer: removeBasemapLayer
   }
 }</code></pre>
         </article>
@@ -330,7 +437,7 @@ export function leafletMap({
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Sat Nov 21 2020 00:06:52 GMT+0000 (Greenwich Mean Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Mon Nov 23 2020 16:30:00 GMT+0000 (Greenwich Mean Time)
 </footer>
 
 <script> prettyPrint(); </script>
