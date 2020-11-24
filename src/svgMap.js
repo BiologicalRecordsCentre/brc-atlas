@@ -59,11 +59,11 @@ export function svgMap({
   mapTypesControl = false,
   boundaryGjson = `${constants.cdn}/assets/GB-I-CI-27700-reduced.geojson`,
   gridGjson = `${constants.cdn}/assets/GB-I-grid-27700-reduced.geojson`,
-  gridLineColour = '7C7CD3',
-  boundaryColour = '7C7CD3',
+  gridLineColour = '#7C7CD3',
+  boundaryColour = '#7C7CD3',
   boundaryFill = 'white',
-  seaFill = 'E6EFFF',
-  insetColour = '7C7CD3',
+  seaFill = '#E6EFFF',
+  insetColour = '#7C7CD3',
   callbackOptions=null
 } = {}) {
 

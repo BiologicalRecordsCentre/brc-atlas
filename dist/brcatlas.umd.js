@@ -8972,15 +8972,15 @@
         _ref$gridGjson = _ref.gridGjson,
         gridGjson = _ref$gridGjson === void 0 ? "".concat(constants.cdn, "/assets/GB-I-grid-27700-reduced.geojson") : _ref$gridGjson,
         _ref$gridLineColour = _ref.gridLineColour,
-        gridLineColour = _ref$gridLineColour === void 0 ? '7C7CD3' : _ref$gridLineColour,
+        gridLineColour = _ref$gridLineColour === void 0 ? '#7C7CD3' : _ref$gridLineColour,
         _ref$boundaryColour = _ref.boundaryColour,
-        boundaryColour = _ref$boundaryColour === void 0 ? '7C7CD3' : _ref$boundaryColour,
+        boundaryColour = _ref$boundaryColour === void 0 ? '#7C7CD3' : _ref$boundaryColour,
         _ref$boundaryFill = _ref.boundaryFill,
         boundaryFill = _ref$boundaryFill === void 0 ? 'white' : _ref$boundaryFill,
         _ref$seaFill = _ref.seaFill,
-        seaFill = _ref$seaFill === void 0 ? 'E6EFFF' : _ref$seaFill,
+        seaFill = _ref$seaFill === void 0 ? '#E6EFFF' : _ref$seaFill,
         _ref$insetColour = _ref.insetColour,
-        insetColour = _ref$insetColour === void 0 ? '7C7CD3' : _ref$insetColour,
+        insetColour = _ref$insetColour === void 0 ? '#7C7CD3' : _ref$insetColour,
         _ref$callbackOptions = _ref.callbackOptions,
         callbackOptions = _ref$callbackOptions === void 0 ? null : _ref$callbackOptions;
 
@@ -9722,7 +9722,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.4.1";
+  var version = "0.4.2";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
