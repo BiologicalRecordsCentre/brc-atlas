@@ -379,8 +379,8 @@ export function leafletMap({
    * @property {module:slippyMap~clearMap} clearMap - Clear the map.
    * @property {module:slippyMap~setSize} setSize - Reset the size of the leaflet map.
    * @property {module:slippyMap~invalidateSize} invalidateSize - Access Leaflet's invalidateSize method.
-   * @property {module:slippyMap~invalidateSize} addBasemapLayer - Add a basemap to the map.
-   * @property {module:slippyMap~invalidateSize} removeBasemapLayer - Remove a basemap from the map.
+   * @property {module:slippyMap~addBasemapLayer} addBasemapLayer - Add a basemap to the map.
+   * @property {module:slippyMap~removeBasemapLayer} removeBasemapLayer - Remove a basemap from the map.
    */
   return  {
     setIdentfier: setIdentfier,
