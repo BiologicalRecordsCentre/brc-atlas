@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>BRC Atlas Library include map by div tag</title>
+</head>
+<body>
+  <div class="content">
+    <h1>Using the BRC Atlas Library</h1>
+    <h2>Create a map with a div tag</h2>
+    <h3>Static</h3>
+    <div 
+      id="m1" 
+      class="brcatlas" 
+      data-csv="example-hectads-1.csv"
+      data-legend="true"
+      data-legend-title="Here's the legend"
+      data-legend-lines="Blah; circle; red | Blah blah; circle; magenta | Blah blah blah; circle; green"
+      data-legend-x="10"
+      data-legend-y="10"
+      data-legend-scale="0.6"
+      data-legend-opacity="0.6"
+      data-height="400"
+    ></div>
+    <h3>Slippy</h3>
+    <div 
+      id="m2" 
+      class="brcatlas" 
+      data-csv="example-hectads-1.csv" 
+      data-precision="10000" 
+      data-slippy="true"
+      data-height="300"
+      data-width="300"
+      data-legend="true"
+      data-legend-title="This is my legend"
+      data-legend-lines="Blah; circle; red | Blah blah; circle; magenta | Blah blah blah; circle; green"
+      data-legend-x="10"
+      data-legend-y="10"
+      data-legend-scale="0.6"
+      data-legend-opacity="0.6"
+    ></div>
+
+    <!--JS and CSS required for highlighting inline example code-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/a11y-light.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <!--Page CSS-->
+    <link rel="stylesheet" href="example.css" />
+
+    <!--D3 JS required exernal dependency of BRC Atlas library-->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <!--Leaflet JS required exernal dependency of BRC Atlas library-->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+    <!--BRC Atlas library JS and CSS-->
+    <script src="./../../brc-atlas/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="./../../brc-atlas/dist/brcatlas.umd.css">
+    <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
+  </div>
+</body>
+</html>
