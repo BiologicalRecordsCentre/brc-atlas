@@ -3,42 +3,217 @@
 <head>
   <meta charset="utf-8">
   <title>BRC Atlas Library include map by div tag</title>
+  <style>
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 15px;
+    }
+    li {
+      margin-bottom: 1em;
+    }
+  </style>
 </head>
 <body>
   <div class="content">
     <h1>Using the BRC Atlas Library</h1>
-    <h2>Create a map with a div tag</h2>
-    <h3>Static</h3>
+    <h2>Create a map from a div tag</h2>
+    <p>
+      The simplest way to use the brcatlas library to put
+      a map in a web page is use a div tag with data attributes to
+      display a prepared CSV file.
+    </p>
+    <p>
+      First include the required Javascript libraries and CSS in the page. We need the BRC Atlas JS libary, the associated
+      CSS and the D3 library which is an external
+      external dependency of the BRC Atlas library. In this example they are all included from CDNs.
+    </p>
+    <pre>
+    <code class="html">&lt;script src=&quot;https://d3js.org/d3.v5.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas/dist/brcatlas.umd.js&quot;&gt;&lt;/script&gt;
+&lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas/dist/brcatlas.umd.css&quot;&gt;&lt;/script&gt;</code>
+    </pre>
+    <p>Now you can create a map like this:</p>
+    <pre>
+      <code class="html">&lt;div id=&quot;ex1&quot; class=&quot;brcatlas&quot; data-csv=&quot;example-hectads-1.csv&quot;&gt;&lt;/div&gt;</code>
+    </pre>
+    <p>This is what you see:</p>
+    <div id="ex1" class="brcatlas" data-csv="example-hectads-1.csv"></div>
+    <p>The div should include a unique id, the class <i>brcaltas</i> and, if you want to display some data, the <i>data-csv</i> attribute 
+    pointing to a correctly formatted CSV file (see below). This normally this CSV file would sit somewhere on your website's server.</p>
+
+    <p>
+      The CSV file should have the column headers shown in the table below.
+    </p>
+    <table border="1" style="border-collapse: collapse;">
+      <tr>
+        <th>gr</th><th>shape</th><th>colour</th><th>opacity</th><th>size</th>
+      </tr>
+      <tr>
+        <td>HU58</td><td>circle</td><td>red</td><td>1</td><td>1</td>
+      </tr>
+      <tr>
+        <td>J33</td><td>square</td><td>#5eeb34</td><td>0.8</td><td>0.9</td>
+      </tr>
+      <tr>
+        <td>WA50</td><td>triangle-up</td><td>green</td><td>0.5</td><td>0.7</td>
+      </tr>
+      <tr>
+        <td>SC37</td><td>triangle-up</td><td>green</td><td>1</td><td>1</td>
+      </tr>
+      <tr>
+        <td>SE68</td><td>triangle-down</td><td>green</td><td>1</td><td>1</td>
+      </tr>
+      <tr>
+        <td>SD64</td><td>diamond</td><td>green</td><td>1</td><td>1</td>
+      </tr>
+    </table>
+    <p>
+      The order of the columns is not important. Note the following:
+      <ul>
+        <li>Grid references in the CSV must all be of the same precision 
+          (in the example above they are all hectads (10x10 km), but include mixed British, Irish and Channel Island references).</li>
+        <li>
+          The remaining columns define the appearance of each individual dot in terms of shape, colour, size and opacity.
+        </li>
+        <li>
+          Shape can be either 'circle', 'square', 'triangle-up', 'triangle-down' or 'diamond'.
+        </li>
+        <li>
+          Colour is either a string specifying a web colour, e.g. 'red', or a hex code starting with the '#' symbol.
+        </li>
+        <li>
+          Opacity is a number between 0 and 1 where 1 is maximum opacity and 0 minimum.
+        </li>
+        <li>
+          Scale is a number between 0 and 1 which can be used to adjust the size of the displayed symbol between it's maximum (1) and minimum (0).
+        </li>
+      </ul>
+    </p>
+    <p>
+      You can also display CSV files containing either tetrads (2x2 km) or monads (1x1 km). If you do this, you
+      must include the '<i>data-precision</i>' attribute and set it to either <i>2000</i> for tetrads
+      or '<i>1000</i>' for monads.
+    </p>
+    <p>
+      On the static map there is an options symbol at the bottom-right of the map that,
+      when clicked, invokes a dialog where the user can change the appearance of the 
+      map by selecting a view with or without 'insets' for the Northern Isles and
+      Channel Islands. You can remove this symbol by specifying  
+      '<i>data-opts="false"</i>'. You can also specify which of the four display options
+      you want to initialise the map with by specifying the '<i>data-trans</i>' option.
+      You can set it to one of the following options:
+    </p>
+    <ul>
+      <li><b>BI1</b>: No insets</li>
+      <li><b>BI2</b>: Channel Islands inset</li>
+      <li><b>BI3</b>: Northern Isle inset (Channel Islands not shown)</li>
+      <li><b>BI4</b>: Northern Isle and Channel Islands inset</li>
+    </ul>
+    <pre>
+      <code class="html">&lt;div 
+    id=&quot;ex2&quot; 
+    class=&quot;brcatlas&quot; 
+    data-csv=&quot;example-hectads-1.csv&quot;
+    data-opts=&quot;false&quot;
+    data-trans=&quot;BI4&quot;
+&gt;&lt;/div&gt;</code>
+    </pre>
+    <div id="ex2" class="brcatlas" data-csv="example-hectads-1.csv" data-opts="false" data-trans="BI4"></div>
+      
+    <p>
+      The default map is a 'static', map of the type shown above, but you can also
+      create a slippy (Leaflet) map by specifying '<i>data-slippy="true"</i>'.
+    </p>
+    <pre>
+<code class="html">&lt;div 
+    id=&quot;ex3&quot; 
+    class=&quot;brcatlas&quot; 
+    data-csv=&quot;example-hectads-1.csv&quot;
+    data-slippy=&quot;true&quot;
+&gt;&lt;/div&gt;</code>
+    </pre>
+    <div id="ex3" class="brcatlas" data-csv="example-hectads-1.csv" data-slippy="true"></div>
+
+    <p>
+      Note that to create the slippy map, you will need to include the Leaflet libraries:
+    </p>
+
+    <pre>
+      <code class="html">&lt;script src=&quot;https://unpkg.com/leaflet@1.7.1/dist/leaflet.js&quot;&gt;&lt;/script&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://unpkg.com/leaflet@1.7.1/dist/leaflet.css&quot;&gt;&lt;/script&gt;</code>
+    </pre>
+
+    <p>
+      Change the size of the map with the '<i>data-height</i>' and '<i>data-width</i>' attributes. Note that for 
+      static map, width is calculated automatically from the height, so you only need to specify height for that type
+      of map.
+    </p>
+
+    <pre>
+<code class="html">&lt;div 
+    id=&quot;ex4&quot; 
+    class=&quot;brcatlas&quot; 
+    data-csv=&quot;example-hectads-1.csv&quot;
+    data-slippy=&quot;true&quot;
+    data-width=&quot;700&quot;
+    data-height=&quot;400&quot;
+&gt;&lt;/div&gt;</code>
+    </pre>
+    <div id="ex4" class="brcatlas" data-csv="example-hectads-1.csv" data-slippy="true" data-width="700" data-height="400"></div>
+
+    <p>
+      You can also specify a legend to be displayed on the map. Obviously this should
+      reflect the colours, shapes, opacity etc that you used for the dots in the 
+      CSV (though it doesn't in the example below).
+    </p>
+
+    <pre>
+      <code class="html">&lt;div 
+    id=&quot;ex5&quot; 
+    class=&quot;brcatlas&quot; 
+    data-csv=&quot;example-hectads-1.csv&quot;
+    data-height=&quot;500&quot;
+    data-trans=&quot;BI4&quot;
+    data-legend=&quot;true&quot;
+    data-legend-title=&quot;This is my legend&quot;
+    data-legend-lines=&quot;Blah; circle; red | Blah blah; circle; magenta | Blah blah blah; circle; green&quot;
+    data-legend-x=&quot;10&quot;
+    data-legend-y=&quot;10&quot;
+    data-legend-scale=&quot;0.8&quot;
+    data-legend-opacity=&quot;0.8&quot;
+&gt;&lt;/div&gt;</code>
+    </pre>
+
     <div 
-      id="m1" 
-      class="brcatlas" 
-      data-csv="example-hectads-1.csv"
-      data-legend="true"
-      data-legend-title="Here's the legend"
-      data-legend-lines="Blah; circle; red | Blah blah; circle; magenta | Blah blah blah; circle; green"
-      data-legend-x="10"
-      data-legend-y="10"
-      data-legend-scale="0.6"
-      data-legend-opacity="0.6"
-      data-height="400"
-    ></div>
-    <h3>Slippy</h3>
-    <div 
-      id="m2" 
+      id="ex5" 
       class="brcatlas" 
       data-csv="example-hectads-1.csv" 
-      data-precision="10000" 
-      data-slippy="true"
-      data-height="300"
-      data-width="300"
+      data-height="500"
+      data-trans="BI4"
       data-legend="true"
       data-legend-title="This is my legend"
       data-legend-lines="Blah; circle; red | Blah blah; circle; magenta | Blah blah blah; circle; green"
       data-legend-x="10"
       data-legend-y="10"
-      data-legend-scale="0.6"
-      data-legend-opacity="0.6"
+      data-legend-scale="0.8"
+      data-legend-opacity="0.8"
     ></div>
+
+    <p>
+      The '<i>data-legend</i>' must be set to '<i>true</i>' to display any sort of legend. Use 
+      '<i>data-legend-title</i>' to specify a title for the legend. 
+      Use '<i>data-legend-lines</i>' to specify the individual lines in legend. Each line should
+      be separated with the '<i>|</i>' (pipe) character. Then each line consists of a string 
+      of the format '<i>caption; shape; colour</i>'. Shape and colour use the same values 
+      as can be used in the CSV file (see above). The '<i>data-legend-x</i>' and '<i>data-legend-y</i>'
+      attributes can be used to specify and offset from the left and top margins of the map. The 
+      attribute '<i>data-legend-scale</i>' specifies a number between 0 and 1 used to scale the 
+      entire lagend - useful if it is too big for the map. The attribute '<i>data-legend-opacity</i>'
+      should be set to a value between 0 and 1 which specifies and the overall opacity of the legend.
+    </p>
 
     <!--JS and CSS required for highlighting inline example code-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
@@ -56,10 +231,10 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 
     <!--BRC Atlas library JS and CSS-->
-    <script src="./../../brc-atlas/dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="./../../brc-atlas/dist/brcatlas.umd.css">
-    <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
+    <!-- <script src="./../../brc-atlas/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="./../../brc-atlas/dist/brcatlas.umd.css"> -->
+    <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css">
   </div>
 </body>
 </html>
