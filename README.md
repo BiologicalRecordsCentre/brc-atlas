@@ -1,5 +1,5 @@
 ### BRC Atlas library
-The BRC Atlas library is a Javascript library for...
+The BRC Atlas library is a Javascript library for providing both easy and flexible APIs for creating static and slippy maps for atlas projects.
 
 ## Installing
 You can get the javscript amd css builds from 
