@@ -8,6 +8,9 @@ function csvMonad(file) {
 function csvTetrad(file) {
   return csvGr(file, 2000)
 }
+function csvQuadrant(file) {
+  return csvGr(file, 5000)
+}
 function csvHectad(file) {
   return csvGr(file, 10000)
 }
@@ -38,10 +41,11 @@ function csvGr(file, precision) {
 /** @constant
 * @description This object has properties corresponding to a number of data access
 * functions that can be used to load data provided in standard formats. There are
-* three functions accessed through the keys listed below.
+* four functions accessed through the keys listed below.
 * <ul>
 * <li> <b>Standard monad</b> expects the grid references to be monads (1 km resolution).
 * <li> <b>Standard tetrad</b> expects the grid references to be tetrads (2 km resolution).
+* <li> <b>Standard quadrant</b> expects the grid references to be quadrants (5 km resolution).
 * <li> <b>Standard hectad</b> expects the grid references to be hectads (10 km resolution).
 * </ul>
 * Each of the
@@ -64,6 +68,7 @@ function csvGr(file, precision) {
 export const dataAccessors = {
   'Standard monad': csvMonad,
   'Standard tetrad': csvTetrad,
+  'Standard quadrant': csvQuadrant,
   'Standard hectad': csvHectad
 }
 

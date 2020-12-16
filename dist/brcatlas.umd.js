@@ -424,6 +424,10 @@
     return csvGr(file, 2000);
   }
 
+  function csvQuadrant(file) {
+    return csvGr(file, 5000);
+  }
+
   function csvHectad(file) {
     return csvGr(file, 10000);
   }
@@ -454,10 +458,11 @@
   /** @constant
   * @description This object has properties corresponding to a number of data access
   * functions that can be used to load data provided in standard formats. There are
-  * three functions accessed through the keys listed below.
+  * four functions accessed through the keys listed below.
   * <ul>
   * <li> <b>Standard monad</b> expects the grid references to be monads (1 km resolution).
   * <li> <b>Standard tetrad</b> expects the grid references to be tetrads (2 km resolution).
+  * <li> <b>Standard quadrant</b> expects the grid references to be quadrants (5 km resolution).
   * <li> <b>Standard hectad</b> expects the grid references to be hectads (10 km resolution).
   * </ul>
   * Each of the
@@ -482,6 +487,7 @@
   var dataAccessors = {
     'Standard monad': csvMonad,
     'Standard tetrad': csvTetrad,
+    'Standard quadrant': csvQuadrant,
     'Standard hectad': csvHectad
   };
 
@@ -9452,16 +9458,28 @@
     var g = svg.append("g").attr("class", "leaflet-zoom-hide"); // 
 
     function reset() {
-      var zoomThreshold = 7;
-      var zoomThreshold2 = 9;
+      //const zoomThreshold2 = 9
+
       var view = map.getBounds();
       var deg5km = 0.0447;
-      var data, buffer;
+      var data, buffer; // if (precision===10000 || (precision===0 && map.getZoom() <= zoomThreshold)) {
+      //   data = dots.p10000
+      //   buffer = deg5km * 1.5
+      // } else if (precision===2000 || (precision===0 && map.getZoom() <= zoomThreshold2) || !dots.p1000 || !dots.p1000.length){
+      //   data = dots.p2000
+      //   buffer = deg5km / 4
+      // } else {
+      //   data = dots.p1000
+      //   buffer = deg5km / 2
+      // }
 
-      if (precision === 10000 || precision === 0 && map.getZoom() <= zoomThreshold) {
+      if (precision === 10000) {
         data = dots.p10000;
         buffer = deg5km * 1.5;
-      } else if (precision === 2000 || precision === 0 && map.getZoom() <= zoomThreshold2 || !dots.p1000 || !dots.p1000.length) {
+      } else if (precision === 5000) {
+        data = dots.p5000;
+        buffer = deg5km * 0.75;
+      } else if (precision === 2000) {
         data = dots.p2000;
         buffer = deg5km / 4;
       } else {
@@ -9864,7 +9882,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.5.0";
+  var version = "0.5.1";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
