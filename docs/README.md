@@ -4,6 +4,7 @@
 For API details - [JSDoc API documentation](https://biologicalrecordscentre.github.io/brc-atlas/docs/api/).
 
 ## Working examples
+- [Using div tags - the simplest way to get a map on an HTML page](example-11.html)
 - [A basic UK & Ireland hectad distribution map](example-1.html)
 - [A basic Irish hectad distribution map](example-3.html)
 - [A local atlas map](example-4.html)
