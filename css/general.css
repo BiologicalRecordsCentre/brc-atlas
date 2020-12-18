@@ -47,3 +47,9 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* Found this necessary in some host environments that reset this property
+Case in points was Drupal Adaptive theme on Earthworm Society of Britain website. */
+#atlas-leaflet-svg {
+  max-height: fit-content;
+}

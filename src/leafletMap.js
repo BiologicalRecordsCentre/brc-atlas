@@ -46,6 +46,7 @@ export function leafletMap({
 
   let taxonIdentifier, precision
   let dots = {}
+  const geojsonLayers = {}
 
   d3.select(selector).append('div')
     .attr('id', mapid)
@@ -120,10 +121,14 @@ export function leafletMap({
   }
   const transform = d3.geoTransform({point: projectPoint})
   const path = d3.geoPath().projection(transform)
-  const svg = d3.select(map.getPanes().overlayPane).append("svg")
+
+  map.createPane('esbatlaspane')
+  map.getPane('esbatlaspane').style.zIndex = 650
+  const svg = d3.select(map.getPane('esbatlaspane')).append("svg")
+  svg.attr('id', 'atlas-leaflet-svg')
+  //const svg = d3.select(map.getPanes().overlayPane).append("svg")
   const g = svg.append("g").attr("class", "leaflet-zoom-hide")
 
-  // 
   function reset() { 
     const symbolOutline = true
     //const zoomThreshold = 7
@@ -265,7 +270,6 @@ export function leafletMap({
   */
   function redrawMap(){
 
-    console.log(legendOpts)
     const accessFunction = mapTypesSel[mapTypesKey]
     accessFunction(taxonIdentifier).then(data => {
       data.records = data.records.map(d => {
@@ -384,6 +388,64 @@ export function leafletMap({
     }
   }
 
+ /** @function addGeojsonLayer
+  * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+  * Provides a method to add a geojson layer after the map is created.
+  * @param {geojsonConfig} config - a configuration object to define the new layer. 
+  */
+  function addGeojsonLayer(config){
+    
+    if (!geojsonLayers[config.name]) {
+      
+      if (!config.style) {
+        config.style = {
+          "color": "blue",
+          "weight": 5,
+          "opacity": 0.65
+        }
+      }
+      d3.json(config.url).then(data => {
+        geojsonLayers[config.name] = L.geoJSON(data, {style: config.style}).addTo(map)
+      })
+    } else {
+      console.log(`Geojson layer with the name ${config.name} is already loaded.`)
+    }
+  }
+
+ /** @function removeGeojsonLayer
+  * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+  * Provides a method to remove a geojson layer after the map is created.
+  * @param {string} mapName - the name by which the map layer is identified. 
+  */
+  function removeGeojsonLayer(name){
+    if (geojsonLayers[name]) {
+      map.removeLayer(geojsonLayers[name])
+      delete geojsonLayers[name]
+    } else {
+      console.log(`Geojson layer with the name ${name} not found.`)
+    }
+  }
+
+
+ /** @function showOverlay
+  * @description <b>This function allows you to show/hide the leaflet overlay layer (atlas layer)</b>.
+  * Provides a method to show/hide the leaflet overlay layer used to display atlas data.
+  * @param {boolean} show - Set to true to display the layer, or false to hide it. 
+  */
+  function showOverlay(show) {
+    if (show) {
+      if (legendOpts.display) {
+        d3.select('.legendDiv').style('display', 'block')
+      } else {
+        d3.select('.legendDiv').style('display', 'none')
+      }
+      svg.style('display', 'block')
+    } else {
+      d3.select('.legendDiv').style('display', 'none')
+      svg.style('display', 'none')
+    }
+  }
+
   /**
    * @typedef {Object} api
    * @property {module:slippyMap~setIdentfier} setIdentfier - Identifies data to the data accessor function.
@@ -395,6 +457,10 @@ export function leafletMap({
    * @property {module:slippyMap~invalidateSize} invalidateSize - Access Leaflet's invalidateSize method.
    * @property {module:slippyMap~addBasemapLayer} addBasemapLayer - Add a basemap to the map.
    * @property {module:slippyMap~removeBasemapLayer} removeBasemapLayer - Remove a basemap from the map.
+   * @property {module:slippyMap~addGeojsonLayer} addGeojsonLayer - Add a geojson layer to the map.
+   * @property {module:slippyMap~removeGeojsonLayer} removeGeojsonLayer - Remove a geojson layer from the map.
+   * @property {module:slippyMap~showOverlay} showOverlay - Show/hide the overlay layer.
+   * @property {module:slippyMap~map} lmap - Returns a reference to the leaflet map object.
    */
   return  {
     setIdentfier: setIdentfier,
@@ -405,6 +471,10 @@ export function leafletMap({
     setSize: setSize,
     invalidateSize: invalidateSize,
     addBasemapLayer: addBasemapLayer,
-    removeBasemapLayer: removeBasemapLayer
+    removeBasemapLayer: removeBasemapLayer,
+    addGeojsonLayer: addGeojsonLayer,
+    removeGeojsonLayer: removeGeojsonLayer,
+    showOverlay: showOverlay,
+    lmap: map
   }
 }

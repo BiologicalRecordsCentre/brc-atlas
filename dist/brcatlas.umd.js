@@ -9372,6 +9372,7 @@
 
     var taxonIdentifier, precision;
     var dots = {};
+    var geojsonLayers = {};
     d3.select(selector).append('div').attr('id', mapid).style('width', "".concat(width, "px")).style('height', "".concat(height, "px")); // Create basemaps from config
 
     var selectedBaselayerName;
@@ -9454,8 +9455,12 @@
       point: projectPoint
     });
     var path = d3.geoPath().projection(transform);
-    var svg = d3.select(map.getPanes().overlayPane).append("svg");
-    var g = svg.append("g").attr("class", "leaflet-zoom-hide"); // 
+    map.createPane('esbatlaspane');
+    map.getPane('esbatlaspane').style.zIndex = 650;
+    var svg = d3.select(map.getPane('esbatlaspane')).append("svg");
+    svg.attr('id', 'atlas-leaflet-svg'); //const svg = d3.select(map.getPanes().overlayPane).append("svg")
+
+    var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
     function reset() {
       //const zoomThreshold2 = 9
@@ -9583,7 +9588,6 @@
 
 
     function redrawMap() {
-      console.log(legendOpts);
       var accessFunction = mapTypesSel[mapTypesKey];
       accessFunction(taxonIdentifier).then(function (data) {
         data.records = data.records.map(function (d) {
@@ -9712,6 +9716,68 @@
         }
       }
     }
+    /** @function addGeojsonLayer
+     * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+     * Provides a method to add a geojson layer after the map is created.
+     * @param {geojsonConfig} config - a configuration object to define the new layer. 
+     */
+
+
+    function addGeojsonLayer(config) {
+      if (!geojsonLayers[config.name]) {
+        if (!config.style) {
+          config.style = {
+            "color": "blue",
+            "weight": 5,
+            "opacity": 0.65
+          };
+        }
+
+        d3.json(config.url).then(function (data) {
+          geojsonLayers[config.name] = L.geoJSON(data, {
+            style: config.style
+          }).addTo(map);
+        });
+      } else {
+        console.log("Geojson layer with the name ".concat(config.name, " is already loaded."));
+      }
+    }
+    /** @function removeGeojsonLayer
+     * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+     * Provides a method to remove a geojson layer after the map is created.
+     * @param {string} mapName - the name by which the map layer is identified. 
+     */
+
+
+    function removeGeojsonLayer(name) {
+      if (geojsonLayers[name]) {
+        map.removeLayer(geojsonLayers[name]);
+        delete geojsonLayers[name];
+      } else {
+        console.log("Geojson layer with the name ".concat(name, " not found."));
+      }
+    }
+    /** @function showOverlay
+     * @description <b>This function allows you to show/hide the leaflet overlay layer (atlas layer)</b>.
+     * Provides a method to show/hide the leaflet overlay layer used to display atlas data.
+     * @param {boolean} show - Set to true to display the layer, or false to hide it. 
+     */
+
+
+    function showOverlay(show) {
+      if (show) {
+        if (legendOpts.display) {
+          d3.select('.legendDiv').style('display', 'block');
+        } else {
+          d3.select('.legendDiv').style('display', 'none');
+        }
+
+        svg.style('display', 'block');
+      } else {
+        d3.select('.legendDiv').style('display', 'none');
+        svg.style('display', 'none');
+      }
+    }
     /**
      * @typedef {Object} api
      * @property {module:slippyMap~setIdentfier} setIdentfier - Identifies data to the data accessor function.
@@ -9723,6 +9789,10 @@
      * @property {module:slippyMap~invalidateSize} invalidateSize - Access Leaflet's invalidateSize method.
      * @property {module:slippyMap~addBasemapLayer} addBasemapLayer - Add a basemap to the map.
      * @property {module:slippyMap~removeBasemapLayer} removeBasemapLayer - Remove a basemap from the map.
+     * @property {module:slippyMap~addGeojsonLayer} addGeojsonLayer - Add a geojson layer to the map.
+     * @property {module:slippyMap~removeGeojsonLayer} removeGeojsonLayer - Remove a geojson layer from the map.
+     * @property {module:slippyMap~showOverlay} showOverlay - Show/hide the overlay layer.
+     * @property {module:slippyMap~map} lmap - Returns a reference to the leaflet map object.
      */
 
 
@@ -9735,7 +9805,11 @@
       setSize: setSize,
       invalidateSize: invalidateSize,
       addBasemapLayer: addBasemapLayer,
-      removeBasemapLayer: removeBasemapLayer
+      removeBasemapLayer: removeBasemapLayer,
+      addGeojsonLayer: addGeojsonLayer,
+      removeGeojsonLayer: removeGeojsonLayer,
+      showOverlay: showOverlay,
+      lmap: map
     };
   }
 
@@ -9882,7 +9956,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.5.1";
+  var version = "0.6.0";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";

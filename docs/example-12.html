@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>BRC Atlas Library add geojson layers to leaflet map</title>
+  <style>
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 15px;
+    }
+    li {
+      margin-bottom: 1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <h1>Using the BRC Atlas Library</h1>
+    <h2>BRC Atlas Library add geojson layers to leaflet map</h2>
+    <div id="map"></div>
+    <button onclick="addLayer('vc40')">Add VC40</button>
+    <button onclick="removeLayer('vc40')">Remove VC40</button>
+    <button onclick="addLayer('vcH1')">Add VCH1</button>
+    <button onclick="removeLayer('vcH1')">Remove VCH1</button>
+    <p>
+      Include the required Javascript libraries and CSS in the page. We need the BRC Atlas JS libary and the associated
+      CSS. We also need the D3 and Leaflet libraries which are external dependecies of 
+      the BRC Atlas library. In this example they are all included from CDNs.
+    </p>
+
+    <!--JS and CSS required for highlighting inline example code-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/a11y-light.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <!--Page CSS-->
+    <link rel="stylesheet" href="example.css" />
+
+    <!--D3 JS required exernal dependency of BRC Atlas library-->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <!--Leaflet JS required exernal dependency of BRC Atlas library-->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+    <!--BRC Atlas library JS and CSS-->
+    <script src="./../../brc-atlas/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="./../../brc-atlas/dist/brcatlas.umd.css">
+    <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
+
+    <script>
+
+      var map = brcatlas.leafletMap({
+        selector: "#map"
+      })
+      map.setIdentfier('./example-hectads-1.csv')
+      map.redrawMap()
+
+      function removeLayer(name) {
+        map.removeGeojsonLayer(name)
+      }
+      function addLayer(name) {
+        map.addGeojsonLayer({
+          name: name,
+          url: `./${name}.geojson`
+        })
+      }
+    </script>
+  </div>
+</body>
+</html>
