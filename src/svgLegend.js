@@ -45,14 +45,22 @@ export function svgLegend(svg, legendOpts) {
   const swatchPixels = lineHeight / 3
 
   const gLegend = svg.append('g').attr('id','legend')
-  gLegend.append('text')
-    .attr('x', 0)
-    .attr('y', lineHeight)
-    .attr('font-weight', 'bold')
-    .text(legendData.title)
 
-  legendData.lines.forEach((l, i) => {
+  let iOffset
+  if (legendData.title) {
+    gLegend.append('text')
+      .attr('x', 0)
+      .attr('y', lineHeight)
+      .attr('font-weight', 'bold')
+      .text(legendData.title)
+    iOffset = 0
+  } else {
+    iOffset = 1
+  }
+
+  legendData.lines.forEach((l, iLine) => {
     
+    const i = iLine - iOffset
     let shape = l.shape ? l.shape : legendData.shape
     let size = l.size ? l.size : legendData.size
     let opacity = l.opacity ? l.opacity : legendData.opacity
@@ -78,26 +86,31 @@ export function svgLegend(svg, legendOpts) {
         .style('opacity', opacity)
     } else if (shape === 'square') {
       dot = gLegend.append('rect')
-        .attr ("width", swatchPixels * 2)
-        .attr ("height", swatchPixels * 2)
-        .attr("x", 0)
-        .attr("y", lineHeight * (i + 2.5) - 2 * swatchPixels)
+        .attr ("width", swatchPixels * 2 * size)
+        .attr ("height", swatchPixels * 2 * size)
+        .attr("x", swatchPixels * (1 - size))
+        .attr("y", lineHeight * (i + 2.5) - 2 * swatchPixels + swatchPixels * (1 - size))
+    } else if (shape === 'diamond') {
+      dot = gLegend.append('path')
+        .attr("d", d3.symbol().type(d3.symbolSquare).size(swatchPixels * swatchPixels * 2 * size))
+        .attr("transform", `translate(${swatchPixels * 1},${lineHeight * (i + 2.5) - swatchPixels}) rotate(45)`)
     } else if (shape === 'triangle-up') {
       dot = gLegend.append('path')
-        .attr("d", d3.symbol().type(d3.symbolTriangle).size(swatchPixels * swatchPixels * 1.7))
+        .attr("d", d3.symbol().type(d3.symbolTriangle).size(swatchPixels * swatchPixels * 1.7 * size))
         .attr("transform", `translate(${swatchPixels * 1},${lineHeight * (i + 2.5) - swatchPixels})`)
     } else if (shape === 'triangle-down') {
       dot = gLegend.append('path')
-        .attr("d", d3.symbol().type(d3.symbolTriangle).size(swatchPixels * swatchPixels * 1.7))
+        .attr("d", d3.symbol().type(d3.symbolTriangle).size(swatchPixels * swatchPixels * 1.7 * size))
         .attr("transform", `translate(${swatchPixels * 1},${lineHeight * (i + 2.5) - swatchPixels}) rotate(180)`)
     }
     dot.style('fill', colour).style('opacity', opacity)
   })
 
-  legendData.lines.forEach((l, i) => {
+  legendData.lines.forEach((l, iLine) => {
+    const i = iLine - iOffset
     gLegend.append('text')
-      .attr('x', swatchPixels * 4)
-      .attr('y', lineHeight * (i + 2.5))
+      .attr('x', swatchPixels * 2.7)
+      .attr('y', lineHeight * (i + 2.5) - lineHeight/20)
       .text(l.text)
   })
 

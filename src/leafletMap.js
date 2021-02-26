@@ -184,7 +184,8 @@ export function leafletMap({
       } else {
         if (!d.geometry) {
           const shape = d.shape ? d.shape : data.shape
-          d.geometry = getGjson(d.gr, 'wg', shape)
+          const size = d.size ? d.size : data.size
+          d.geometry = getGjson(d.gr, 'wg', shape, size)
         }
         return true
       }

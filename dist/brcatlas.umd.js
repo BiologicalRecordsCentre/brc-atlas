@@ -1159,9 +1159,16 @@
 
   var PJD_3PARAM = 1;
   var PJD_7PARAM = 2;
+  var PJD_GRIDSHIFT = 3;
   var PJD_WGS84 = 4; // WGS84 or equivalent
 
   var PJD_NODATUM = 5; // WGS84 or equivalent
+
+  var SRS_WGS84_SEMIMAJOR = 6378137.0; // only used in grid shift transforms
+
+  var SRS_WGS84_SEMIMINOR = 6356752.314; // only used in grid shift transforms
+
+  var SRS_WGS84_ESQUARED = 0.0066943799901413165; // only used in grid shift transforms
 
   var SEC_TO_RAD = 4.84813681109535993589914102357e-6;
   var HALF_PI = Math.PI / 2; // ellipoid pj_set_ell.c
@@ -1352,6 +1359,9 @@
         if (v.length === 3 && legalAxis.indexOf(v.substr(0, 1)) !== -1 && legalAxis.indexOf(v.substr(1, 1)) !== -1 && legalAxis.indexOf(v.substr(2, 1)) !== -1) {
           self.axis = v;
         }
+      },
+      approx: function approx() {
+        self.approx = true;
       }
     };
 
@@ -2594,7 +2604,7 @@
     datumName: "Reseau National Belge 1972"
   };
 
-  function datum(datumCode, datum_params, a, b, es, ep2) {
+  function datum(datumCode, datum_params, a, b, es, ep2, nadgrids) {
     var out = {};
 
     if (datumCode === undefined || datumCode === 'none') {
@@ -2621,12 +2631,184 @@
       }
     }
 
+    if (nadgrids) {
+      out.datum_type = PJD_GRIDSHIFT;
+      out.grids = nadgrids;
+    }
+
     out.a = a; //datum object also uses these values
 
     out.b = b;
     out.es = es;
     out.ep2 = ep2;
     return out;
+  }
+
+  /**
+   * Resources for details of NTv2 file formats:
+   * - https://web.archive.org/web/20140127204822if_/http://www.mgs.gov.on.ca:80/stdprodconsume/groups/content/@mgs/@iandit/documents/resourcelist/stel02_047447.pdf
+   * - http://mimaka.com/help/gs/html/004_NTV2%20Data%20Format.htm
+   */
+  var loadedNadgrids = {};
+  /**
+   * Load a binary NTv2 file (.gsb) to a key that can be used in a proj string like +nadgrids=<key>. Pass the NTv2 file
+   * as an ArrayBuffer.
+   */
+
+  function nadgrid(key, data) {
+    var view = new DataView(data);
+    var isLittleEndian = detectLittleEndian(view);
+    var header = readHeader(view, isLittleEndian);
+
+    if (header.nSubgrids > 1) {
+      console.log('Only single NTv2 subgrids are currently supported, subsequent sub grids are ignored');
+    }
+
+    var subgrids = readSubgrids(view, header, isLittleEndian);
+    var nadgrid = {
+      header: header,
+      subgrids: subgrids
+    };
+    loadedNadgrids[key] = nadgrid;
+    return nadgrid;
+  }
+  /**
+   * Given a proj4 value for nadgrids, return an array of loaded grids
+   */
+
+  function getNadgrids(nadgrids) {
+    // Format details: http://proj.maptools.org/gen_parms.html
+    if (nadgrids === undefined) {
+      return null;
+    }
+
+    var grids = nadgrids.split(',');
+    return grids.map(parseNadgridString);
+  }
+
+  function parseNadgridString(value) {
+    if (value.length === 0) {
+      return null;
+    }
+
+    var optional = value[0] === '@';
+
+    if (optional) {
+      value = value.slice(1);
+    }
+
+    if (value === 'null') {
+      return {
+        name: 'null',
+        mandatory: !optional,
+        grid: null,
+        isNull: true
+      };
+    }
+
+    return {
+      name: value,
+      mandatory: !optional,
+      grid: loadedNadgrids[value] || null,
+      isNull: false
+    };
+  }
+
+  function secondsToRadians(seconds) {
+    return seconds / 3600 * Math.PI / 180;
+  }
+
+  function detectLittleEndian(view) {
+    var nFields = view.getInt32(8, false);
+
+    if (nFields === 11) {
+      return false;
+    }
+
+    nFields = view.getInt32(8, true);
+
+    if (nFields !== 11) {
+      console.warn('Failed to detect nadgrid endian-ness, defaulting to little-endian');
+    }
+
+    return true;
+  }
+
+  function readHeader(view, isLittleEndian) {
+    return {
+      nFields: view.getInt32(8, isLittleEndian),
+      nSubgridFields: view.getInt32(24, isLittleEndian),
+      nSubgrids: view.getInt32(40, isLittleEndian),
+      shiftType: decodeString(view, 56, 56 + 8).trim(),
+      fromSemiMajorAxis: view.getFloat64(120, isLittleEndian),
+      fromSemiMinorAxis: view.getFloat64(136, isLittleEndian),
+      toSemiMajorAxis: view.getFloat64(152, isLittleEndian),
+      toSemiMinorAxis: view.getFloat64(168, isLittleEndian)
+    };
+  }
+
+  function decodeString(view, start, end) {
+    return String.fromCharCode.apply(null, new Uint8Array(view.buffer.slice(start, end)));
+  }
+
+  function readSubgrids(view, header, isLittleEndian) {
+    var gridOffset = 176;
+    var grids = [];
+
+    for (var i = 0; i < header.nSubgrids; i++) {
+      var subHeader = readGridHeader(view, gridOffset, isLittleEndian);
+      var nodes = readGridNodes(view, gridOffset, subHeader, isLittleEndian);
+      var lngColumnCount = Math.round(1 + (subHeader.upperLongitude - subHeader.lowerLongitude) / subHeader.longitudeInterval);
+      var latColumnCount = Math.round(1 + (subHeader.upperLatitude - subHeader.lowerLatitude) / subHeader.latitudeInterval); // Proj4 operates on radians whereas the coordinates are in seconds in the grid
+
+      grids.push({
+        ll: [secondsToRadians(subHeader.lowerLongitude), secondsToRadians(subHeader.lowerLatitude)],
+        del: [secondsToRadians(subHeader.longitudeInterval), secondsToRadians(subHeader.latitudeInterval)],
+        lim: [lngColumnCount, latColumnCount],
+        count: subHeader.gridNodeCount,
+        cvs: mapNodes(nodes)
+      });
+    }
+
+    return grids;
+  }
+
+  function mapNodes(nodes) {
+    return nodes.map(function (r) {
+      return [secondsToRadians(r.longitudeShift), secondsToRadians(r.latitudeShift)];
+    });
+  }
+
+  function readGridHeader(view, offset, isLittleEndian) {
+    return {
+      name: decodeString(view, offset + 8, offset + 16).trim(),
+      parent: decodeString(view, offset + 24, offset + 24 + 8).trim(),
+      lowerLatitude: view.getFloat64(offset + 72, isLittleEndian),
+      upperLatitude: view.getFloat64(offset + 88, isLittleEndian),
+      lowerLongitude: view.getFloat64(offset + 104, isLittleEndian),
+      upperLongitude: view.getFloat64(offset + 120, isLittleEndian),
+      latitudeInterval: view.getFloat64(offset + 136, isLittleEndian),
+      longitudeInterval: view.getFloat64(offset + 152, isLittleEndian),
+      gridNodeCount: view.getInt32(offset + 168, isLittleEndian)
+    };
+  }
+
+  function readGridNodes(view, offset, gridHeader, isLittleEndian) {
+    var nodesOffset = offset + 176;
+    var gridRecordLength = 16;
+    var gridShiftRecords = [];
+
+    for (var i = 0; i < gridHeader.gridNodeCount; i++) {
+      var record = {
+        latitudeShift: view.getFloat32(nodesOffset + i * gridRecordLength, isLittleEndian),
+        longitudeShift: view.getFloat32(nodesOffset + i * gridRecordLength + 4, isLittleEndian),
+        latitudeAccuracy: view.getFloat32(nodesOffset + i * gridRecordLength + 8, isLittleEndian),
+        longitudeAccuracy: view.getFloat32(nodesOffset + i * gridRecordLength + 12, isLittleEndian)
+      };
+      gridShiftRecords.push(record);
+    }
+
+    return gridShiftRecords;
   }
 
   function Projection(srsCode, callback) {
@@ -2669,7 +2851,8 @@
     json.ellps = json.ellps || 'wgs84';
     var sphere_ = sphere(json.a, json.b, json.rf, json.ellps, json.sphere);
     var ecc = eccentricity(sphere_.a, sphere_.b, sphere_.rf, json.R_A);
-    var datumObj = json.datum || datum(json.datumCode, json.datum_params, sphere_.a, sphere_.b, ecc.es, ecc.ep2);
+    var nadgrids = getNadgrids(json.nadgrids);
+    var datumObj = json.datum || datum(json.datumCode, json.datum_params, sphere_.a, sphere_.b, ecc.es, ecc.ep2, nadgrids);
     extend(this, json); // transfer everything over from the projection because we don't know what we'll need
 
     extend(this, ourProj); // transfer all the methods from the projection
@@ -2990,15 +3173,39 @@
     if (source.datum_type === PJD_NODATUM || dest.datum_type === PJD_NODATUM) {
       return point;
     } // If this datum requires grid shifts, then apply it to geodetic coordinates.
-    // Do we need to go through geocentric coordinates?
 
 
-    if (source.es === dest.es && source.a === dest.a && !checkParams(source.datum_type) && !checkParams(dest.datum_type)) {
+    var source_a = source.a;
+    var source_es = source.es;
+
+    if (source.datum_type === PJD_GRIDSHIFT) {
+      var gridShiftCode = applyGridShift(source, false, point);
+
+      if (gridShiftCode !== 0) {
+        return undefined;
+      }
+
+      source_a = SRS_WGS84_SEMIMAJOR;
+      source_es = SRS_WGS84_ESQUARED;
+    }
+
+    var dest_a = dest.a;
+    var dest_b = dest.b;
+    var dest_es = dest.es;
+
+    if (dest.datum_type === PJD_GRIDSHIFT) {
+      dest_a = SRS_WGS84_SEMIMAJOR;
+      dest_b = SRS_WGS84_SEMIMINOR;
+      dest_es = SRS_WGS84_ESQUARED;
+    } // Do we need to go through geocentric coordinates?
+
+
+    if (source_es === dest_es && source_a === dest_a && !checkParams(source.datum_type) && !checkParams(dest.datum_type)) {
       return point;
     } // Convert to geocentric coordinates.
 
 
-    point = geodeticToGeocentric(point, source.es, source.a); // Convert between datums
+    point = geodeticToGeocentric(point, source_es, source_a); // Convert between datums
 
     if (checkParams(source.datum_type)) {
       point = geocentricToWgs84(point, source.datum_type, source.datum_params);
@@ -3008,7 +3215,201 @@
       point = geocentricFromWgs84(point, dest.datum_type, dest.datum_params);
     }
 
-    return geocentricToGeodetic(point, dest.es, dest.a, dest.b);
+    point = geocentricToGeodetic(point, dest_es, dest_a, dest_b);
+
+    if (dest.datum_type === PJD_GRIDSHIFT) {
+      var destGridShiftResult = applyGridShift(dest, true, point);
+
+      if (destGridShiftResult !== 0) {
+        return undefined;
+      }
+    }
+
+    return point;
+  }
+  function applyGridShift(source, inverse, point) {
+    if (source.grids === null || source.grids.length === 0) {
+      console.log('Grid shift grids not found');
+      return -1;
+    }
+
+    var input = {
+      x: -point.x,
+      y: point.y
+    };
+    var output = {
+      x: Number.NaN,
+      y: Number.NaN
+    };
+    var onlyMandatoryGrids = false;
+    var attemptedGrids = [];
+
+    for (var i = 0; i < source.grids.length; i++) {
+      var grid = source.grids[i];
+      attemptedGrids.push(grid.name);
+
+      if (grid.isNull) {
+        output = input;
+        break;
+      }
+
+      onlyMandatoryGrids = grid.mandatory;
+
+      if (grid.grid === null) {
+        if (grid.mandatory) {
+          console.log("Unable to find mandatory grid '" + grid.name + "'");
+          return -1;
+        }
+
+        continue;
+      }
+
+      var subgrid = grid.grid.subgrids[0]; // skip tables that don't match our point at all
+
+      var epsilon = (Math.abs(subgrid.del[1]) + Math.abs(subgrid.del[0])) / 10000.0;
+      var minX = subgrid.ll[0] - epsilon;
+      var minY = subgrid.ll[1] - epsilon;
+      var maxX = subgrid.ll[0] + (subgrid.lim[0] - 1) * subgrid.del[0] + epsilon;
+      var maxY = subgrid.ll[1] + (subgrid.lim[1] - 1) * subgrid.del[1] + epsilon;
+
+      if (minY > input.y || minX > input.x || maxY < input.y || maxX < input.x) {
+        continue;
+      }
+
+      output = applySubgridShift(input, inverse, subgrid);
+
+      if (!isNaN(output.x)) {
+        break;
+      }
+    }
+
+    if (isNaN(output.x)) {
+      console.log("Failed to find a grid shift table for location '" + -input.x * R2D + " " + input.y * R2D + " tried: '" + attemptedGrids + "'");
+      return -1;
+    }
+
+    point.x = -output.x;
+    point.y = output.y;
+    return 0;
+  }
+
+  function applySubgridShift(pin, inverse, ct) {
+    var val = {
+      x: Number.NaN,
+      y: Number.NaN
+    };
+
+    if (isNaN(pin.x)) {
+      return val;
+    }
+
+    var tb = {
+      x: pin.x,
+      y: pin.y
+    };
+    tb.x -= ct.ll[0];
+    tb.y -= ct.ll[1];
+    tb.x = adjust_lon(tb.x - Math.PI) + Math.PI;
+    var t = nadInterpolate(tb, ct);
+
+    if (inverse) {
+      if (isNaN(t.x)) {
+        return val;
+      }
+
+      t.x = tb.x - t.x;
+      t.y = tb.y - t.y;
+      var i = 9,
+          tol = 1e-12;
+      var dif, del;
+
+      do {
+        del = nadInterpolate(t, ct);
+
+        if (isNaN(del.x)) {
+          console.log("Inverse grid shift iteration failed, presumably at grid edge.  Using first approximation.");
+          break;
+        }
+
+        dif = {
+          x: tb.x - (del.x + t.x),
+          y: tb.y - (del.y + t.y)
+        };
+        t.x += dif.x;
+        t.y += dif.y;
+      } while (i-- && Math.abs(dif.x) > tol && Math.abs(dif.y) > tol);
+
+      if (i < 0) {
+        console.log("Inverse grid shift iterator failed to converge.");
+        return val;
+      }
+
+      val.x = adjust_lon(t.x + ct.ll[0]);
+      val.y = t.y + ct.ll[1];
+    } else {
+      if (!isNaN(t.x)) {
+        val.x = pin.x + t.x;
+        val.y = pin.y + t.y;
+      }
+    }
+
+    return val;
+  }
+
+  function nadInterpolate(pin, ct) {
+    var t = {
+      x: pin.x / ct.del[0],
+      y: pin.y / ct.del[1]
+    };
+    var indx = {
+      x: Math.floor(t.x),
+      y: Math.floor(t.y)
+    };
+    var frct = {
+      x: t.x - 1.0 * indx.x,
+      y: t.y - 1.0 * indx.y
+    };
+    var val = {
+      x: Number.NaN,
+      y: Number.NaN
+    };
+    var inx;
+
+    if (indx.x < 0 || indx.x >= ct.lim[0]) {
+      return val;
+    }
+
+    if (indx.y < 0 || indx.y >= ct.lim[1]) {
+      return val;
+    }
+
+    inx = indx.y * ct.lim[0] + indx.x;
+    var f00 = {
+      x: ct.cvs[inx][0],
+      y: ct.cvs[inx][1]
+    };
+    inx++;
+    var f10 = {
+      x: ct.cvs[inx][0],
+      y: ct.cvs[inx][1]
+    };
+    inx += ct.lim[0];
+    var f11 = {
+      x: ct.cvs[inx][0],
+      y: ct.cvs[inx][1]
+    };
+    inx--;
+    var f01 = {
+      x: ct.cvs[inx][0],
+      y: ct.cvs[inx][1]
+    };
+    var m11 = frct.x * frct.y,
+        m10 = frct.x * (1.0 - frct.y),
+        m00 = (1.0 - frct.x) * (1.0 - frct.y),
+        m01 = (1.0 - frct.x) * frct.y;
+    val.x = m00 * f00.x + m10 * f10.x + m01 * f01.x + m11 * f11.x;
+    val.y = m00 * f00.y + m10 * f10.y + m01 * f01.y + m11 * f11.y;
+    return val;
   }
 
   function adjust_axis (crs, denorm, point) {
@@ -3046,10 +3447,19 @@
 
       switch (crs.axis[i]) {
         case 'e':
-        case 'w':
-        case 'n':
-        case 's':
           out[t] = v;
+          break;
+
+        case 'w':
+          out[t] = -v;
+          break;
+
+        case 'n':
+          out[t] = v;
+          break;
+
+        case 's':
+          out[t] = -v;
           break;
 
         case 'u':
@@ -3164,7 +3574,12 @@
     } // Convert datums if needed, and if possible.
 
 
-    point = datum_transform(source.datum, dest.datum, point); // Adjust for the prime meridian if necessary
+    point = datum_transform(source.datum, dest.datum, point);
+
+    if (!point) {
+      return;
+    } // Adjust for the prime meridian if necessary
+
 
     if (dest.from_greenwich) {
       point = {
@@ -4273,7 +4688,7 @@
     p.y = lat;
     return p;
   }
-  var names$3 = ["Transverse_Mercator", "Transverse Mercator", "tmerc"];
+  var names$3 = ["Fast_Transverse_Mercator", "Fast Transverse Mercator"];
   var tmerc = {
     init: init$2,
     forward: forward$2,
@@ -4376,8 +4791,15 @@
 
   // Heavily based on this etmerc projection implementation
   function init$3() {
-    if (this.es === undefined || this.es <= 0) {
-      throw new Error('incorrect elliptical usage');
+    if (!this.approx && (isNaN(this.es) || this.es <= 0)) {
+      throw new Error('Incorrect elliptical usage. Try using the +approx option in the proj string, or PROJECTION["Fast_Transverse_Mercator"] in the WKT.');
+    }
+
+    if (this.approx) {
+      // When '+approx' is set, use tmerc instead
+      tmerc.init.apply(this);
+      this.forward = tmerc.forward;
+      this.inverse = tmerc.inverse;
     }
 
     this.x0 = this.x0 !== undefined ? this.x0 : 0;
@@ -4488,7 +4910,7 @@
     p.y = lat;
     return p;
   }
-  var names$4 = ["Extended_Transverse_Mercator", "Extended Transverse Mercator", "etmerc"];
+  var names$4 = ["Extended_Transverse_Mercator", "Extended Transverse Mercator", "etmerc", "Transverse_Mercator", "Transverse Mercator", "tmerc"];
   var etmerc = {
     init: init$3,
     forward: forward$3,
@@ -7774,6 +8196,203 @@
     names: names$u
   };
 
+  var mode = {
+    N_POLE: 0,
+    S_POLE: 1,
+    EQUIT: 2,
+    OBLIQ: 3
+  };
+  var params = {
+    h: {
+      def: 100000,
+      num: true
+    },
+    // default is Karman line, no default in PROJ.7
+    azi: {
+      def: 0,
+      num: true,
+      degrees: true
+    },
+    // default is North
+    tilt: {
+      def: 0,
+      num: true,
+      degrees: true
+    },
+    // default is Nadir
+    long0: {
+      def: 0,
+      num: true
+    },
+    // default is Greenwich, conversion to rad is automatic
+    lat0: {
+      def: 0,
+      num: true
+    } // default is Equator, conversion to rad is automatic
+
+  };
+  function init$u() {
+    Object.keys(params).forEach(function (p) {
+      if (typeof this[p] === "undefined") {
+        this[p] = params[p].def;
+      } else if (params[p].num && isNaN(this[p])) {
+        throw new Error("Invalid parameter value, must be numeric " + p + " = " + this[p]);
+      } else if (params[p].num) {
+        this[p] = parseFloat(this[p]);
+      }
+
+      if (params[p].degrees) {
+        this[p] = this[p] * D2R;
+      }
+    }.bind(this));
+
+    if (Math.abs(Math.abs(this.lat0) - HALF_PI) < EPSLN) {
+      this.mode = this.lat0 < 0 ? mode.S_POLE : mode.N_POLE;
+    } else if (Math.abs(this.lat0) < EPSLN) {
+      this.mode = mode.EQUIT;
+    } else {
+      this.mode = mode.OBLIQ;
+      this.sinph0 = Math.sin(this.lat0);
+      this.cosph0 = Math.cos(this.lat0);
+    }
+
+    this.pn1 = this.h / this.a; // Normalize relative to the Earth's radius
+
+    if (this.pn1 <= 0 || this.pn1 > 1e10) {
+      throw new Error("Invalid height");
+    }
+
+    this.p = 1 + this.pn1;
+    this.rp = 1 / this.p;
+    this.h1 = 1 / this.pn1;
+    this.pfact = (this.p + 1) * this.h1;
+    this.es = 0;
+    var omega = this.tilt;
+    var gamma = this.azi;
+    this.cg = Math.cos(gamma);
+    this.sg = Math.sin(gamma);
+    this.cw = Math.cos(omega);
+    this.sw = Math.sin(omega);
+  }
+  function forward$t(p) {
+    p.x -= this.long0;
+    var sinphi = Math.sin(p.y);
+    var cosphi = Math.cos(p.y);
+    var coslam = Math.cos(p.x);
+    var x, y;
+
+    switch (this.mode) {
+      case mode.OBLIQ:
+        y = this.sinph0 * sinphi + this.cosph0 * cosphi * coslam;
+        break;
+
+      case mode.EQUIT:
+        y = cosphi * coslam;
+        break;
+
+      case mode.S_POLE:
+        y = -sinphi;
+        break;
+
+      case mode.N_POLE:
+        y = sinphi;
+        break;
+    }
+
+    y = this.pn1 / (this.p - y);
+    x = y * cosphi * Math.sin(p.x);
+
+    switch (this.mode) {
+      case mode.OBLIQ:
+        y *= this.cosph0 * sinphi - this.sinph0 * cosphi * coslam;
+        break;
+
+      case mode.EQUIT:
+        y *= sinphi;
+        break;
+
+      case mode.N_POLE:
+        y *= -(cosphi * coslam);
+        break;
+
+      case mode.S_POLE:
+        y *= cosphi * coslam;
+        break;
+    } // Tilt 
+
+
+    var yt, ba;
+    yt = y * this.cg + x * this.sg;
+    ba = 1 / (yt * this.sw * this.h1 + this.cw);
+    x = (x * this.cg - y * this.sg) * this.cw * ba;
+    y = yt * ba;
+    p.x = x * this.a;
+    p.y = y * this.a;
+    return p;
+  }
+  function inverse$t(p) {
+    p.x /= this.a;
+    p.y /= this.a;
+    var r = {
+      x: p.x,
+      y: p.y
+    }; // Un-Tilt
+
+    var bm, bq, yt;
+    yt = 1 / (this.pn1 - p.y * this.sw);
+    bm = this.pn1 * p.x * yt;
+    bq = this.pn1 * p.y * this.cw * yt;
+    p.x = bm * this.cg + bq * this.sg;
+    p.y = bq * this.cg - bm * this.sg;
+    var rh = hypot(p.x, p.y);
+
+    if (Math.abs(rh) < EPSLN) {
+      r.x = 0;
+      r.y = p.y;
+    } else {
+      var cosz, sinz;
+      sinz = 1 - rh * rh * this.pfact;
+      sinz = (this.p - Math.sqrt(sinz)) / (this.pn1 / rh + rh / this.pn1);
+      cosz = Math.sqrt(1 - sinz * sinz);
+
+      switch (this.mode) {
+        case mode.OBLIQ:
+          r.y = Math.asin(cosz * this.sinph0 + p.y * sinz * this.cosph0 / rh);
+          p.y = (cosz - this.sinph0 * Math.sin(r.y)) * rh;
+          p.x *= sinz * this.cosph0;
+          break;
+
+        case mode.EQUIT:
+          r.y = Math.asin(p.y * sinz / rh);
+          p.y = cosz * rh;
+          p.x *= sinz;
+          break;
+
+        case mode.N_POLE:
+          r.y = Math.asin(cosz);
+          p.y = -p.y;
+          break;
+
+        case mode.S_POLE:
+          r.y = -Math.asin(cosz);
+          break;
+      }
+
+      r.x = Math.atan2(p.x, p.y);
+    }
+
+    p.x = r.x + this.long0;
+    p.y = r.y;
+    return p;
+  }
+  var names$v = ["Tilted_Perspective", "tpers"];
+  var tpers = {
+    init: init$u,
+    forward: forward$t,
+    inverse: inverse$t,
+    names: names$v
+  };
+
   function includedProjections (proj4) {
     proj4.Proj.projections.add(tmerc);
     proj4.Proj.projections.add(etmerc);
@@ -7802,6 +8421,7 @@
     proj4.Proj.projections.add(qsc);
     proj4.Proj.projections.add(robin);
     proj4.Proj.projections.add(geocent);
+    proj4.Proj.projections.add(tpers);
   }
 
   proj4.defaultDatum = 'WGS84'; //default datum
@@ -7811,6 +8431,7 @@
   proj4.Point = Point;
   proj4.toPoint = common;
   proj4.defs = defs;
+  proj4.nadgrid = nadgrid;
   proj4.transform = transform;
   proj4.mgrs = mgrs;
   proj4.version = '__VERSION__';
@@ -8598,19 +9219,21 @@
    * @param {string} gr - the grid reference.
    * @param {string} toProjection - two letter code specifying the required output CRS.
    * @param {string} shape - string specifying the requested output shape type.
+   * @param {number} scale - number between 0 and 1 to scale the output object.
    * @returns {object} - a GeoJson path geometry object.
    * @todo Extend to return all symbol types
    */
 
 
-  function getGjson(gr, toProjection, shape) {
+  function getGjson(gr, toProjection, shape, scale) {
+    var size = scale ? scale : 1;
     var grType = checkGr(gr);
     var km100 = km100s[grType.prefix];
     var centroid = getCentroid(gr, km100.proj).centroid;
-    var xmin = centroid[0] - grType.precision / 2;
-    var xmax = centroid[0] + grType.precision / 2;
-    var ymin = centroid[1] - grType.precision / 2;
-    var ymax = centroid[1] + grType.precision / 2;
+    var xmin = centroid[0] - grType.precision / 2 * size;
+    var xmax = centroid[0] + grType.precision / 2 * size;
+    var ymin = centroid[1] - grType.precision / 2 * size;
+    var ymax = centroid[1] + grType.precision / 2 * size;
     var xmid = xmin + (xmax - xmin) / 2;
     var ymid = ymin + (ymax - ymin) / 2;
     var coords;
@@ -8625,7 +9248,7 @@
     } else if (shape === "diamond") {
       coords = [[convertCoords(km100.proj, toProjection, xmid, ymin), convertCoords(km100.proj, toProjection, xmax, ymid), convertCoords(km100.proj, toProjection, xmid, ymax), convertCoords(km100.proj, toProjection, xmin, ymid), convertCoords(km100.proj, toProjection, xmid, ymin)]];
     } else if (shape === "circle") {
-      var rad = grType.precision / 2;
+      var rad = grType.precision / 2 * size;
       coords = [[]];
 
       for (var deg = 0; deg <= 360; deg += 15) {
@@ -8768,7 +9391,42 @@
           }).attr("data-caption", function (d) {
             return getCaption(d);
           });
-          squares.exit().transition().ease(d3.easeCubic).duration(500).attr("width", 0).attr("height", 0).attr("transform", "translate(0,0)").remove(); // up triangles
+          squares.exit().transition().ease(d3.easeCubic).duration(500).attr("width", 0).attr("height", 0).attr("transform", "translate(0,0)").remove(); // diamonds
+
+          var recDiamonds;
+
+          if (data.shape && data.shape === 'diamond') {
+            recDiamonds = data.records;
+          } else {
+            recDiamonds = data.records.filter(function (d) {
+              return d.shape && d.shape === 'diamond';
+            });
+          }
+
+          var diamonds = svg.selectAll('.dotDiamond').data(recDiamonds, function (d) {
+            return d.gr;
+          });
+          diamonds.enter().append("path").classed('dotDiamond dot', true).attr("d", d3.symbol().type(d3.symbolSquare).size(0)).attr("opacity", function (d) {
+            return d.opacity ? d.opacity : data.opacity;
+          }).style("fill", function (d) {
+            return d.colour ? d.colour : data.colour;
+          }).attr("transform", function (d) {
+            var x = transform(getCentroid(d.gr, proj).centroid)[0];
+            var y = transform(getCentroid(d.gr, proj).centroid)[1]; // TODO - only do this rotation for output projection gb
+
+            if (checkGr(d.gr).projection === 'ir') {
+              return "translate(".concat(x, ",").concat(y, ") rotate(50)");
+            } else {
+              return "translate(".concat(x, ",").concat(y, ") rotate(45)");
+            }
+          }).merge(diamonds).transition().ease(d3.easeCubic).duration(500).attr("d", d3.symbol().type(d3.symbolSquare).size(radiusPixels * radiusPixels * 2)).attr("opacity", function (d) {
+            return d.opacity ? d.opacity : data.opacity;
+          }).style("fill", function (d) {
+            return d.colour ? d.colour : data.colour;
+          }).attr("data-caption", function (d) {
+            return getCaption(d);
+          });
+          diamonds.exit().transition().ease(d3.easeCubic).duration(500).attr("d", d3.symbol().type(d3.symbolSquare).size(0)).remove(); // up triangles
 
           var recTriangles;
 
@@ -8878,8 +9536,17 @@
     var lineHeight = 20;
     var swatchPixels = lineHeight / 3;
     var gLegend = svg.append('g').attr('id', 'legend');
-    gLegend.append('text').attr('x', 0).attr('y', lineHeight).attr('font-weight', 'bold').text(legendData.title);
-    legendData.lines.forEach(function (l, i) {
+    var iOffset;
+
+    if (legendData.title) {
+      gLegend.append('text').attr('x', 0).attr('y', lineHeight).attr('font-weight', 'bold').text(legendData.title);
+      iOffset = 0;
+    } else {
+      iOffset = 1;
+    }
+
+    legendData.lines.forEach(function (l, iLine) {
+      var i = iLine - iOffset;
       var shape = l.shape ? l.shape : legendData.shape;
       var size = l.size ? l.size : legendData.size;
       var opacity = l.opacity ? l.opacity : legendData.opacity;
@@ -8893,17 +9560,20 @@
         dot = gLegend.append('circle').attr("r", swatchPixels * size).attr("cx", swatchPixels * 1).attr("cy", lineHeight * (i + 2.5) - swatchPixels);
         gLegend.append('circle').attr("r", swatchPixels * size * 0.5).attr("cx", swatchPixels * 1).attr("cy", lineHeight * (i + 2.5) - swatchPixels).style('fill', colour2).style('opacity', opacity);
       } else if (shape === 'square') {
-        dot = gLegend.append('rect').attr("width", swatchPixels * 2).attr("height", swatchPixels * 2).attr("x", 0).attr("y", lineHeight * (i + 2.5) - 2 * swatchPixels);
+        dot = gLegend.append('rect').attr("width", swatchPixels * 2 * size).attr("height", swatchPixels * 2 * size).attr("x", swatchPixels * (1 - size)).attr("y", lineHeight * (i + 2.5) - 2 * swatchPixels + swatchPixels * (1 - size));
+      } else if (shape === 'diamond') {
+        dot = gLegend.append('path').attr("d", d3.symbol().type(d3.symbolSquare).size(swatchPixels * swatchPixels * 2 * size)).attr("transform", "translate(".concat(swatchPixels * 1, ",").concat(lineHeight * (i + 2.5) - swatchPixels, ") rotate(45)"));
       } else if (shape === 'triangle-up') {
-        dot = gLegend.append('path').attr("d", d3.symbol().type(d3.symbolTriangle).size(swatchPixels * swatchPixels * 1.7)).attr("transform", "translate(".concat(swatchPixels * 1, ",").concat(lineHeight * (i + 2.5) - swatchPixels, ")"));
+        dot = gLegend.append('path').attr("d", d3.symbol().type(d3.symbolTriangle).size(swatchPixels * swatchPixels * 1.7 * size)).attr("transform", "translate(".concat(swatchPixels * 1, ",").concat(lineHeight * (i + 2.5) - swatchPixels, ")"));
       } else if (shape === 'triangle-down') {
-        dot = gLegend.append('path').attr("d", d3.symbol().type(d3.symbolTriangle).size(swatchPixels * swatchPixels * 1.7)).attr("transform", "translate(".concat(swatchPixels * 1, ",").concat(lineHeight * (i + 2.5) - swatchPixels, ") rotate(180)"));
+        dot = gLegend.append('path').attr("d", d3.symbol().type(d3.symbolTriangle).size(swatchPixels * swatchPixels * 1.7 * size)).attr("transform", "translate(".concat(swatchPixels * 1, ",").concat(lineHeight * (i + 2.5) - swatchPixels, ") rotate(180)"));
       }
 
       dot.style('fill', colour).style('opacity', opacity);
     });
-    legendData.lines.forEach(function (l, i) {
-      gLegend.append('text').attr('x', swatchPixels * 4).attr('y', lineHeight * (i + 2.5)).text(l.text);
+    legendData.lines.forEach(function (l, iLine) {
+      var i = iLine - iOffset;
+      gLegend.append('text').attr('x', swatchPixels * 2.7).attr('y', lineHeight * (i + 2.5) - lineHeight / 20).text(l.text);
     });
     gLegend.attr("transform", "translate(".concat(legendX, ",").concat(legendY, ") scale(").concat(legendScale, ", ").concat(legendScale, ")"));
   }
@@ -9106,8 +9776,11 @@
     }
 
     function drawMapDots() {
+      svg.select('#legend').remove(); // Remove here to avoid legend resizing if inset options changed.
+
       drawDots(svg, captionId, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj).then(function (data) {
-        svg.select('#legend').remove();
+        svg.select('#legend').remove(); // Also must remove here to avoid some bad effects. 
+
         legendOpts.accessorData = data.legend;
 
         if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
@@ -9512,7 +10185,8 @@
         } else {
           if (!d.geometry) {
             var shape = d.shape ? d.shape : data.shape;
-            d.geometry = getGjson(d.gr, 'wg', shape);
+            var size = d.size ? d.size : data.size;
+            d.geometry = getGjson(d.gr, 'wg', shape, size);
           }
 
           return true;
@@ -9956,7 +10630,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.6.0";
+  var version = "0.7.0";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
@@ -9978,7 +10652,7 @@
   	url: "https://github.com/BiologicalRecordsCentre/brc-atlas.git"
   };
   var dependencies = {
-  	"brc-atlas-bigr": "^2.0.1",
+  	"brc-atlas-bigr": "^2.1.0",
   	d3: "^5.16.0",
   	leaflet: "^1.7.1",
   	"leaflet-control-custom": "^1.0.0",

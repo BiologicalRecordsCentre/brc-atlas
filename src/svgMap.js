@@ -222,9 +222,10 @@ export function svgMap({
   }
 
   function drawMapDots() {
+    svg.select('#legend').remove() // Remove here to avoid legend resizing if inset options changed.
     drawDots(svg, captionId, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj)
       .then (data => {
-        svg.select('#legend').remove()
+        svg.select('#legend').remove() // Also must remove here to avoid some bad effects. 
         legendOpts.accessorData = data.legend
         if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
           svgLegend(svg, legendOpts)
