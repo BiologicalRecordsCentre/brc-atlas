@@ -9272,6 +9272,7 @@
     svg.selectAll('.dotCircle').remove();
     svg.selectAll('.dotSquare').remove();
     svg.selectAll('.dotTriangle').remove();
+    svg.selectAll('.dotDiamond').remove();
   }
   function drawDots(svg, captionId, transform, accessFunction, taxonIdentifier, proj) {
     function getCaption(d) {
@@ -9426,7 +9427,7 @@
           }).attr("data-caption", function (d) {
             return getCaption(d);
           });
-          diamonds.exit().transition().ease(d3.easeCubic).duration(500).attr("d", d3.symbol().type(d3.symbolSquare).size(0)).remove(); // up triangles
+          diamonds.exit().transition().ease(d3.easeCubic).duration(500).attr("d", d3.symbol().type(d3.symbolSquare).size(0)).remove(); // triangles
 
           var recTriangles;
 
@@ -10630,7 +10631,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.7.0";
+  var version = "0.7.1";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";

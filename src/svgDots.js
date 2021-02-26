@@ -6,6 +6,7 @@ export function removeDots(svg) {
   svg.selectAll('.dotCircle').remove()
   svg.selectAll('.dotSquare').remove()
   svg.selectAll('.dotTriangle').remove()
+  svg.selectAll('.dotDiamond').remove()
 }
 
 export function drawDots(svg, captionId, transform, accessFunction, taxonIdentifier, proj) {
@@ -142,7 +143,7 @@ export function drawDots(svg, captionId, transform, accessFunction, taxonIdentif
         diamonds.enter()
           .append("path")
           .classed('dotDiamond dot', true)
-          .attr("d", d3.symbol().type(d3.symbolSquare ).size(0))
+          .attr("d", d3.symbol().type(d3.symbolSquare).size(0))
           .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
           .attr("transform", d => {
@@ -159,7 +160,7 @@ export function drawDots(svg, captionId, transform, accessFunction, taxonIdentif
           .transition()  
             .ease(d3.easeCubic)   
             .duration(500)
-          .attr("d", d3.symbol().type(d3.symbolSquare ).size(radiusPixels * radiusPixels * 2))
+          .attr("d", d3.symbol().type(d3.symbolSquare).size(radiusPixels * radiusPixels * 2))
           .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
           .attr("data-caption", d => getCaption(d))
@@ -167,10 +168,10 @@ export function drawDots(svg, captionId, transform, accessFunction, taxonIdentif
           .transition()
             .ease(d3.easeCubic)
             .duration(500)
-          .attr("d", d3.symbol().type(d3.symbolSquare ).size(0))
+          .attr("d", d3.symbol().type(d3.symbolSquare).size(0))
           .remove()
 
-        // up triangles
+        // triangles
         let recTriangles
         if (data.shape && data.shape.startsWith('triangle')) {
           recTriangles = data.records
