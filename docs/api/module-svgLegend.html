@@ -390,6 +390,52 @@
 
         <tr>
             
+                <td class="name"><code>color</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">a colour for the legend symbols which can be hex format, e.g. #FFA500, RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red. (Can be overriden by individual legend lines.)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>shape</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">describes symbol shapes for the legend.Valid values are: circle, square, diamond, triangle-up, triangle-down. (Can be overriden by individual legend lines.)</td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>size</code></td>
             
 
@@ -406,30 +452,7 @@
 
             
 
-            <td class="description last">a number between 0 and 1.This is one factor taken into account to calculate the size of the legend dots.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>precision</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">should match the precision (in metres) of the map dot, e.g. 2000 for tetrads.This is one factor taken into account to calculate the size of the legend dots.</td>
+            <td class="description last">a number between 0 and 1.This can be used to scale the size of the legend dots. (Can be overriden by individual legend lines.)</td>
         </tr>
 
     
@@ -452,7 +475,53 @@
 
             
 
-            <td class="description last">a number between 0 and 1 indicating the opacity of the legend symbol. 0 is completelytransparent and 1 is completely opaque.</td>
+            <td class="description last">a number between 0 and 1 indicating the opacity of the legend symbols for the whole legend. 0 is completelytransparent and 1 is completely opaque. (Can be overriden by individual legend lines.)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>padding</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">a number that indicates the padding, in pixels, that should be used between the elementsof a legend line (e.g. the symbol and the text).</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>raligned</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;boolean></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">an array of boolean values to indicate whether text elements in a tabulated legendlines should be right-aligned.</td>
         </tr>
 
     
@@ -595,7 +664,7 @@
 
             
 
-            <td class="description last">a colour for the legend symbol which can be hex format, e.g. #FFA500, RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.</td>
+            <td class="description last">a colour for the legend symbol which can be hex format, e.g. #FFA500, RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red. Overrides any value set for the whole legend.</td>
         </tr>
 
     
@@ -618,7 +687,76 @@
 
             
 
-            <td class="description last">describes symbol shape for the legend line.Valid values are: circle, square, diamond, triangle-up, triangle-down.</td>
+            <td class="description last">describes symbol shape for the legend line.Valid values are: circle, square, diamond, triangle-up, triangle-down. Overrides any value set for the whole legend.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>size</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">a number between 0 and 1.This can be used to scale the size of the legend dots. Overrides any value set for the whole legend.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>opacity</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">a number between 0 and 1 indicating the opacity of the legend symbol. 0 is completelytransparent and 1 is completely opaque. Overrides any value set for the whole legend.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>underline</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">If set to true, indicates that the legend line is to be underlined.Valid values are: circle, square, diamond, triangle-up, triangle-down.</td>
         </tr>
 
     
@@ -632,6 +770,9 @@
             
                 
 <span class="param-type">string</span>
+|
+
+<span class="param-type">Array.&lt;string></span>
 
 
             
@@ -641,7 +782,7 @@
 
             
 
-            <td class="description last">specifies the text for the legend line.</td>
+            <td class="description last">Specifies the text for the legend line either as a single text string or anarray of strings for a tabulated legend layout. For tabulated legend layout, one of the strings can be setto the special value of 'symbol' to indicate the position where the legend symbol should be generated in thetabualted layout. In a tabulated legend layout, the various array elements in each line are aligned with thosein the other lines to form columns.</td>
         </tr>
 
     
@@ -680,7 +821,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgLegend.js.html">svgLegend.js</a>, <a href="svgLegend.js.html#line29">line 29</a>
+        <a href="svgLegend.js.html">svgLegend.js</a>, <a href="svgLegend.js.html#line35">line 35</a>
     </li></ul></dd>
     
 
@@ -716,7 +857,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Fri Feb 26 2021 11:20:59 GMT+0000 (Greenwich Mean Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Thu Apr 08 2021 12:57:39 GMT+0100 (British Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

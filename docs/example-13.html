@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>BRC Atlas Library legend test</title>
+</head>
+<body>
+  <div class="content">
+    <h1>Using the BRC Atlas Library</h1>
+    <h2>Legend examples</h2>
+
+    <p>
+      Explore the source of this page to see how it works.
+    </p>
+    
+    <div id="map"></div>
+
+    <button onclick="setLegend(legendOptsStandard)">Standard legend</button>
+    <button onclick="setLegend(legendOptsTabulated)">Tabulated legend</button>
+
+    <!--JS and CSS required for highlighting inline example code-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/a11y-light.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <!--Page CSS-->
+    <link rel="stylesheet" href="example.css" />
+
+    <!--D3 JS required exernal dependency of BRC Atlas library-->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+
+    <!--BRC Atlas library JS and CSS-->
+    <script src="./../dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="./../dist/brcatlas.umd.css">
+    <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
+
+    <script>
+      var map = brcatlas.svgMap({
+        selector: "#map",
+        mapTypesKey: 'Standard hectad',
+        height: 700
+      })
+      map.setIdentfier('./example-hectads-0.csv')
+      map.redrawMap()
+
+      const legendOptsStandard = {
+        display: true,
+        scale: 0.8,
+        x: 10,
+        y: 10,
+        data: {
+          title: 'Simple legend example',
+          size: 1,
+          opacity: 0.6,
+          lines: [
+            {
+              colour: 'magenta',
+              shape: 'triangle-up',
+              text: 'Araneus diadematus only'
+            },
+            {
+              colour: 'blue',
+              shape: 'triangle-down',
+              text: 'Araneus quadratus only',
+            },
+            {
+              colour: 'green',
+              shape: 'square',
+              text: 'Both species',
+            },
+          ]
+        }
+      }
+
+      const legendOptsTabulated= {
+        display: true,
+        scale: 0.8,
+        x: 10,
+        y: 0,
+        data: {
+          title: 'Tabulated legend example',
+          raligned: [false, false, true, true],
+          padding: 8,
+          lines: [
+            {
+              text: ['Native', '', 'GB', 'IR'],
+              underline: true,
+            },
+            {
+              colour: 'blue',
+              shape: 'circle',
+              text: ['2000-19', 'symbol', '1234', '12'],
+              opacity: 1
+            },
+            {
+              colour: 'blue',
+              shape: 'circle',
+              text: ['1987-89', 'symbol', '234', '12'],
+              opacity: 0.8
+            },
+            {
+              colour: 'blue',
+              shape: 'circle',
+              text: ['1970-86', 'symbol', '234', '0'],
+              opacity: 0.6
+            },
+            {
+              colour: 'blue',
+              shape: 'circle',
+              text: ['1930-69', 'symbol', '6789', 0],
+              opacity: 0.4
+            },
+            {
+              colour: 'blue',
+              shape: 'circle',
+              text: ['pre-1930', 'symbol', '1234', '12'],
+              opacity: 0.2
+            },
+            {
+              text: [],
+            },
+            {
+              colour: 'red',
+              shape: 'circle',
+              text: ['2000-19', 'symbol', '1234', '12'],
+              opacity: 1
+            },
+            {
+              colour: 'red',
+              shape: 'circle',
+              text: ['1987-89', 'symbol', '234', '12'],
+              opacity: 0.8
+            },
+            {
+              colour: 'red',
+              shape: 'circle',
+              text: ['1970-86', 'symbol', '234', '0'],
+              opacity: 0.6
+            },
+            {
+              colour: 'red',
+              shape: 'circle',
+              text: ['1930-69', 'symbol', '6789', 0],
+              opacity: 0.4
+            },
+            {
+              colour: 'red',
+              shape: 'circle',
+              text: ['pre-1930', 'symbol', '1234', '12'],
+              opacity: 0.2
+            },
+          ]
+        }
+      }
+
+      function setLegend(opts) {
+        map.setLegendOpts(opts)
+        map.redrawMap()
+      }
+      
+    </script>
+  </div>
+</body>
+</html>

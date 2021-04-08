@@ -9511,31 +9511,52 @@
   /**
    * @typedef {Object} legendDefintion
    * @property {string} title - a title caption for the legend.
+   * @property {string} color - a colour for the legend symbols which can be hex format, e.g. #FFA500, 
+   * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red. (Can be overriden by individual legend lines.)
+   * @property {string} shape - describes symbol shapes for the legend.
+   * Valid values are: circle, square, diamond, triangle-up, triangle-down. (Can be overriden by individual legend lines.)
    * @property {number} size - a number between 0 and 1.
-   * This is one factor taken into account to calculate the size of the legend dots.
-   * @property {number} precision - should match the precision (in metres) of the map dot, e.g. 2000 for tetrads.
-   * This is one factor taken into account to calculate the size of the legend dots.
-   * @property {number} opacity - a number between 0 and 1 indicating the opacity of the legend symbol. 0 is completely
-   * transparent and 1 is completely opaque.
-   * @property {Array.<legendLine>} lines - an arry of objects representing lines in a legend.
+   * This can be used to scale the size of the legend dots. (Can be overriden by individual legend lines.)
+   * @property {number} opacity - a number between 0 and 1 indicating the opacity of the legend symbols for the whole legend. 0 is completely
+   * transparent and 1 is completely opaque. (Can be overriden by individual legend lines.)
+   * @property {number} padding - a number that indicates the padding, in pixels, that should be used between the elements
+   * of a legend line (e.g. the symbol and the text).
+   * @property {boolean[]} raligned - an array of boolean values to indicate whether text elements in a tabulated legend
+   * lines should be right-aligned.
+   * @property {legendLine[]} lines - an arry of objects representing lines in a legend.
    */
 
   /**
    * @typedef {Object} legendLine
    * @property {string} color - a colour for the legend symbol which can be hex format, e.g. #FFA500, 
-   * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
+   * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red. Overrides any value set for the whole legend.
    * @property {string} shape - describes symbol shape for the legend line.
+   * Valid values are: circle, square, diamond, triangle-up, triangle-down. Overrides any value set for the whole legend.
+   * @property {number} size - a number between 0 and 1.
+   * This can be used to scale the size of the legend dots. Overrides any value set for the whole legend.
+   * @property {number} opacity - a number between 0 and 1 indicating the opacity of the legend symbol. 0 is completely
+   * transparent and 1 is completely opaque. Overrides any value set for the whole legend.
+   * @property {boolean} underline - If set to true, indicates that the legend line is to be underlined.
    * Valid values are: circle, square, diamond, triangle-up, triangle-down.
-   * @property {string} text - specifies the text for the legend line.
+   * @property {string|string[]} text - Specifies the text for the legend line either as a single text string or an
+   * array of strings for a tabulated legend layout. For tabulated legend layout, one of the strings can be set
+   * to the special value of 'symbol' to indicate the position where the legend symbol should be generated in the
+   * tabualted layout. In a tabulated legend layout, the various array elements in each line are aligned with those
+   * in the other lines to form columns.
    */
 
   function svgLegend(svg, legendOpts) {
     var legendData = legendOpts.data ? legendOpts.data : legendOpts.accessorData;
-    var legendX = legendOpts.x;
-    var legendY = legendOpts.y;
-    var legendScale = legendOpts.scale;
+    var legendX = legendOpts.x ? legendOpts.x : 0;
+    var legendY = legendOpts.y ? legendOpts.x : 0;
+    var legendScale = legendOpts.scale ? legendOpts.scale : 1;
     var lineHeight = 20;
     var swatchPixels = lineHeight / 3;
+    legendData.padding = legendData.padding ? legendData.padding : lineHeight / 3;
+    legendData.raligned = legendData.raligned ? legendData.raligned : [];
+    legendData.size = legendData.size ? legendData.size : 1;
+    legendData.opacity = legendData.opacity ? legendData.opacity : 1;
+    legendData.shape = legendData.shape ? legendData.shape : 'circle';
     var gLegend = svg.append('g').attr('id', 'legend');
     var iOffset;
 
@@ -9544,10 +9565,69 @@
       iOffset = 0;
     } else {
       iOffset = 1;
-    }
+    } // If legend line text is not an array, turn into one
+    // Also add textWidths array
+
+
+    legendData.lines.forEach(function (l) {
+      if (!Array.isArray(l.text)) {
+        l.text = ['symbol', String(l.text)];
+      } else {
+        // Coerce all text elements to strings
+        l.text = l.text.map(function (t) {
+          return String(t);
+        });
+      }
+
+      l.textWidth = [];
+    }); // Set nCells to the max number of elements in line text arrays
+
+    var nCells = legendData.lines.reduce(function (a, l) {
+      return l.text.length > a ? l.text.length : a;
+    }, 0);
+    var maxWidths = Array(nCells).fill(0); // Calculate the max width of each legend table column.
+    // Also add the calculated width of each text item to the legend line
+    // array for use in right justifying if required.
+
+    var _loop = function _loop(i) {
+      legendData.lines.forEach(function (l) {
+        if (l.text[i]) {
+          var iLength;
+
+          if (l.text[i] === 'symbol') {
+            iLength = swatchPixels * 2;
+          } else {
+            // Generate a temporary SVG text object in order to get width
+            var t = gLegend.append('text').text(l.text[i]);
+            iLength = t.node().getBBox().width;
+            t.remove();
+            l.textWidth[i] = iLength;
+          }
+
+          maxWidths[i] = maxWidths[i] > iLength ? maxWidths[i] : iLength;
+        }
+      });
+    };
+
+    for (var i = 0; i < nCells; i++) {
+      _loop(i);
+    } // Set offsets
+
+
+    var offsets = Array(nCells);
+
+    for (var _i = 0; _i < offsets.length; _i++) {
+      offsets[_i] = 0;
+
+      for (var j = 1; j <= _i; j++) {
+        offsets[_i] = offsets[_i] + maxWidths[j - 1] + legendData.padding;
+      }
+    } //console.log('max text lengths', maxWidths)
+    //console.log('offsets', offsets)
+
 
     legendData.lines.forEach(function (l, iLine) {
-      var i = iLine - iOffset;
+      var y = iLine - iOffset;
       var shape = l.shape ? l.shape : legendData.shape;
       var size = l.size ? l.size : legendData.size;
       var opacity = l.opacity ? l.opacity : legendData.opacity;
@@ -9555,26 +9635,44 @@
       var colour2 = l.colour2 ? l.colour2 : legendData.colour2;
       var dot;
 
-      if (shape === 'circle') {
-        dot = gLegend.append('circle').attr("r", swatchPixels * size).attr("cx", swatchPixels * 1).attr("cy", lineHeight * (i + 2.5) - swatchPixels);
-      } else if (shape === 'bullseye') {
-        dot = gLegend.append('circle').attr("r", swatchPixels * size).attr("cx", swatchPixels * 1).attr("cy", lineHeight * (i + 2.5) - swatchPixels);
-        gLegend.append('circle').attr("r", swatchPixels * size * 0.5).attr("cx", swatchPixels * 1).attr("cy", lineHeight * (i + 2.5) - swatchPixels).style('fill', colour2).style('opacity', opacity);
-      } else if (shape === 'square') {
-        dot = gLegend.append('rect').attr("width", swatchPixels * 2 * size).attr("height", swatchPixels * 2 * size).attr("x", swatchPixels * (1 - size)).attr("y", lineHeight * (i + 2.5) - 2 * swatchPixels + swatchPixels * (1 - size));
-      } else if (shape === 'diamond') {
-        dot = gLegend.append('path').attr("d", d3.symbol().type(d3.symbolSquare).size(swatchPixels * swatchPixels * 2 * size)).attr("transform", "translate(".concat(swatchPixels * 1, ",").concat(lineHeight * (i + 2.5) - swatchPixels, ") rotate(45)"));
-      } else if (shape === 'triangle-up') {
-        dot = gLegend.append('path').attr("d", d3.symbol().type(d3.symbolTriangle).size(swatchPixels * swatchPixels * 1.7 * size)).attr("transform", "translate(".concat(swatchPixels * 1, ",").concat(lineHeight * (i + 2.5) - swatchPixels, ")"));
-      } else if (shape === 'triangle-down') {
-        dot = gLegend.append('path').attr("d", d3.symbol().type(d3.symbolTriangle).size(swatchPixels * swatchPixels * 1.7 * size)).attr("transform", "translate(".concat(swatchPixels * 1, ",").concat(lineHeight * (i + 2.5) - swatchPixels, ") rotate(180)"));
+      if (l.underline) {
+        gLegend.append('rect').attr("x", 0).attr("y", lineHeight * (y + 2.5)).attr("width", offsets[nCells - 1] + maxWidths[nCells - 1]).attr("height", 1).attr("style", "fill:black");
       }
 
-      dot.style('fill', colour).style('opacity', opacity);
-    });
-    legendData.lines.forEach(function (l, iLine) {
-      var i = iLine - iOffset;
-      gLegend.append('text').attr('x', swatchPixels * 2.7).attr('y', lineHeight * (i + 2.5) - lineHeight / 20).text(l.text);
+      for (var _i2 = 0; _i2 < nCells; _i2++) {
+        if (l.text[_i2]) {
+          if (l.text[_i2] === 'symbol') {
+            if (shape === 'circle') {
+              dot = gLegend.append('circle').attr("r", swatchPixels * size) //.attr("cx", swatchPixels * 1)
+              .attr("cx", offsets[_i2] + swatchPixels).attr("cy", lineHeight * (y + 2.5) - swatchPixels);
+            } else if (shape === 'bullseye') {
+              dot = gLegend.append('circle').attr("r", swatchPixels * size) //.attr("cx", swatchPixels * 1)
+              .attr("cx", offsets[_i2] + swatchPixels).attr("cy", lineHeight * (y + 2.5) - swatchPixels);
+              gLegend.append('circle').attr("r", swatchPixels * size * 0.5) //.attr("cx", swatchPixels * 1)
+              .attr("cx", offsets[_i2] + swatchPixels).attr("cy", lineHeight * (y + 2.5) - swatchPixels).style('fill', colour2).style('opacity', opacity);
+            } else if (shape === 'square') {
+              dot = gLegend.append('rect').attr("width", swatchPixels * 2 * size).attr("height", swatchPixels * 2 * size) //.attr("x", swatchPixels * (1 - size))
+              .attr("x", offsets[_i2] + swatchPixels * (1 - size)).attr("y", lineHeight * (y + 2.5) - 2 * swatchPixels + swatchPixels * (1 - size));
+            } else if (shape === 'diamond') {
+              dot = gLegend.append('path').attr("d", d3.symbol().type(d3.symbolSquare).size(swatchPixels * swatchPixels * 2 * size)) //.attr("transform", `translate(${swatchPixels * 1},${lineHeight * (y + 2.5) - swatchPixels}) rotate(45)`)
+              .attr("transform", "translate(".concat(offsets[_i2] + swatchPixels, ",").concat(lineHeight * (y + 2.5) - swatchPixels, ") rotate(45)"));
+            } else if (shape === 'triangle-up') {
+              dot = gLegend.append('path').attr("d", d3.symbol().type(d3.symbolTriangle).size(swatchPixels * swatchPixels * 1.7 * size)) //.attr("transform", `translate(${swatchPixels * 1},${lineHeight * (y + 2.5) - swatchPixels})`)
+              .attr("transform", "translate(".concat(offsets[_i2] + swatchPixels, ",").concat(lineHeight * (y + 2.5) - swatchPixels, ")"));
+            } else if (shape === 'triangle-down') {
+              dot = gLegend.append('path').attr("d", d3.symbol().type(d3.symbolTriangle).size(swatchPixels * swatchPixels * 1.7 * size)) //.attr("transform", `translate(${swatchPixels * 1},${lineHeight * (y + 2.5) - swatchPixels}) rotate(180)`)
+              .attr("transform", "translate(".concat(offsets[_i2] + swatchPixels, ",").concat(lineHeight * (y + 2.5) - swatchPixels, ") rotate(180)"));
+            }
+
+            dot.style('fill', colour).style('opacity', opacity);
+          } else {
+            //const y = iLine - iOffset
+            var alignOffset = legendData.raligned[_i2] ? maxWidths[_i2] - l.textWidth[_i2] : 0;
+            gLegend.append('text') //.attr('x', swatchPixels * 2.7)
+            .attr('x', offsets[_i2] + alignOffset).attr('y', lineHeight * (y + 2.5) - lineHeight / 20).text(l.text[_i2]);
+          }
+        }
+      }
     });
     gLegend.attr("transform", "translate(".concat(legendX, ",").concat(legendY, ") scale(").concat(legendScale, ", ").concat(legendScale, ")"));
   }
@@ -10631,7 +10729,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.7.1";
+  var version = "0.8.0";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
