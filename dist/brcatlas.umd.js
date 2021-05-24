@@ -9537,7 +9537,6 @@
    * @property {number} opacity - a number between 0 and 1 indicating the opacity of the legend symbol. 0 is completely
    * transparent and 1 is completely opaque. Overrides any value set for the whole legend.
    * @property {boolean} underline - If set to true, indicates that the legend line is to be underlined.
-   * Valid values are: circle, square, diamond, triangle-up, triangle-down.
    * @property {string|string[]} text - Specifies the text for the legend line either as a single text string or an
    * array of strings for a tabulated legend layout. For tabulated legend layout, one of the strings can be set
    * to the special value of 'symbol' to indicate the position where the legend symbol should be generated in the
@@ -9558,6 +9557,7 @@
     legendData.opacity = legendData.opacity ? legendData.opacity : 1;
     legendData.shape = legendData.shape ? legendData.shape : 'circle';
     var gLegend = svg.append('g').attr('id', 'legend');
+    var iUnderlinePad = 0;
     var iOffset;
 
     if (legendData.title) {
@@ -9635,24 +9635,20 @@
       var colour2 = l.colour2 ? l.colour2 : legendData.colour2;
       var dot;
 
-      if (l.underline) {
-        gLegend.append('rect').attr("x", 0).attr("y", lineHeight * (y + 2.5)).attr("width", offsets[nCells - 1] + maxWidths[nCells - 1]).attr("height", 1).attr("style", "fill:black");
-      }
-
       for (var _i2 = 0; _i2 < nCells; _i2++) {
         if (l.text[_i2]) {
           if (l.text[_i2] === 'symbol') {
             if (shape === 'circle') {
               dot = gLegend.append('circle').attr("r", swatchPixels * size) //.attr("cx", swatchPixels * 1)
-              .attr("cx", offsets[_i2] + swatchPixels).attr("cy", lineHeight * (y + 2.5) - swatchPixels);
+              .attr("cx", offsets[_i2] + swatchPixels).attr("cy", lineHeight * (y + 2.5) - swatchPixels + iUnderlinePad);
             } else if (shape === 'bullseye') {
               dot = gLegend.append('circle').attr("r", swatchPixels * size) //.attr("cx", swatchPixels * 1)
-              .attr("cx", offsets[_i2] + swatchPixels).attr("cy", lineHeight * (y + 2.5) - swatchPixels);
+              .attr("cx", offsets[_i2] + swatchPixels).attr("cy", lineHeight * (y + 2.5) - swatchPixels + iUnderlinePad);
               gLegend.append('circle').attr("r", swatchPixels * size * 0.5) //.attr("cx", swatchPixels * 1)
-              .attr("cx", offsets[_i2] + swatchPixels).attr("cy", lineHeight * (y + 2.5) - swatchPixels).style('fill', colour2).style('opacity', opacity);
+              .attr("cx", offsets[_i2] + swatchPixels).attr("cy", lineHeight * (y + 2.5) - swatchPixels + iUnderlinePad).style('fill', colour2).style('opacity', opacity);
             } else if (shape === 'square') {
               dot = gLegend.append('rect').attr("width", swatchPixels * 2 * size).attr("height", swatchPixels * 2 * size) //.attr("x", swatchPixels * (1 - size))
-              .attr("x", offsets[_i2] + swatchPixels * (1 - size)).attr("y", lineHeight * (y + 2.5) - 2 * swatchPixels + swatchPixels * (1 - size));
+              .attr("x", offsets[_i2] + swatchPixels * (1 - size)).attr("y", lineHeight * (y + 2.5) - 2 * swatchPixels + swatchPixels * (1 - size) + iUnderlinePad);
             } else if (shape === 'diamond') {
               dot = gLegend.append('path').attr("d", d3.symbol().type(d3.symbolSquare).size(swatchPixels * swatchPixels * 2 * size)) //.attr("transform", `translate(${swatchPixels * 1},${lineHeight * (y + 2.5) - swatchPixels}) rotate(45)`)
               .attr("transform", "translate(".concat(offsets[_i2] + swatchPixels, ",").concat(lineHeight * (y + 2.5) - swatchPixels, ") rotate(45)"));
@@ -9669,9 +9665,14 @@
             //const y = iLine - iOffset
             var alignOffset = legendData.raligned[_i2] ? maxWidths[_i2] - l.textWidth[_i2] : 0;
             gLegend.append('text') //.attr('x', swatchPixels * 2.7)
-            .attr('x', offsets[_i2] + alignOffset).attr('y', lineHeight * (y + 2.5) - lineHeight / 20).text(l.text[_i2]);
+            .attr('x', offsets[_i2] + alignOffset).attr('y', lineHeight * (y + 2.5) - lineHeight / 20 + iUnderlinePad).text(l.text[_i2]);
           }
         }
+      }
+
+      if (l.underline) {
+        iUnderlinePad = iUnderlinePad + 3;
+        gLegend.append('rect').attr("x", 0).attr("y", lineHeight * (y + 2.5) + iUnderlinePad).attr("width", offsets[nCells - 1] + maxWidths[nCells - 1]).attr("height", 1).attr("style", "fill:black");
       }
     });
     gLegend.attr("transform", "translate(".concat(legendX, ",").concat(legendY, ") scale(").concat(legendScale, ", ").concat(legendScale, ")"));
@@ -10729,7 +10730,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.8.0";
+  var version = "0.8.1";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
