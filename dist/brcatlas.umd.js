@@ -479,6 +479,9 @@
   * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
   * <li> <b>opacity</b> - a number between 0 and 1 used to set the opacity of the symbol
   * (0 is fully transparent and 1 fully opaque).
+  * <li> <b>caption</b> - an html string that will be used to update an element identified
+  * by the <i>captionId</i> option of an svg or leaflet map when the mouse cursor moves over the
+  * element representing this gr on the map.
   * </ul>
   *  @type {object}
   */
@@ -9274,7 +9277,7 @@
     svg.selectAll('.dotTriangle').remove();
     svg.selectAll('.dotDiamond').remove();
   }
-  function drawDots(svg, captionId, transform, accessFunction, taxonIdentifier, proj) {
+  function drawDots(svg, captionId, onclick, transform, accessFunction, taxonIdentifier, proj) {
     function getCaption(d) {
       if (d.caption) {
         return d.caption;
@@ -9310,7 +9313,7 @@
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
           }).merge(circles).transition().ease(d3.easeCubic).duration(500).attr("r", function (d) {
-            return d.size ? radiusPixels * d.size : radiusPixels * data.size;
+            return d.size ? radiusPixels * d.size : radiusPixels;
           }).attr("opacity", function (d) {
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
@@ -9481,6 +9484,12 @@
               } else {
                 d3.select("#".concat(captionId)).html('');
               }
+            }
+          }).on('click', function (d) {
+            console.log('blah blah blah blah');
+
+            if (onclick) {
+              onclick(d.gr, d.id ? d.id : null, d.caption ? d.caption : null);
             }
           });
           return data;
@@ -9686,9 +9695,12 @@
    * @param {string} opts.proj - The projection of the map, should be 'gb', 'ir' or 'ci'. It should 
    * reflect the projection of boundary and grid data displayed on the map. It is used to generate the 'dots'
    * in the correct location.
-   * @param {number} opts.captionId - The id of a DOM element into which feature-specific HTML will be displayed
+   * @param {string} opts.captionId - The id of a DOM element into which feature-specific HTML will be displayed
    * as the mouse moves over a dot on the map. The HTML markup must be stored in an attribute called 'caption'
    * in the input data.
+  * @param {function} opts.onclick - A function that will be called if user clicks on a map
+   * element. The function will be passed these attributes, in this order, if they exist on the
+   * element: gr, id, caption. (Default - null.)
    * @param {number} opts.height - The desired height of the SVG.
    * @param {boolean} opts.expand - Indicates whether or not the map will expand to fill parent element.
    * @param {legendOpts} opts.legendOpts - Sets options for a map legend.
@@ -9723,6 +9735,8 @@
         proj = _ref$proj === void 0 ? 'gb' : _ref$proj,
         _ref$captionId = _ref.captionId,
         captionId = _ref$captionId === void 0 ? '' : _ref$captionId,
+        _ref$onclick = _ref.onclick,
+        onclick = _ref$onclick === void 0 ? null : _ref$onclick,
         _ref$height = _ref.height,
         height = _ref$height === void 0 ? 500 : _ref$height,
         _ref$expand = _ref.expand,
@@ -9878,7 +9892,7 @@
     function drawMapDots() {
       svg.select('#legend').remove(); // Remove here to avoid legend resizing if inset options changed.
 
-      drawDots(svg, captionId, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj).then(function (data) {
+      drawDots(svg, captionId, onclick, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj).then(function (data) {
         svg.select('#legend').remove(); // Also must remove here to avoid some bad effects. 
 
         legendOpts.accessorData = data.legend;
@@ -10107,9 +10121,12 @@
    * @param {Object} opts - Initialisation options.
    * @param {string} opts.selector - The CSS selector of the element which will be the parent of the leaflet map.
    * @param {string} opts.mapid - The id for the slippy map to be created.
-   * @param {number} opts.captionId - The id of a DOM element into which feature-specific HTML will be displayed
+   * @param {string} opts.captionId - The id of a DOM element into which feature-specific HTML will be displayed
    * as the mouse moves over a dot on the map. The HTML markup must be stored in an attribute called 'caption'
    * in the input data.
+   * @param {function} opts.onclick - A function that will be called if user clicks on a map
+   * element. The function will be passed these attributes, in this order, if they exist on the
+   * element: gr, id, caption. (Default - null.)
    * @param {number} opts.height - The desired height of the leaflet map.
    * @param {number} opts.width - The desired width of the leaflet map.
    * @param {Array.<basemapConfig>} opts.basemapConfigs - An array of map layer configuration objects.
@@ -10128,6 +10145,8 @@
         mapid = _ref$mapid === void 0 ? 'leafletMap' : _ref$mapid,
         _ref$captionId = _ref.captionId,
         captionId = _ref$captionId === void 0 ? '' : _ref$captionId,
+        _ref$onclick = _ref.onclick,
+        onclick = _ref$onclick === void 0 ? null : _ref$onclick,
         _ref$height = _ref.height,
         height = _ref$height === void 0 ? 500 : _ref$height,
         _ref$width = _ref.width,
@@ -10309,8 +10328,15 @@
       var u = g.selectAll("path").data(filteredData, function (d) {
         return d.gr;
       });
-      u.enter().append("path").style("pointer-events", "all").on('mouseover', function (d) {
-
+      u.enter().append("path").style("pointer-events", "all").style("cursor", function () {
+        if (onclick) {
+          return 'pointer';
+        }
+      }).on('click', function (d) {
+        if (onclick) {
+          onclick(d.gr, d.id ? d.id : null, d.caption ? d.caption : null);
+        }
+      }).on('mouseover', function (d) {
         if (captionId) {
           if (d.caption) {
             d3.select("#".concat(captionId)).html(d.caption);

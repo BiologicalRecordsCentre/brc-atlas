@@ -62,6 +62,9 @@ function csvGr(file, precision) {
 * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
 * <li> <b>opacity</b> - a number between 0 and 1 used to set the opacity of the symbol
 * (0 is fully transparent and 1 fully opaque).
+* <li> <b>caption</b> - an html string that will be used to update an element identified
+* by the <i>captionId</i> option of an svg or leaflet map when the mouse cursor moves over the
+* element representing this gr on the map.
 * </ul>
 *  @type {object}
 */

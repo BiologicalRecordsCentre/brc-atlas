@@ -19,9 +19,12 @@ import { svgLegend } from './svgLegend.js'
  * @param {Object} opts - Initialisation options.
  * @param {string} opts.selector - The CSS selector of the element which will be the parent of the leaflet map.
  * @param {string} opts.mapid - The id for the slippy map to be created.
- * @param {number} opts.captionId - The id of a DOM element into which feature-specific HTML will be displayed
+ * @param {string} opts.captionId - The id of a DOM element into which feature-specific HTML will be displayed
  * as the mouse moves over a dot on the map. The HTML markup must be stored in an attribute called 'caption'
  * in the input data.
+ * @param {function} opts.onclick - A function that will be called if user clicks on a map
+ * element. The function will be passed these attributes, in this order, if they exist on the
+ * element: gr, id, caption. (Default - null.)
  * @param {number} opts.height - The desired height of the leaflet map.
  * @param {number} opts.width - The desired width of the leaflet map.
  * @param {Array.<basemapConfig>} opts.basemapConfigs - An array of map layer configuration objects.
@@ -31,11 +34,14 @@ import { svgLegend } from './svgLegend.js'
  * @param {legendOpts} opts.legendOpts - Sets options for a map legend.
  * @returns {module:slippyMap~api} Returns an API for the map.
  */
+
+
 export function leafletMap({
   // Default options in here
   selector = 'body',
   mapid = 'leafletMap',
   captionId = '',
+  onclick = null,
   height = 500,
   width = 300,
   basemapConfigs = [],
@@ -43,7 +49,6 @@ export function leafletMap({
   mapTypesSel = dataAccessors,
   legendOpts = {display: false},
 } = {}) {
-
   let taxonIdentifier, precision
   let dots = {}
   const geojsonLayers = {}
@@ -218,7 +223,17 @@ export function leafletMap({
     u.enter()
       .append("path")
       .style("pointer-events", "all")
-      .on('mouseover', d => {svg
+      .style("cursor", () => {
+        if (onclick) {
+          return 'pointer'
+        }
+      })
+      .on('click', d => {
+        if (onclick) {
+          onclick(d.gr, d.id ? d.id : null, d.caption ? d.caption : null)
+        }
+      })
+      .on('mouseover', d => {
         if (captionId) {
           if (d.caption) {
             d3.select(`#${captionId}`).html(d.caption)

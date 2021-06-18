@@ -9,7 +9,7 @@ export function removeDots(svg) {
   svg.selectAll('.dotDiamond').remove()
 }
 
-export function drawDots(svg, captionId, transform, accessFunction, taxonIdentifier, proj) {
+export function drawDots(svg, captionId, onclick, transform, accessFunction, taxonIdentifier, proj) {
   function getCaption(d) {
     if (d.caption) {
       return d.caption
@@ -43,7 +43,7 @@ export function drawDots(svg, captionId, transform, accessFunction, taxonIdentif
           .transition()  
             .ease(d3.easeCubic)   
             .duration(500)
-          .attr("r", d => d.size ? radiusPixels * d.size : radiusPixels * data.size)
+          .attr("r", d => d.size ? radiusPixels * d.size : radiusPixels)
           .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
           .attr("data-caption", d => getCaption(d))
@@ -228,6 +228,12 @@ export function drawDots(svg, captionId, transform, accessFunction, taxonIdentif
               } else {
                 d3.select(`#${captionId}`).html('')
               }
+            }
+          })
+          .on('click', d => {
+            console.log('blah blah blah blah')
+            if (onclick) {
+              onclick(d.gr, d.id ? d.id : null, d.caption ? d.caption : null)
             }
           })
           

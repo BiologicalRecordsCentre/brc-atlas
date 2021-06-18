@@ -16,9 +16,12 @@ import { svgLegend } from './svgLegend.js'
  * @param {string} opts.proj - The projection of the map, should be 'gb', 'ir' or 'ci'. It should 
  * reflect the projection of boundary and grid data displayed on the map. It is used to generate the 'dots'
  * in the correct location.
- * @param {number} opts.captionId - The id of a DOM element into which feature-specific HTML will be displayed
+ * @param {string} opts.captionId - The id of a DOM element into which feature-specific HTML will be displayed
  * as the mouse moves over a dot on the map. The HTML markup must be stored in an attribute called 'caption'
  * in the input data.
+* @param {function} opts.onclick - A function that will be called if user clicks on a map
+ * element. The function will be passed these attributes, in this order, if they exist on the
+ * element: gr, id, caption. (Default - null.)
  * @param {number} opts.height - The desired height of the SVG.
  * @param {boolean} opts.expand - Indicates whether or not the map will expand to fill parent element.
  * @param {legendOpts} opts.legendOpts - Sets options for a map legend.
@@ -48,6 +51,7 @@ export function svgMap({
   mapid = 'svgMap',
   proj = 'gb',
   captionId = '',
+  onclick = null,
   height = 500,
   expand = false,
   legendOpts = {display: false},
@@ -223,7 +227,7 @@ export function svgMap({
 
   function drawMapDots() {
     svg.select('#legend').remove() // Remove here to avoid legend resizing if inset options changed.
-    drawDots(svg, captionId, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj)
+    drawDots(svg, captionId, onclick, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj)
       .then (data => {
         svg.select('#legend').remove() // Also must remove here to avoid some bad effects. 
         legendOpts.accessorData = data.legend
