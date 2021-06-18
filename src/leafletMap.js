@@ -163,14 +163,14 @@ export function leafletMap({
     }
 
     if (!data || !data.records || !data.records.length) {
-      d3.select('.legendDiv').style('display', 'none')
+      d3.select(`#${mapid}`).select('.legendDiv').style('display', 'none')
       svg.style('display', 'none')
       return
     } else {
       if (legendOpts.display) {
-        d3.select('.legendDiv').style('display', 'block')
+        d3.select(`#${mapid}`).select('.legendDiv').style('display', 'block')
       } else {
-        d3.select('.legendDiv').style('display', 'none')
+        d3.select(`#${mapid}`).select('.legendDiv').style('display', 'none')
       }
       svg.style('display', 'block')
     }
@@ -290,7 +290,7 @@ export function leafletMap({
         const bbox = legendSvg.node().getBBox()
         const w = legendOpts.width ? legendOpts.width : bbox.x + bbox.width + bbox.x
         const h = legendOpts.height ? legendOpts.height : bbox.y + bbox.height + bbox.y
-        d3.select('.legendDiv').html(`<svg class="legendSvg" width="${w}" height="${h}">${legendSvg.html()}</svg>`)
+        d3.select(`#${mapid}`).select('.legendDiv').html(`<svg class="legendSvg" width="${w}" height="${h}">${legendSvg.html()}</svg>`)
         legendSvg.remove()
       }
       reset ()
@@ -312,7 +312,7 @@ export function leafletMap({
   * Clear the map of dots and legend.
   */
  function clearMap(){
-  d3.select('.legendDiv').style('display', 'none')
+  d3.select(`#${mapid}`).select('.legendDiv').style('display', 'none')
   svg.style('display', 'none')
 }
 
@@ -436,13 +436,13 @@ export function leafletMap({
   function showOverlay(show) {
     if (show) {
       if (legendOpts.display) {
-        d3.select('.legendDiv').style('display', 'block')
+        d3.select(`#${mapid}`).select('.legendDiv').style('display', 'block')
       } else {
-        d3.select('.legendDiv').style('display', 'none')
+        d3.select(`#${mapid}`).select('.legendDiv').style('display', 'none')
       }
       svg.style('display', 'block')
     } else {
-      d3.select('.legendDiv').style('display', 'none')
+      d3.select(`#${mapid}`).select('.legendDiv').style('display', 'none')
       svg.style('display', 'none')
     }
   }

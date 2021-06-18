@@ -10266,14 +10266,14 @@
       }
 
       if (!data || !data.records || !data.records.length) {
-        d3.select('.legendDiv').style('display', 'none');
+        d3.select("#".concat(mapid)).select('.legendDiv').style('display', 'none');
         svg.style('display', 'none');
         return;
       } else {
         if (legendOpts.display) {
-          d3.select('.legendDiv').style('display', 'block');
+          d3.select("#".concat(mapid)).select('.legendDiv').style('display', 'block');
         } else {
-          d3.select('.legendDiv').style('display', 'none');
+          d3.select("#".concat(mapid)).select('.legendDiv').style('display', 'none');
         }
 
         svg.style('display', 'block');
@@ -10381,7 +10381,7 @@
           var bbox = legendSvg.node().getBBox();
           var w = legendOpts.width ? legendOpts.width : bbox.x + bbox.width + bbox.x;
           var h = legendOpts.height ? legendOpts.height : bbox.y + bbox.height + bbox.y;
-          d3.select('.legendDiv').html("<svg class=\"legendSvg\" width=\"".concat(w, "\" height=\"").concat(h, "\">").concat(legendSvg.html(), "</svg>"));
+          d3.select("#".concat(mapid)).select('.legendDiv').html("<svg class=\"legendSvg\" width=\"".concat(w, "\" height=\"").concat(h, "\">").concat(legendSvg.html(), "</svg>"));
           legendSvg.remove();
         }
 
@@ -10406,7 +10406,7 @@
 
 
     function clearMap() {
-      d3.select('.legendDiv').style('display', 'none');
+      d3.select("#".concat(mapid)).select('.legendDiv').style('display', 'none');
       svg.style('display', 'none');
     }
     /** @function setSize
@@ -10541,14 +10541,14 @@
     function showOverlay(show) {
       if (show) {
         if (legendOpts.display) {
-          d3.select('.legendDiv').style('display', 'block');
+          d3.select("#".concat(mapid)).select('.legendDiv').style('display', 'block');
         } else {
-          d3.select('.legendDiv').style('display', 'none');
+          d3.select("#".concat(mapid)).select('.legendDiv').style('display', 'none');
         }
 
         svg.style('display', 'block');
       } else {
-        d3.select('.legendDiv').style('display', 'none');
+        d3.select("#".concat(mapid)).select('.legendDiv').style('display', 'none');
         svg.style('display', 'none');
       }
     }
@@ -10730,7 +10730,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.8.1";
+  var version = "0.8.2";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
