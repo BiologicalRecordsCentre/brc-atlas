@@ -10165,6 +10165,7 @@
     var taxonIdentifier, precision;
     var dots = {};
     var geojsonLayers = {};
+    var pointGeoJsonLayer = null;
     d3.select(selector).append('div').attr('id', mapid).style('width', "".concat(width, "px")).style('height', "".concat(height, "px")); // Create basemaps from config
 
     var selectedBaselayerName;
@@ -10255,20 +10256,12 @@
     var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
     function reset() {
-      //const zoomThreshold2 = 9
-
       var view = map.getBounds();
       var deg5km = 0.0447;
-      var data, buffer; // if (precision===10000 || (precision===0 && map.getZoom() <= zoomThreshold)) {
-      //   data = dots.p10000
-      //   buffer = deg5km * 1.5
-      // } else if (precision===2000 || (precision===0 && map.getZoom() <= zoomThreshold2) || !dots.p1000 || !dots.p1000.length){
-      //   data = dots.p2000
-      //   buffer = deg5km / 4
-      // } else {
-      //   data = dots.p1000
-      //   buffer = deg5km / 2
-      // }
+      var data, buffer; // Remove point layer if set (will be regenerated later if necessary)
+
+      if (pointGeoJsonLayer) map.removeLayer(pointGeoJsonLayer);
+      pointGeoJsonLayer = null;
 
       if (precision === 10000) {
         data = dots.p10000;
@@ -10279,9 +10272,13 @@
       } else if (precision === 2000) {
         data = dots.p2000;
         buffer = deg5km / 4;
-      } else {
+      } else if (precision === 1000) {
         data = dots.p1000;
         buffer = deg5km / 2;
+      } else {
+        // Point layer
+        data = dots.p0;
+        buffer = 0;
       }
 
       if (!data || !data.records || !data.records.length) {
@@ -10295,7 +10292,11 @@
           d3.select("#".concat(mapid)).select('.legendDiv').style('display', 'none');
         }
 
-        svg.style('display', 'block');
+        if (precision === 0) {
+          svg.style('display', 'none');
+        } else {
+          svg.style('display', 'block');
+        }
       }
 
       var filteredData = data.records.filter(function (d) {
@@ -10303,61 +10304,98 @@
           return false;
         } else {
           if (!d.geometry) {
-            var shape = d.shape ? d.shape : data.shape;
-            var size = d.size ? d.size : data.size;
-            d.geometry = getGjson(d.gr, 'wg', shape, size);
+            if (precision === 0) {
+              d.geometry = {
+                type: 'Feature',
+                properties: {
+                  id: d.id,
+                  gr: d.gr,
+                  caption: d.caption
+                },
+                geometry: {
+                  type: 'Point',
+                  coordinates: [d.lng, d.lat]
+                }
+              };
+            } else {
+              var shape = d.shape ? d.shape : data.shape;
+              var size = d.size ? d.size : data.size;
+              d.geometry = getGjson(d.gr, 'wg', shape, size);
+            }
           }
 
           return true;
         }
       });
-      var bounds = path.bounds({
-        type: "FeatureCollection",
-        features: filteredData.map(function (d) {
-          return {
-            type: "Feature",
-            geometry: d.geometry
-          };
-        })
-      });
-      var topLeft = bounds[0];
-      var bottomRight = bounds[1];
-      svg.attr("width", bottomRight[0] - topLeft[0]).attr("height", bottomRight[1] - topLeft[1]).style("left", topLeft[0] + "px").style("top", topLeft[1] + "px");
-      g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")"); // Update the features
 
-      var u = g.selectAll("path").data(filteredData, function (d) {
-        return d.gr;
-      });
-      u.enter().append("path").style("pointer-events", "all").style("cursor", function () {
-        if (onclick) {
-          return 'pointer';
-        }
-      }).on('click', function (d) {
-        if (onclick) {
-          onclick(d.gr, d.id ? d.id : null, d.caption ? d.caption : null);
-        }
-      }).on('mouseover', function (d) {
-        if (captionId) {
-          if (d.caption) {
-            d3.select("#".concat(captionId)).html(d.caption);
-          } else {
-            d3.select("#".concat(captionId)).html('');
+      if (precision === 0) {
+        // Deal with point data - goes straight into a Leaflet GeoJson layer
+        var ftrs = filteredData.map(function (d) {
+          return d.geometry;
+        });
+        var gjson = {
+          type: 'FeatureCollection',
+          features: ftrs
+        };
+        var fn = onclick ? function (ftr, lyr) {
+          var p = ftr.properties;
+          lyr.on('click', function () {
+            onclick(p.gr, p.id ? p.id : null, p.caption ? p.caption : null);
+          });
+        } : null;
+        pointGeoJsonLayer = L.geoJSON(gjson, {
+          onEachFeature: fn
+        }).addTo(map);
+      } else {
+        // Atlas data - goes onto an SVG where D3 can work with it
+        var bounds = path.bounds({
+          type: "FeatureCollection",
+          features: filteredData.map(function (d) {
+            return {
+              type: "Feature",
+              geometry: d.geometry
+            };
+          })
+        });
+        var topLeft = bounds[0];
+        var bottomRight = bounds[1];
+        svg.attr("width", bottomRight[0] - topLeft[0]).attr("height", bottomRight[1] - topLeft[1]).style("left", topLeft[0] + "px").style("top", topLeft[1] + "px");
+        g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")"); // Update the features
+
+        var u = g.selectAll("path").data(filteredData, function (d) {
+          return d.gr;
+        });
+        u.enter().append("path").style("pointer-events", "all").style("cursor", function () {
+          if (onclick) {
+            return 'pointer';
           }
-        }
-      }).merge(u).attr("d", function (d) {
-        return path(d.geometry);
-      }).attr("opacity", function (d) {
-        return d.opacity ? d.opacity : data.opacity;
-      }).style("fill", function (d) {
-        return d.colour ? d.colour : data.colour;
-      }).attr("fill", function (d) {
-        return d.colour;
-      }).attr("stroke-width", function () {
-        {
-          return '1';
-        }
-      });
-      u.exit().remove();
+        }).on('click', function (d) {
+          if (onclick) {
+            onclick(d.gr, d.id ? d.id : null, d.caption ? d.caption : null);
+          }
+        }).on('mouseover', function (d) {
+          if (captionId) {
+            if (d.caption) {
+              d3.select("#".concat(captionId)).html(d.caption);
+            } else {
+              d3.select("#".concat(captionId)).html('');
+            }
+          }
+        }).merge(u).attr("d", function (d) {
+          return path(d.geometry);
+        }).attr("opacity", function (d) {
+          return d.opacity ? d.opacity : data.opacity;
+        }).style("fill", function (d) {
+          return d.colour ? d.colour : data.colour;
+        }).attr("fill", function (d) {
+          return d.colour;
+        }).attr("stroke-width", function () {
+          {
+            return '1';
+          }
+        });
+        u.exit().remove();
+      }
     }
     /** @function setMapType
       * @param {string} newMapTypesKey - A string which a key used to identify a data accessor function. 
@@ -10756,7 +10794,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.8.2";
+  var version = "0.9.0";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";

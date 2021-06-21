@@ -52,6 +52,7 @@ export function leafletMap({
   let taxonIdentifier, precision
   let dots = {}
   const geojsonLayers = {}
+  let pointGeoJsonLayer = null
 
   d3.select(selector).append('div')
     .attr('id', mapid)
@@ -136,22 +137,13 @@ export function leafletMap({
 
   function reset() { 
     const symbolOutline = true
-    //const zoomThreshold = 7
-    //const zoomThreshold2 = 9
     const view = map.getBounds()
     const deg5km = 0.0447
     let data, buffer
 
-    // if (precision===10000 || (precision===0 && map.getZoom() <= zoomThreshold)) {
-    //   data = dots.p10000
-    //   buffer = deg5km * 1.5
-    // } else if (precision===2000 || (precision===0 && map.getZoom() <= zoomThreshold2) || !dots.p1000 || !dots.p1000.length){
-    //   data = dots.p2000
-    //   buffer = deg5km / 4
-    // } else {
-    //   data = dots.p1000
-    //   buffer = deg5km / 2
-    // }
+    // Remove point layer if set (will be regenerated later if necessary)
+    if (pointGeoJsonLayer) map.removeLayer(pointGeoJsonLayer)
+    pointGeoJsonLayer = null
 
     if (precision===10000) {
       data = dots.p10000
@@ -162,9 +154,13 @@ export function leafletMap({
     } else if (precision===2000) {
       data = dots.p2000
       buffer = deg5km / 4
-    } else {
+    } else if (precision===1000) {
       data = dots.p1000
       buffer = deg5km / 2
+    } else {
+      // Point layer
+      data = dots.p0
+      buffer = 0
     }
 
     if (!data || !data.records || !data.records.length) {
@@ -177,7 +173,11 @@ export function leafletMap({
       } else {
         d3.select(`#${mapid}`).select('.legendDiv').style('display', 'none')
       }
-      svg.style('display', 'block')
+      if (precision===0) {
+        svg.style('display', 'none')
+      } else {
+        svg.style('display', 'block')
+      }
     }
 
     const filteredData = data.records.filter(function(d){
@@ -188,76 +188,109 @@ export function leafletMap({
         return false
       } else {
         if (!d.geometry) {
-          const shape = d.shape ? d.shape : data.shape
-          const size = d.size ? d.size : data.size
-          d.geometry = getGjson(d.gr, 'wg', shape, size)
+          if (precision===0) {
+            d.geometry = {
+              type: 'Feature',
+              properties: {
+                  id: d.id,
+                  gr: d.gr,
+                  caption: d.caption
+              },
+              geometry: {
+                  type: 'Point',
+                  coordinates: [d.lng, d.lat]
+              }
+            }
+          } else {
+            const shape = d.shape ? d.shape : data.shape
+            const size = d.size ? d.size : data.size
+            d.geometry = getGjson(d.gr, 'wg', shape, size)
+          }
         }
         return true
       }
     })
 
-    const bounds = path.bounds({
-      type: "FeatureCollection",
-      features: filteredData.map(d => {
-        return {
-          type: "Feature",
-          geometry: d.geometry
-        }
-      })
-    })
+    if (precision===0) {
+      // Deal with point data - goes straight into a Leaflet GeoJson layer
+      const ftrs = filteredData.map(d => d.geometry)
+      const gjson = {
+        type: 'FeatureCollection',
+        features: ftrs
+      }
+      const fn = onclick ? function(ftr, lyr){
+          const p = ftr.properties
+          lyr.on('click', function () {
+            onclick(p.gr, p.id ? p.id : null, p.caption ? p.caption : null)
+          })
+        } : null
 
-    const topLeft = bounds[0]
-    const bottomRight = bounds[1]
-    svg.attr("width", bottomRight[0] - topLeft[0])
-      .attr("height", bottomRight[1] - topLeft[1])
-      .style("left", topLeft[0] + "px")
-      .style("top", topLeft[1] + "px")  
-
-    g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")")
-
-    // Update the features
-    const u = g.selectAll("path")
-      .data(filteredData, function(d) {
-          return d.gr
-      })
-    u.enter()
-      .append("path")
-      .style("pointer-events", "all")
-      .style("cursor", () => {
-        if (onclick) {
-          return 'pointer'
-        }
-      })
-      .on('click', d => {
-        if (onclick) {
-          onclick(d.gr, d.id ? d.id : null, d.caption ? d.caption : null)
-        }
-      })
-      .on('mouseover', d => {
-        if (captionId) {
-          if (d.caption) {
-            d3.select(`#${captionId}`).html(d.caption)
-          } else {
-            d3.select(`#${captionId}`).html('')
+      pointGeoJsonLayer = L.geoJSON(gjson, {onEachFeature: fn}).addTo(map)
+    } else {
+      // Atlas data - goes onto an SVG where D3 can work with it
+      const bounds = path.bounds({
+        type: "FeatureCollection",
+        features: filteredData.map(d => {
+          return {
+            type: "Feature",
+            geometry: d.geometry
           }
-        }
+        })
       })
-    .merge(u)
-      .attr("d", d => {
-        return path(d.geometry)
-      })
-      .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
-      .style("fill", d => d.colour ? d.colour : data.colour)
-      .attr("fill", d => d.colour)
-      .attr("stroke-width", () => {
-        if (symbolOutline) {
-          return '1'
-        } else {
-          return '0'
-        }
-      })
-    u.exit()
-      .remove()
+
+      const topLeft = bounds[0]
+      const bottomRight = bounds[1]
+      svg.attr("width", bottomRight[0] - topLeft[0])
+        .attr("height", bottomRight[1] - topLeft[1])
+        .style("left", topLeft[0] + "px")
+        .style("top", topLeft[1] + "px")  
+
+      g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")")
+
+      // Update the features
+      const u = g.selectAll("path")
+        .data(filteredData, function(d) {
+            return d.gr
+        })
+      u.enter()
+        .append("path")
+        .style("pointer-events", "all")
+        .style("cursor", () => {
+          if (onclick) {
+            return 'pointer'
+          }
+        })
+        .on('click', d => {
+          if (onclick) {
+            onclick(d.gr, d.id ? d.id : null, d.caption ? d.caption : null)
+          }
+        })
+        .on('mouseover', d => {
+          if (captionId) {
+            if (d.caption) {
+              d3.select(`#${captionId}`).html(d.caption)
+            } else {
+              d3.select(`#${captionId}`).html('')
+            }
+          }
+        })
+      .merge(u)
+        .attr("d", d => {
+          return path(d.geometry)
+        })
+        .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
+        .style("fill", d => d.colour ? d.colour : data.colour)
+        .attr("fill", d => d.colour)
+        .attr("stroke-width", () => {
+          if (symbolOutline) {
+            return '1'
+          } else {
+            return '0'
+          }
+        })
+      u.exit()
+        .remove()
+    }
   }
 
 /** @function setMapType
