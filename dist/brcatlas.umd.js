@@ -10165,7 +10165,7 @@
     var taxonIdentifier, precision;
     var dots = {};
     var geojsonLayers = {};
-    var pointGeoJsonLayer = null;
+    var markers = null;
     d3.select(selector).append('div').attr('id', mapid).style('width', "".concat(width, "px")).style('height', "".concat(height, "px")); // Create basemaps from config
 
     var selectedBaselayerName;
@@ -10255,13 +10255,53 @@
 
     var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
+    function pointMarkers() {
+      // Hide the SVG (atlas elements)
+      d3.select("#".concat(mapid)).select('.legendDiv').style('display', 'none');
+      svg.style('display', 'none'); // Remove any previous
+
+      if (markers) {
+        map.removeLayer(markers);
+      }
+
+      markers = L.markerClusterGroup();
+      dots.p0.records.forEach(function (f) {
+        // Allowed colours: https://awesomeopensource.com/project/pointhi/leaflet-color-markers
+        var iconColour = f.colour ? f.colour : dots.p0.colour;
+        var icon = new L.Icon({
+          iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-".concat(iconColour, ".png"),
+          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41]
+        });
+        var marker = L.marker(L.latLng(f.lat, f.lng), {
+          icon: icon,
+          id: f.id,
+          gr: f.gr,
+          caption: f.caption
+        });
+        markers.addLayer(marker);
+      });
+      map.addLayer(markers);
+
+      if (onclick) {
+        markers.on("click", function (event) {
+          var p = event.layer.options;
+          onclick(p.gr, p.id ? p.id : null, p.caption ? p.caption : null); //console.log(event.layer.options)
+        });
+      }
+    }
+
     function reset() {
+      // Hide point markers
+      if (markers && precision !== 0) {
+        map.removeLayer(markers);
+      }
       var view = map.getBounds();
       var deg5km = 0.0447;
-      var data, buffer; // Remove point layer if set (will be regenerated later if necessary)
-
-      if (pointGeoJsonLayer) map.removeLayer(pointGeoJsonLayer);
-      pointGeoJsonLayer = null;
+      var data, buffer;
 
       if (precision === 10000) {
         data = dots.p10000;
@@ -10276,8 +10316,7 @@
         data = dots.p1000;
         buffer = deg5km / 2;
       } else {
-        // Point layer
-        data = dots.p0;
+        data = [];
         buffer = 0;
       }
 
@@ -10304,20 +10343,7 @@
           return false;
         } else {
           if (!d.geometry) {
-            if (precision === 0) {
-              d.geometry = {
-                type: 'Feature',
-                properties: {
-                  id: d.id,
-                  gr: d.gr,
-                  caption: d.caption
-                },
-                geometry: {
-                  type: 'Point',
-                  coordinates: [d.lng, d.lat]
-                }
-              };
-            } else {
+            if (precision !== 0) {
               var shape = d.shape ? d.shape : data.shape;
               var size = d.size ? d.size : data.size;
               d.geometry = getGjson(d.gr, 'wg', shape, size);
@@ -10328,25 +10354,7 @@
         }
       });
 
-      if (precision === 0) {
-        // Deal with point data - goes straight into a Leaflet GeoJson layer
-        var ftrs = filteredData.map(function (d) {
-          return d.geometry;
-        });
-        var gjson = {
-          type: 'FeatureCollection',
-          features: ftrs
-        };
-        var fn = onclick ? function (ftr, lyr) {
-          var p = ftr.properties;
-          lyr.on('click', function () {
-            onclick(p.gr, p.id ? p.id : null, p.caption ? p.caption : null);
-          });
-        } : null;
-        pointGeoJsonLayer = L.geoJSON(gjson, {
-          onEachFeature: fn
-        }).addTo(map);
-      } else {
+      if (precision !== 0) {
         // Atlas data - goes onto an SVG where D3 can work with it
         var bounds = path.bounds({
           type: "FeatureCollection",
@@ -10449,7 +10457,11 @@
           legendSvg.remove();
         }
 
-        reset();
+        if (precision === 0) {
+          pointMarkers();
+        } else {
+          reset();
+        }
       });
     }
     /** @function setLegendOpts
@@ -10471,7 +10483,11 @@
 
     function clearMap() {
       d3.select("#".concat(mapid)).select('.legendDiv').style('display', 'none');
-      svg.style('display', 'none');
+      svg.style('display', 'none'); // Hide point markers
+
+      if (markers) {
+        map.removeLayer(markers);
+      }
     }
     /** @function setSize
       * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
@@ -10794,7 +10810,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.9.0";
+  var version = "0.9.1";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
@@ -10820,6 +10836,7 @@
   	d3: "^5.16.0",
   	leaflet: "^1.7.1",
   	"leaflet-control-custom": "^1.0.0",
+  	"leaflet.markercluster": "^1.5.0",
   	micromodal: "^0.4.6"
   };
   var devDependencies = {

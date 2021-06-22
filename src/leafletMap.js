@@ -52,7 +52,7 @@ export function leafletMap({
   let taxonIdentifier, precision
   let dots = {}
   const geojsonLayers = {}
-  let pointGeoJsonLayer = null
+  let markers = null
 
   d3.select(selector).append('div')
     .attr('id', mapid)
@@ -91,6 +91,7 @@ export function leafletMap({
   }
 
   const map = new L.Map(mapid, {center: [55, -4], zoom: 6, layers:[baseMaps[selectedBaselayerName]]})
+  
   map.on("viewreset", reset) // Not firing on current version - seems to be a bug
   map.on("zoomend", reset)
   map.on("moveend", reset)
@@ -135,15 +136,51 @@ export function leafletMap({
   //const svg = d3.select(map.getPanes().overlayPane).append("svg")
   const g = svg.append("g").attr("class", "leaflet-zoom-hide")
 
+  function pointMarkers() {
+    // Hide the SVG (atlas elements)
+    d3.select(`#${mapid}`).select('.legendDiv').style('display', 'none')
+    svg.style('display', 'none')
+
+    // Remove any previous
+    if (markers) {
+      map.removeLayer(markers)
+    }
+
+    markers = L.markerClusterGroup()
+    dots.p0.records.forEach(f => {
+      // Allowed colours: https://awesomeopensource.com/project/pointhi/leaflet-color-markers
+      const iconColour=f.colour ? f.colour : dots.p0.colour
+      const icon = new L.Icon({
+        iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${iconColour}.png`,
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      })
+      const marker = L.marker(L.latLng(f.lat, f.lng), {icon: icon, id: f.id, gr: f.gr, caption: f.caption})
+      markers.addLayer(marker)
+    })
+    map.addLayer(markers)
+    if (onclick){
+      markers.on("click", function (event) {
+        const p = event.layer.options
+        onclick(p.gr, p.id ? p.id : null, p.caption ? p.caption : null)
+        //console.log(event.layer.options)
+      })
+    }
+  }
+
   function reset() { 
+    // Hide point markers
+    if (markers && precision!==0) {
+      map.removeLayer(markers)
+    }
+
     const symbolOutline = true
     const view = map.getBounds()
     const deg5km = 0.0447
     let data, buffer
-
-    // Remove point layer if set (will be regenerated later if necessary)
-    if (pointGeoJsonLayer) map.removeLayer(pointGeoJsonLayer)
-    pointGeoJsonLayer = null
 
     if (precision===10000) {
       data = dots.p10000
@@ -158,8 +195,7 @@ export function leafletMap({
       data = dots.p1000
       buffer = deg5km / 2
     } else {
-      // Point layer
-      data = dots.p0
+      data = []
       buffer = 0
     }
 
@@ -188,20 +224,7 @@ export function leafletMap({
         return false
       } else {
         if (!d.geometry) {
-          if (precision===0) {
-            d.geometry = {
-              type: 'Feature',
-              properties: {
-                  id: d.id,
-                  gr: d.gr,
-                  caption: d.caption
-              },
-              geometry: {
-                  type: 'Point',
-                  coordinates: [d.lng, d.lat]
-              }
-            }
-          } else {
+          if (precision!==0) {
             const shape = d.shape ? d.shape : data.shape
             const size = d.size ? d.size : data.size
             d.geometry = getGjson(d.gr, 'wg', shape, size)
@@ -211,22 +234,7 @@ export function leafletMap({
       }
     })
 
-    if (precision===0) {
-      // Deal with point data - goes straight into a Leaflet GeoJson layer
-      const ftrs = filteredData.map(d => d.geometry)
-      const gjson = {
-        type: 'FeatureCollection',
-        features: ftrs
-      }
-      const fn = onclick ? function(ftr, lyr){
-          const p = ftr.properties
-          lyr.on('click', function () {
-            onclick(p.gr, p.id ? p.id : null, p.caption ? p.caption : null)
-          })
-        } : null
-
-      pointGeoJsonLayer = L.geoJSON(gjson, {onEachFeature: fn}).addTo(map)
-    } else {
+    if (precision!==0) {
       // Atlas data - goes onto an SVG where D3 can work with it
       const bounds = path.bounds({
         type: "FeatureCollection",
@@ -341,7 +349,13 @@ export function leafletMap({
         d3.select(`#${mapid}`).select('.legendDiv').html(`<svg class="legendSvg" width="${w}" height="${h}">${legendSvg.html()}</svg>`)
         legendSvg.remove()
       }
-      reset ()
+
+      if (precision===0){
+        pointMarkers()
+      } else {
+        reset()
+      }
+     
     })
   }
 
@@ -362,6 +376,11 @@ export function leafletMap({
  function clearMap(){
   d3.select(`#${mapid}`).select('.legendDiv').style('display', 'none')
   svg.style('display', 'none')
+
+  // Hide point markers
+  if (markers) {
+    map.removeLayer(markers)
+  }
 }
 
 /** @function setSize
