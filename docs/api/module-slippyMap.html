@@ -198,7 +198,7 @@
             <td class="type">
             
                 
-<span class="param-type">number</span>
+<span class="param-type">string</span>
 
 
             
@@ -209,6 +209,52 @@
             
 
             <td class="description last">The id of a DOM element into which feature-specific HTML will be displayedas the mouse moves over a dot on the map. The HTML markup must be stored in an attribute called 'caption'in the input data.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>clusterZoomThreshold</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The leaflet zoom level above which clustering will be turnedoff for point display (except for points in same location) (default 1 - i.e. clustering always one)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>onclick</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">A function that will be called if user clicks on a mapelement. The function will be passed these attributes, in this order, if they exist on theelement: gr, id, caption. (Default - null.)</td>
         </tr>
 
     
@@ -394,7 +440,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line34">line 34</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line41">line 41</a>
     </li></ul></dd>
     
 
@@ -553,7 +599,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line340">line 340</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line417">line 417</a>
     </li></ul></dd>
     
 
@@ -690,7 +736,144 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line392">line 392</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line469">line 469</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~changeClusterThreshold"><span class="type-signature">(inner) </span>changeClusterThreshold<span class="signature">(clusterZoomThreshold)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <b>This function allows you to change the clustering threshold zoom level for point maps</b>.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>clusterZoomThreshold</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The leaflet zoom level above which clustering will be turned off.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line527">line 527</a>
     </li></ul></dd>
     
 
@@ -778,7 +961,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line310">line 310</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line382">line 382</a>
     </li></ul></dd>
     
 
@@ -866,7 +1049,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line332">line 332</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line409">line 409</a>
     </li></ul></dd>
     
 
@@ -954,7 +1137,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line268">line 268</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line334">line 334</a>
     </li></ul></dd>
     
 
@@ -1091,7 +1274,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line370">line 370</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line447">line 447</a>
     </li></ul></dd>
     
 
@@ -1228,7 +1411,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line416">line 416</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line493">line 493</a>
     </li></ul></dd>
     
 
@@ -1365,7 +1548,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line257">line 257</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line323">line 323</a>
     </li></ul></dd>
     
 
@@ -1502,7 +1685,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line300">line 300</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line372">line 372</a>
     </li></ul></dd>
     
 
@@ -1639,7 +1822,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line248">line 248</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line314">line 314</a>
     </li></ul></dd>
     
 
@@ -1799,7 +1982,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line319">line 319</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line396">line 396</a>
     </li></ul></dd>
     
 
@@ -1936,7 +2119,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line431">line 431</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line508">line 508</a>
     </li></ul></dd>
     
 
@@ -2297,6 +2480,29 @@
 
         <tr>
             
+                <td class="name"><code>changeClusterThreshold</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-slippyMap.html#~changeClusterThreshold">module:slippyMap~changeClusterThreshold</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Change the zoom cluster threshold for points.</td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>lmap</code></td>
             
 
@@ -2352,7 +2558,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line450">line 450</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line538">line 538</a>
     </li></ul></dd>
     
 
@@ -2600,7 +2806,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Mon May 24 2021 12:39:44 GMT+0100 (British Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Tue Jul 20 2021 12:46:33 GMT+0100 (British Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

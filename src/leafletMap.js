@@ -22,6 +22,8 @@ import { svgLegend } from './svgLegend.js'
  * @param {string} opts.captionId - The id of a DOM element into which feature-specific HTML will be displayed
  * as the mouse moves over a dot on the map. The HTML markup must be stored in an attribute called 'caption'
  * in the input data.
+ * @param {number} opts.clusterZoomThreshold - The leaflet zoom level above which clustering will be turned
+ * off for point display (except for points in same location) (default 1 - i.e. clustering always one)
  * @param {function} opts.onclick - A function that will be called if user clicks on a map
  * element. The function will be passed these attributes, in this order, if they exist on the
  * element: gr, id, caption. (Default - null.)
@@ -41,6 +43,7 @@ export function leafletMap({
   selector = 'body',
   mapid = 'leafletMap',
   captionId = '',
+  clusterZoomThreshold = 19,
   onclick = null,
   height = 500,
   width = 300,
@@ -144,9 +147,14 @@ export function leafletMap({
     // Remove any previous
     if (markers) {
       map.removeLayer(markers)
+      console.log('removing')
     }
 
-    markers = L.markerClusterGroup()
+    console.log('remaking', clusterZoomThreshold)
+
+    markers = L.markerClusterGroup({ maxClusterRadius: function (zoom) {
+      return (zoom <= clusterZoomThreshold) ? 80 : 1; // radius in pixels
+    }})
     dots.p0.records.forEach(f => {
       // Allowed colours: https://awesomeopensource.com/project/pointhi/leaflet-color-markers
       const iconColour=f.colour ? f.colour : dots.p0.colour
@@ -176,6 +184,8 @@ export function leafletMap({
     if (markers && precision!==0) {
       map.removeLayer(markers)
     }
+
+    console.log('zoom', map.getZoom())
 
     const symbolOutline = true
     const view = map.getBounds()
@@ -514,6 +524,17 @@ export function leafletMap({
     }
   }
 
+ /** @function changeClusterThreshold
+  * @description <b>This function allows you to change the clustering threshold zoom level for point maps</b>.
+  * @param {number} clusterZoomThreshold - The leaflet zoom level above which clustering will be turned off.
+  */
+  function changeClusterThreshold(level) {
+    clusterZoomThreshold = level
+    if (precision===0){
+      pointMarkers()
+    } 
+  }
+
   /**
    * @typedef {Object} api
    * @property {module:slippyMap~setIdentfier} setIdentfier - Identifies data to the data accessor function.
@@ -528,6 +549,7 @@ export function leafletMap({
    * @property {module:slippyMap~addGeojsonLayer} addGeojsonLayer - Add a geojson layer to the map.
    * @property {module:slippyMap~removeGeojsonLayer} removeGeojsonLayer - Remove a geojson layer from the map.
    * @property {module:slippyMap~showOverlay} showOverlay - Show/hide the overlay layer.
+   * @property {module:slippyMap~changeClusterThreshold} changeClusterThreshold - Change the zoom cluster threshold for points.
    * @property {module:slippyMap~map} lmap - Returns a reference to the leaflet map object.
    */
   return  {
@@ -543,6 +565,7 @@ export function leafletMap({
     addGeojsonLayer: addGeojsonLayer,
     removeGeojsonLayer: removeGeojsonLayer,
     showOverlay: showOverlay,
+    changeClusterThreshold: changeClusterThreshold,
     lmap: map
   }
 }

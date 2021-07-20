@@ -10124,6 +10124,8 @@
    * @param {string} opts.captionId - The id of a DOM element into which feature-specific HTML will be displayed
    * as the mouse moves over a dot on the map. The HTML markup must be stored in an attribute called 'caption'
    * in the input data.
+   * @param {number} opts.clusterZoomThreshold - The leaflet zoom level above which clustering will be turned
+   * off for point display (except for points in same location) (default 1 - i.e. clustering always one)
    * @param {function} opts.onclick - A function that will be called if user clicks on a map
    * element. The function will be passed these attributes, in this order, if they exist on the
    * element: gr, id, caption. (Default - null.)
@@ -10145,6 +10147,8 @@
         mapid = _ref$mapid === void 0 ? 'leafletMap' : _ref$mapid,
         _ref$captionId = _ref.captionId,
         captionId = _ref$captionId === void 0 ? '' : _ref$captionId,
+        _ref$clusterZoomThres = _ref.clusterZoomThreshold,
+        clusterZoomThreshold = _ref$clusterZoomThres === void 0 ? 19 : _ref$clusterZoomThres,
         _ref$onclick = _ref.onclick,
         onclick = _ref$onclick === void 0 ? null : _ref$onclick,
         _ref$height = _ref.height,
@@ -10262,9 +10266,15 @@
 
       if (markers) {
         map.removeLayer(markers);
+        console.log('removing');
       }
 
-      markers = L.markerClusterGroup();
+      console.log('remaking', clusterZoomThreshold);
+      markers = L.markerClusterGroup({
+        maxClusterRadius: function maxClusterRadius(zoom) {
+          return zoom <= clusterZoomThreshold ? 80 : 1; // radius in pixels
+        }
+      });
       dots.p0.records.forEach(function (f) {
         // Allowed colours: https://awesomeopensource.com/project/pointhi/leaflet-color-markers
         var iconColour = f.colour ? f.colour : dots.p0.colour;
@@ -10299,6 +10309,8 @@
       if (markers && precision !== 0) {
         map.removeLayer(markers);
       }
+
+      console.log('zoom', map.getZoom());
       var view = map.getBounds();
       var deg5km = 0.0447;
       var data, buffer;
@@ -10632,6 +10644,19 @@
         svg.style('display', 'none');
       }
     }
+    /** @function changeClusterThreshold
+     * @description <b>This function allows you to change the clustering threshold zoom level for point maps</b>.
+     * @param {number} clusterZoomThreshold - The leaflet zoom level above which clustering will be turned off.
+     */
+
+
+    function changeClusterThreshold(level) {
+      clusterZoomThreshold = level;
+
+      if (precision === 0) {
+        pointMarkers();
+      }
+    }
     /**
      * @typedef {Object} api
      * @property {module:slippyMap~setIdentfier} setIdentfier - Identifies data to the data accessor function.
@@ -10646,6 +10671,7 @@
      * @property {module:slippyMap~addGeojsonLayer} addGeojsonLayer - Add a geojson layer to the map.
      * @property {module:slippyMap~removeGeojsonLayer} removeGeojsonLayer - Remove a geojson layer from the map.
      * @property {module:slippyMap~showOverlay} showOverlay - Show/hide the overlay layer.
+     * @property {module:slippyMap~changeClusterThreshold} changeClusterThreshold - Change the zoom cluster threshold for points.
      * @property {module:slippyMap~map} lmap - Returns a reference to the leaflet map object.
      */
 
@@ -10663,6 +10689,7 @@
       addGeojsonLayer: addGeojsonLayer,
       removeGeojsonLayer: removeGeojsonLayer,
       showOverlay: showOverlay,
+      changeClusterThreshold: changeClusterThreshold,
       lmap: map
     };
   }
@@ -10810,7 +10837,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.9.1";
+  var version = "0.10.0";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
