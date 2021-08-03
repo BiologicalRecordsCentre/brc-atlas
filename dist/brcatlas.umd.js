@@ -1167,6 +1167,80 @@
     return _typeof(obj);
   }
 
+  function _unsupportedIterableToArray$1(o, minLen) {
+    if (!o) return;
+    if (typeof o === "string") return _arrayLikeToArray$1(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === "Object" && o.constructor) n = o.constructor.name;
+    if (n === "Map" || n === "Set") return Array.from(o);
+    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$1(o, minLen);
+  }
+
+  function _arrayLikeToArray$1(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+
+    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+    return arr2;
+  }
+
+  function _createForOfIteratorHelper(o, allowArrayLike) {
+    var it;
+
+    if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) {
+      if (Array.isArray(o) || (it = _unsupportedIterableToArray$1(o)) || allowArrayLike && o && typeof o.length === "number") {
+        if (it) o = it;
+        var i = 0;
+
+        var F = function () {};
+
+        return {
+          s: F,
+          n: function () {
+            if (i >= o.length) return {
+              done: true
+            };
+            return {
+              done: false,
+              value: o[i++]
+            };
+          },
+          e: function (e) {
+            throw e;
+          },
+          f: F
+        };
+      }
+
+      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+    }
+
+    var normalCompletion = true,
+        didErr = false,
+        err;
+    return {
+      s: function () {
+        it = o[Symbol.iterator]();
+      },
+      n: function () {
+        var step = it.next();
+        normalCompletion = step.done;
+        return step;
+      },
+      e: function (e) {
+        didErr = true;
+        err = e;
+      },
+      f: function () {
+        try {
+          if (!normalCompletion && it.return != null) it.return();
+        } finally {
+          if (didErr) throw err;
+        }
+      }
+    };
+  }
+
   function globals (defs) {
     defs('EPSG:4326', "+title=WGS 84 (long/lat) +proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees");
     defs('EPSG:4269', "+title=NAD83 (long/lat) +proj=longlat +a=6378137.0 +b=6356752.31414036 +ellps=GRS80 +datum=NAD83 +units=degrees");
@@ -9706,26 +9780,46 @@
     gLegend.attr("transform", "translate(".concat(legendX, ",").concat(legendY, ") scale(").concat(legendScale, ", ").concat(legendScale, ")"));
   }
 
-  // function serialize(svg) {
-  //   const xmlns = "http://www.w3.org/2000/xmlns/"
-  //   const xlinkns = "http://www.w3.org/1999/xlink"
-  //   const svgns = "http://www.w3.org/2000/svg"
-  //   svg = svg.cloneNode(true)
-  //   const fragment = window.location.href + "#"
-  //   const walker = document.createTreeWalker(svg, NodeFilter.SHOW_ELEMENT)
-  //   while (walker.nextNode()) {
-  //     for (const attr of walker.currentNode.attributes) {
-  //       if (attr.value.includes(fragment)) {
-  //         attr.value = attr.value.replace(fragment, "#")
-  //       }
-  //     }
-  //   }
-  //   svg.setAttributeNS(xmlns, "xmlns", svgns)
-  //   svg.setAttributeNS(xmlns, "xmlns:xlink", xlinkns)
-  //   const serializer = new window.XMLSerializer
-  //   const string = serializer.serializeToString(svg)
-  //   return new Blob([string], {type: "image/svg+xml"})
-  // }
+  function serialize(svg) {
+    var xmlns = "http://www.w3.org/2000/xmlns/";
+    var xlinkns = "http://www.w3.org/1999/xlink";
+    var svgns = "http://www.w3.org/2000/svg";
+    svg = svg.cloneNode(true); // Delete all hidden items (backrop images) from clone
+
+    var d3Clone = d3.select(svg);
+    d3Clone.selectAll('.hidden').remove(); // I don't think this next loop is important in our situation
+
+    var fragment = window.location.href + "#";
+    var walker = document.createTreeWalker(svg, NodeFilter.SHOW_ELEMENT);
+
+    while (walker.nextNode()) {
+      var _iterator = _createForOfIteratorHelper(walker.currentNode.attributes),
+          _step;
+
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var attr = _step.value;
+
+          if (attr.value.includes(fragment)) {
+            attr.value = attr.value.replace(fragment, "#");
+          }
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
+    }
+
+    svg.setAttributeNS(xmlns, "xmlns", svgns);
+    svg.setAttributeNS(xmlns, "xmlns:xlink", xlinkns);
+    var serializer = new window.XMLSerializer();
+    var string = serializer.serializeToString(svg);
+    return new Blob([string], {
+      type: "image/svg+xml"
+    });
+  }
+
   function rasterize(d3Svg) {
     var resolve, reject;
     var svg = d3Svg.node();
@@ -9744,11 +9838,11 @@
       var context = canvas.getContext('2d');
       context.drawImage(image, 0, 0, rect.width, rect.height);
       context.canvas.toBlob(resolve);
-    }; //image.src = URL.createObjectURL(serialize(svg))
+    };
 
+    image.src = URL.createObjectURL(serialize(svg)); //const data = new XMLSerializer().serializeToString(svg)
+    //image.src = "data:image/svg+xml; charset=utf8, " + encodeURIComponent(data)
 
-    var data = new XMLSerializer().serializeToString(svg);
-    image.src = "data:image/svg+xml; charset=utf8, " + encodeURIComponent(data);
     return promise;
   }
 
@@ -10142,7 +10236,6 @@
 
     function saveMap() {
       rasterize(svg).then(function (blob) {
-        console.log('image', blob);
         var blobUrl = URL.createObjectURL(blob); // Create a link element
 
         var link = document.createElement("a"); // Set link's href to point to the Blob URL
@@ -10181,6 +10274,7 @@
      * @property {module:svgMap~setLegendOpts} setLegendOpts - Sets options for the legend.
      * @property {module:svgMap~redrawMap} redrawMap - Redraw the map.
      * @property {module:svgMap~clearMap} clearMap - Clear the map.
+     * @property {module:svgMap~saveMap} saveMap - Save and download the map as an image.
      */
 
 
@@ -10931,7 +11025,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.11.0";
+  var version = "0.11.1";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
