@@ -392,7 +392,6 @@ export function svgMap({
   */
   function saveMap() {
     rasterize(svg).then(blob => {
-      console.log('image', blob)
 
       const blobUrl = URL.createObjectURL(blob)
       // Create a link element
@@ -438,6 +437,7 @@ export function svgMap({
    * @property {module:svgMap~setLegendOpts} setLegendOpts - Sets options for the legend.
    * @property {module:svgMap~redrawMap} redrawMap - Redraw the map.
    * @property {module:svgMap~clearMap} clearMap - Clear the map.
+   * @property {module:svgMap~saveMap} saveMap - Save and download the map as an image.
    */
   return {
     setBoundaryColour: setBoundaryColour,
