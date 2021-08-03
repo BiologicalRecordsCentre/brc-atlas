@@ -9,6 +9,7 @@
     <h1>Using the BRC Atlas Library</h1>
     <h2>Show a UK distribution map from a CSV file</h2>
     <div id="map"></div>
+    <button onclick="downloadMap()">Download</button>
     <p>
       Include the required Javascript libraries and CSS in the page. We need the BRC Atlas JS libary, the associated
       CSS and the D3 library which is an external
@@ -106,10 +107,10 @@ WV27,circle,black,0.8,1</code>
     <script src="https://d3js.org/d3.v5.min.js"></script>
 
     <!--BRC Atlas library JS and CSS-->
-    <!-- <script src="./../../brc-atlas/dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="./../../brc-atlas/dist/brcatlas.umd.css"> -->
-    <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css">
+    <script src="./../dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="./../dist/brcatlas.umd.css">
+    <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
 
     <script>
       var map = brcatlas.svgMap({
@@ -118,6 +119,10 @@ WV27,circle,black,0.8,1</code>
       })
       map.setIdentfier('./example-hectads-1.csv')
       map.redrawMap()
+
+      function downloadMap() {
+        map.saveMap()
+      }
     </script>
   </div>
 </body>

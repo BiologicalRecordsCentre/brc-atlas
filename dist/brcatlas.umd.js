@@ -1062,6 +1062,8 @@
       };
 
       img.onload = function () {
+        var _this = this;
+
         var imageWidth = this.width;
         var imageHeight = this.height;
         fetch(worldFile).then(function (response) {
@@ -1096,9 +1098,13 @@
                 console.log(dims);
                 var clippath = d3.select('svg defs').append('clipPath').attr('id', "clippath-".concat(mapId, "-").concat(transId, "-").concat(i));
                 clippath.append('rect').attr('x', dims.x).attr('y', dims.y).attr('width', dims.width).attr('height', dims.height);
-              }
+              } // Changed to use dataURL rather than file path URL so that image can be 
+              // serialised when using the saveMap method.
 
-              var _img = gBasemaps.select("#basemap-".concat(mapId, "-").concat(transId)).append('image').attr('href', imageFile).attr('x', topLeft[0] + xShift).attr('y', topLeft[1] + yShift).attr('width', topRight[0] - topLeft[0]).attr('height', bottomLeft[1] - topLeft[1]);
+
+              var _img = gBasemaps.select("#basemap-".concat(mapId, "-").concat(transId)).append('image') //.attr('xmlns:xlink', "http://www.w3.org/1999/xlink")
+              //.attr('xlink:href', imageFile)
+              .attr('href', getDataUrl(_this)).attr('x', topLeft[0] + xShift).attr('y', topLeft[1] + yShift).attr('width', topRight[0] - topLeft[0]).attr('height', bottomLeft[1] - topLeft[1]);
 
               if (i > 0) {
                 _img.attr('clip-path', "url(#clippath-".concat(mapId, "-").concat(transId, "-").concat(i, ")"));
@@ -1115,6 +1121,19 @@
       img.src = imageFile;
     }
   }
+
+  function getDataUrl(img) {
+    // Create canvas
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d'); // Set width and height
+
+    canvas.width = img.width;
+    canvas.height = img.height; // Draw the image - use png format to support background transparency
+
+    ctx.drawImage(img, 0, 0);
+    return canvas.toDataURL('image/png');
+  }
+
   function transformImages(gBasemaps, trans) {
     Object.keys(basemaps).forEach(function (k) {
       var b = basemaps[k];
@@ -9687,6 +9706,52 @@
     gLegend.attr("transform", "translate(".concat(legendX, ",").concat(legendY, ") scale(").concat(legendScale, ", ").concat(legendScale, ")"));
   }
 
+  // function serialize(svg) {
+  //   const xmlns = "http://www.w3.org/2000/xmlns/"
+  //   const xlinkns = "http://www.w3.org/1999/xlink"
+  //   const svgns = "http://www.w3.org/2000/svg"
+  //   svg = svg.cloneNode(true)
+  //   const fragment = window.location.href + "#"
+  //   const walker = document.createTreeWalker(svg, NodeFilter.SHOW_ELEMENT)
+  //   while (walker.nextNode()) {
+  //     for (const attr of walker.currentNode.attributes) {
+  //       if (attr.value.includes(fragment)) {
+  //         attr.value = attr.value.replace(fragment, "#")
+  //       }
+  //     }
+  //   }
+  //   svg.setAttributeNS(xmlns, "xmlns", svgns)
+  //   svg.setAttributeNS(xmlns, "xmlns:xlink", xlinkns)
+  //   const serializer = new window.XMLSerializer
+  //   const string = serializer.serializeToString(svg)
+  //   return new Blob([string], {type: "image/svg+xml"})
+  // }
+  function rasterize(d3Svg) {
+    var resolve, reject;
+    var svg = d3Svg.node();
+    var promise = new Promise(function (y, n) {
+      return resolve = y, reject = n;
+    });
+    var image = new Image();
+    image.onerror = reject;
+
+    image.onload = function () {
+      var rect = svg.getBoundingClientRect(); // Create a canvas element
+
+      var canvas = document.createElement('canvas');
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      var context = canvas.getContext('2d');
+      context.drawImage(image, 0, 0, rect.width, rect.height);
+      context.canvas.toBlob(resolve);
+    }; //image.src = URL.createObjectURL(serialize(svg))
+
+
+    var data = new XMLSerializer().serializeToString(svg);
+    image.src = "data:image/svg+xml; charset=utf8, " + encodeURIComponent(data);
+    return promise;
+  }
+
   /** @module svgMap */
   /** 
    * @param {Object} opts - Initialisation options.
@@ -10069,6 +10134,34 @@
     function getMapWidth() {
       return trans.width;
     }
+    /** @function saveMap
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+      * Creates an image from the displayed map and downloads to user's computer.
+      */
+
+
+    function saveMap() {
+      rasterize(svg).then(function (blob) {
+        console.log('image', blob);
+        var blobUrl = URL.createObjectURL(blob); // Create a link element
+
+        var link = document.createElement("a"); // Set link's href to point to the Blob URL
+
+        link.href = blobUrl;
+        link.download = 'map.png'; // Append link to the body
+
+        document.body.appendChild(link); // Dispatch click event on the link
+        // This is necessary as link.click() does not work on the latest firefox
+
+        link.dispatchEvent(new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+          view: window
+        })); // Remove link from body
+
+        document.body.removeChild(link);
+      });
+    }
     /**
      * @typedef {Object} api
      * @property {module:svgMap~setBoundaryColour} setBoundaryColour - Change the colour of the boundary. Pass a single argument
@@ -10103,7 +10196,8 @@
       baseMapPriorities: baseMapPriorities,
       setLegendOpts: setLegendOpts,
       redrawMap: redrawMap,
-      clearMap: clearMap
+      clearMap: clearMap,
+      saveMap: saveMap
     };
   }
 
@@ -10837,7 +10931,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.10.0";
+  var version = "0.11.0";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";

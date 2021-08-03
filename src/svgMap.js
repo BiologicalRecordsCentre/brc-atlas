@@ -8,6 +8,7 @@ import { dataAccessors } from './dataAccess.js'
 import { showImage, setImagePriorities, transformImages } from './svgImages.js'
 import { drawDots, removeDots } from './svgDots.js'
 import { svgLegend } from './svgLegend.js'
+import { rasterize } from './savesvg.js'
 
 /** 
  * @param {Object} opts - Initialisation options.
@@ -385,6 +386,39 @@ export function svgMap({
     return trans.width
   }
 
+/** @function saveMap
+  * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+  * Creates an image from the displayed map and downloads to user's computer.
+  */
+  function saveMap() {
+    rasterize(svg).then(blob => {
+      console.log('image', blob)
+
+      const blobUrl = URL.createObjectURL(blob)
+      // Create a link element
+      const link = document.createElement("a")
+      // Set link's href to point to the Blob URL
+      link.href = blobUrl
+      link.download = 'map.png'
+
+      // Append link to the body
+      document.body.appendChild(link)
+
+      // Dispatch click event on the link
+      // This is necessary as link.click() does not work on the latest firefox
+      link.dispatchEvent(
+        new MouseEvent('click', { 
+          bubbles: true, 
+          cancelable: true, 
+          view: window 
+        })
+      )
+
+      // Remove link from body
+      document.body.removeChild(link)
+    })
+  }
+
   /**
    * @typedef {Object} api
    * @property {module:svgMap~setBoundaryColour} setBoundaryColour - Change the colour of the boundary. Pass a single argument
@@ -417,6 +451,7 @@ export function svgMap({
     baseMapPriorities: baseMapPriorities,
     setLegendOpts: setLegendOpts,
     redrawMap: redrawMap,
-    clearMap: clearMap
+    clearMap: clearMap,
+    saveMap: saveMap
   }
 }

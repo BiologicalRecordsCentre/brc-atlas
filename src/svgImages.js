@@ -88,8 +88,13 @@ export function showImage(mapId, show, gBasemaps, imageFile, worldFile, trans) {
                     .attr('width', dims.width)
                     .attr('height', dims.height)
               }
+
+              // Changed to use dataURL rather than file path URL so that image can be 
+              // serialised when using the saveMap method.
               const img = gBasemaps.select(`#basemap-${mapId}-${transId}`).append('image')
-                .attr('href', imageFile)
+                //.attr('xmlns:xlink', "http://www.w3.org/1999/xlink")
+                //.attr('xlink:href', imageFile)
+                .attr('href', getDataUrl(this))
                 .attr('x', topLeft[0] + xShift)
                 .attr('y', topLeft[1] + yShift) 
                 .attr('width', topRight[0]-topLeft[0])
@@ -109,6 +114,18 @@ export function showImage(mapId, show, gBasemaps, imageFile, worldFile, trans) {
     // its dimensions.
     img.src = imageFile
   }
+}
+
+function getDataUrl(img) {
+  // Create canvas
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+  // Set width and height
+  canvas.width = img.width
+  canvas.height = img.height
+  // Draw the image - use png format to support background transparency
+  ctx.drawImage(img, 0, 0)
+  return canvas.toDataURL('image/png')
 }
 
 export function transformImages(gBasemaps, trans) {
