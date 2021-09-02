@@ -1,53 +1,54 @@
-
 import * as d3 from 'd3'
 
 // See https://observablehq.com/@mbostock/saving-svg 
 
-function serialize(svg) {
+export function serialize(svg) {
   const xmlns = "http://www.w3.org/2000/xmlns/"
   const xlinkns = "http://www.w3.org/1999/xlink"
   const svgns = "http://www.w3.org/2000/svg"
 
-  svg = svg.cloneNode(true)
+  const domSvg = svg.node()
+  const cloneSvg = domSvg.cloneNode(true)
+  const d3Clone = d3.select(cloneSvg)
   // Delete all hidden items (backrop images) from clone
-  const d3Clone = d3.select(svg)
   d3Clone.selectAll('.hidden').remove()
 
   // I don't think this next loop is important in our situation
-  const fragment = window.location.href + "#"
-  const walker = document.createTreeWalker(svg, NodeFilter.SHOW_ELEMENT)
-  while (walker.nextNode()) {
-    for (const attr of walker.currentNode.attributes) {
-      if (attr.value.includes(fragment)) {
-        attr.value = attr.value.replace(fragment, "#")
-      }
-    }
-  }
-  svg.setAttributeNS(xmlns, "xmlns", svgns)
-  svg.setAttributeNS(xmlns, "xmlns:xlink", xlinkns)
+  // const fragment = window.location.href + "#"
+  // const walker = document.createTreeWalker(svg, NodeFilter.SHOW_ELEMENT)
+  // while (walker.nextNode()) {
+  //   for (const attr of walker.currentNode.attributes) {
+  //     if (attr.value.includes(fragment)) {
+  //       attr.value = attr.value.replace(fragment, "#")
+  //     }
+  //   }
+  // }
+
+  cloneSvg.setAttributeNS(xmlns, "xmlns", svgns)
+  cloneSvg.setAttributeNS(xmlns, "xmlns:xlink", xlinkns)
   const serializer = new window.XMLSerializer
-  const string = serializer.serializeToString(svg)
+  const string = serializer.serializeToString(cloneSvg)
   return new Blob([string], {type: "image/svg+xml"})
 }
 
-export function rasterize(d3Svg) {
+export function rasterize(svg) {
   let resolve, reject
-  const svg = d3Svg.node()
+  const domSvg = svg.node()
   const promise = new Promise((y, n) => (resolve = y, reject = n))
   const image = new Image
   image.onerror = reject
   image.onload = () => {
-    const rect = svg.getBoundingClientRect()
+    const rect = domSvg.getBoundingClientRect()
     // Create a canvas element
-    var canvas = document.createElement('canvas')
+    let canvas = document.createElement('canvas')
     canvas.width = rect.width
     canvas.height = rect.height
-    var context = canvas.getContext('2d')
+    let context = canvas.getContext('2d')
     context.drawImage(image, 0, 0, rect.width, rect.height)
     context.canvas.toBlob(resolve)
   }
   image.src = URL.createObjectURL(serialize(svg))
-  //const data = new XMLSerializer().serializeToString(svg)
+  //const data = new XMLSerializer().serializeToString(domSvg)
   //image.src = "data:image/svg+xml; charset=utf8, " + encodeURIComponent(data)
   return promise
 }

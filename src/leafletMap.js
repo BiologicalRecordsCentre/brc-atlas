@@ -136,6 +136,9 @@ export function leafletMap({
   map.getPane('esbatlaspane').style.zIndex = 650
   const svg = d3.select(map.getPane('esbatlaspane')).append("svg")
   svg.attr('id', 'atlas-leaflet-svg')
+  // Added overflow visible to svg (02/09/2021) because it was found to fix a very odd problem - svg graphics not
+  // visible in ESB atlas but only on Firefox on Windows.
+  svg.style('overflow', 'visible')
   //const svg = d3.select(map.getPanes().overlayPane).append("svg")
   const g = svg.append("g").attr("class", "leaflet-zoom-hide")
 

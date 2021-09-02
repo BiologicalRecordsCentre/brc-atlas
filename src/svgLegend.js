@@ -54,7 +54,7 @@ export function svgLegend(svg, legendOpts) {
 
   const legendData = legendOpts.data ? legendOpts.data : legendOpts.accessorData
   const legendX = legendOpts.x ? legendOpts.x : 0
-  const legendY = legendOpts.y ? legendOpts.x : 0
+  const legendY = legendOpts.y ? legendOpts.y : 0
   const legendScale = legendOpts.scale ? legendOpts.scale : 1
   const lineHeight = 20
   const swatchPixels = lineHeight / 3
@@ -206,4 +206,8 @@ export function svgLegend(svg, legendOpts) {
     }
   })
   gLegend.attr("transform", `translate(${legendX},${legendY}) scale(${legendScale}, ${legendScale})`)
+
+  // Set the font attribues for all text in legend
+  gLegend.selectAll('text').style('font-family','Arial, Helvetica, sans-serif')
+  gLegend.selectAll('text').style('font-size','14px')
 }

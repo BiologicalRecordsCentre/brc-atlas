@@ -1167,80 +1167,6 @@
     return _typeof(obj);
   }
 
-  function _unsupportedIterableToArray$1(o, minLen) {
-    if (!o) return;
-    if (typeof o === "string") return _arrayLikeToArray$1(o, minLen);
-    var n = Object.prototype.toString.call(o).slice(8, -1);
-    if (n === "Object" && o.constructor) n = o.constructor.name;
-    if (n === "Map" || n === "Set") return Array.from(o);
-    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$1(o, minLen);
-  }
-
-  function _arrayLikeToArray$1(arr, len) {
-    if (len == null || len > arr.length) len = arr.length;
-
-    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
-
-    return arr2;
-  }
-
-  function _createForOfIteratorHelper(o, allowArrayLike) {
-    var it;
-
-    if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) {
-      if (Array.isArray(o) || (it = _unsupportedIterableToArray$1(o)) || allowArrayLike && o && typeof o.length === "number") {
-        if (it) o = it;
-        var i = 0;
-
-        var F = function () {};
-
-        return {
-          s: F,
-          n: function () {
-            if (i >= o.length) return {
-              done: true
-            };
-            return {
-              done: false,
-              value: o[i++]
-            };
-          },
-          e: function (e) {
-            throw e;
-          },
-          f: F
-        };
-      }
-
-      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-    }
-
-    var normalCompletion = true,
-        didErr = false,
-        err;
-    return {
-      s: function () {
-        it = o[Symbol.iterator]();
-      },
-      n: function () {
-        var step = it.next();
-        normalCompletion = step.done;
-        return step;
-      },
-      e: function (e) {
-        didErr = true;
-        err = e;
-      },
-      f: function () {
-        try {
-          if (!normalCompletion && it.return != null) it.return();
-        } finally {
-          if (didErr) throw err;
-        }
-      }
-    };
-  }
-
   function globals (defs) {
     defs('EPSG:4326', "+title=WGS 84 (long/lat) +proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees");
     defs('EPSG:4269', "+title=NAD83 (long/lat) +proj=longlat +a=6378137.0 +b=6356752.31414036 +ellps=GRS80 +datum=NAD83 +units=degrees");
@@ -9649,7 +9575,7 @@
   function svgLegend(svg, legendOpts) {
     var legendData = legendOpts.data ? legendOpts.data : legendOpts.accessorData;
     var legendX = legendOpts.x ? legendOpts.x : 0;
-    var legendY = legendOpts.y ? legendOpts.x : 0;
+    var legendY = legendOpts.y ? legendOpts.y : 0;
     var legendScale = legendOpts.scale ? legendOpts.scale : 1;
     var lineHeight = 20;
     var swatchPixels = lineHeight / 3;
@@ -9777,52 +9703,42 @@
         gLegend.append('rect').attr("x", 0).attr("y", lineHeight * (y + 2.5) + iUnderlinePad).attr("width", offsets[nCells - 1] + maxWidths[nCells - 1]).attr("height", 1).attr("style", "fill:black");
       }
     });
-    gLegend.attr("transform", "translate(".concat(legendX, ",").concat(legendY, ") scale(").concat(legendScale, ", ").concat(legendScale, ")"));
+    gLegend.attr("transform", "translate(".concat(legendX, ",").concat(legendY, ") scale(").concat(legendScale, ", ").concat(legendScale, ")")); // Set the font attribues for all text in legend
+
+    gLegend.selectAll('text').style('font-family', 'Arial, Helvetica, sans-serif');
+    gLegend.selectAll('text').style('font-size', '14px');
   }
 
   function serialize(svg) {
     var xmlns = "http://www.w3.org/2000/xmlns/";
     var xlinkns = "http://www.w3.org/1999/xlink";
     var svgns = "http://www.w3.org/2000/svg";
-    svg = svg.cloneNode(true); // Delete all hidden items (backrop images) from clone
+    var domSvg = svg.node();
+    var cloneSvg = domSvg.cloneNode(true);
+    var d3Clone = d3.select(cloneSvg); // Delete all hidden items (backrop images) from clone
 
-    var d3Clone = d3.select(svg);
     d3Clone.selectAll('.hidden').remove(); // I don't think this next loop is important in our situation
+    // const fragment = window.location.href + "#"
+    // const walker = document.createTreeWalker(svg, NodeFilter.SHOW_ELEMENT)
+    // while (walker.nextNode()) {
+    //   for (const attr of walker.currentNode.attributes) {
+    //     if (attr.value.includes(fragment)) {
+    //       attr.value = attr.value.replace(fragment, "#")
+    //     }
+    //   }
+    // }
 
-    var fragment = window.location.href + "#";
-    var walker = document.createTreeWalker(svg, NodeFilter.SHOW_ELEMENT);
-
-    while (walker.nextNode()) {
-      var _iterator = _createForOfIteratorHelper(walker.currentNode.attributes),
-          _step;
-
-      try {
-        for (_iterator.s(); !(_step = _iterator.n()).done;) {
-          var attr = _step.value;
-
-          if (attr.value.includes(fragment)) {
-            attr.value = attr.value.replace(fragment, "#");
-          }
-        }
-      } catch (err) {
-        _iterator.e(err);
-      } finally {
-        _iterator.f();
-      }
-    }
-
-    svg.setAttributeNS(xmlns, "xmlns", svgns);
-    svg.setAttributeNS(xmlns, "xmlns:xlink", xlinkns);
+    cloneSvg.setAttributeNS(xmlns, "xmlns", svgns);
+    cloneSvg.setAttributeNS(xmlns, "xmlns:xlink", xlinkns);
     var serializer = new window.XMLSerializer();
-    var string = serializer.serializeToString(svg);
+    var string = serializer.serializeToString(cloneSvg);
     return new Blob([string], {
       type: "image/svg+xml"
     });
   }
-
-  function rasterize(d3Svg) {
+  function rasterize(svg) {
     var resolve, reject;
-    var svg = d3Svg.node();
+    var domSvg = svg.node();
     var promise = new Promise(function (y, n) {
       return resolve = y, reject = n;
     });
@@ -9830,7 +9746,7 @@
     image.onerror = reject;
 
     image.onload = function () {
-      var rect = svg.getBoundingClientRect(); // Create a canvas element
+      var rect = domSvg.getBoundingClientRect(); // Create a canvas element
 
       var canvas = document.createElement('canvas');
       canvas.width = rect.width;
@@ -9840,7 +9756,7 @@
       context.canvas.toBlob(resolve);
     };
 
-    image.src = URL.createObjectURL(serialize(svg)); //const data = new XMLSerializer().serializeToString(svg)
+    image.src = URL.createObjectURL(serialize(svg)); //const data = new XMLSerializer().serializeToString(domSvg)
     //image.src = "data:image/svg+xml; charset=utf8, " + encodeURIComponent(data)
 
     return promise;
@@ -10229,19 +10145,21 @@
       return trans.width;
     }
     /** @function saveMap
+      * @param {boolean} asSvg - a boolean value that indicates whether to generate an SVG (if false, generates PNG image). 
       * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
       * Creates an image from the displayed map and downloads to user's computer.
       */
 
 
-    function saveMap() {
-      rasterize(svg).then(function (blob) {
-        var blobUrl = URL.createObjectURL(blob); // Create a link element
+    function saveMap(asSvg) {
+      var download = function download(data) {
+        console.log('data', data);
+        var dataUrl = URL.createObjectURL(data); // Create a link element
 
-        var link = document.createElement("a"); // Set link's href to point to the Blob URL
+        var link = document.createElement("a"); // Set link's href to point to the data URL
 
-        link.href = blobUrl;
-        link.download = 'map.png'; // Append link to the body
+        link.href = dataUrl;
+        link.download = asSvg ? 'map.svg' : 'map.png'; // Append link to the body
 
         document.body.appendChild(link); // Dispatch click event on the link
         // This is necessary as link.click() does not work on the latest firefox
@@ -10253,7 +10171,15 @@
         })); // Remove link from body
 
         document.body.removeChild(link);
-      });
+      };
+
+      if (asSvg) {
+        download(serialize(svg));
+      } else {
+        rasterize(svg).then(function (blob) {
+          download(blob);
+        });
+      }
     }
     /**
      * @typedef {Object} api
@@ -10443,7 +10369,10 @@
     map.createPane('esbatlaspane');
     map.getPane('esbatlaspane').style.zIndex = 650;
     var svg = d3.select(map.getPane('esbatlaspane')).append("svg");
-    svg.attr('id', 'atlas-leaflet-svg'); //const svg = d3.select(map.getPanes().overlayPane).append("svg")
+    svg.attr('id', 'atlas-leaflet-svg'); // Added overflow visible to svg (02/09/2021) because it was found to fix a very odd problem - svg graphics not
+    // visible in ESB atlas but only on Firefox on Windows.
+
+    svg.style('overflow', 'visible'); //const svg = d3.select(map.getPanes().overlayPane).append("svg")
 
     var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
