@@ -39,6 +39,7 @@ import { rasterize, serialize } from './savesvg.js'
  * @param {string} opts.boundaryGjson - The URL of a boundary geoJson file to display.
  * @param {string} opts.gridGjson - The URL of a grid geoJson file to display.
  * @param {string} opts.gridLineColour - Specifies the line colour of grid line geoJson.
+ * @param {string} opts.gridLineStyle - Specifies the line style of the grid line geoJson. Can be solid, dashed or none. (Default solid.)
  * @param {string} opts.boundaryColour - Specifies the line colour of the boundary geoJson.
  * @param {string} opts.boundaryFill - Specifies the fill colour of the boundary geoJson.
  * @param {string} opts.seaFill - Specifies the fill colour of the area outside the boundary geoJson.
@@ -65,6 +66,7 @@ export function svgMap({
   boundaryGjson = `${constants.cdn}/assets/GB-I-CI-27700-reduced.geojson`,
   gridGjson = `${constants.cdn}/assets/GB-I-grid-27700-reduced.geojson`,
   gridLineColour = '#7C7CD3',
+  gridLineStyle = 'solid',
   boundaryColour = '#7C7CD3',
   boundaryFill = 'white',
   seaFill = '#E6EFFF',
@@ -104,6 +106,8 @@ export function svgMap({
   basemaps = svg.append("g").attr("id", "backimage")
   boundary = svg.append("g").attr("id", "boundary")
   grid = svg.append("g").attr("id", "grid")
+    .style("stroke-dasharray", gridLineStyle === "dashed" ? "3,2" : "")
+    .style("display", gridLineStyle === "none" ? "none" : "")
 
   // Options dialog. 
   if ((transOptsControl && Object.keys(transOptsSel).length > 1) || 
@@ -304,8 +308,17 @@ export function svgMap({
   function setGridColour(c){
     grid.style("stroke", c)
   }
-  
 
+/** @function setGridLineStyle
+  * @param {string} c - a string specifying the style which can be set to either solid, dashed or none. 
+  * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+  * Sets the grid style to the specified value.
+  */
+  function setGridLineStyle(c){
+    grid.style("stroke-dasharray", c === "dashed" ? "3,2" : "1,0")
+    grid.style("display", c === "none" ? "none" : "")
+  }
+  
 /** @function setIdentfier
   * @param {string} identifier - a string which identifies some data to 
   * a data accessor function.
@@ -437,6 +450,8 @@ export function svgMap({
    * @property {module:svgMap~setGridColour} setGridColour - Change the colour of the grid. Pass a single argument
    * which is a string specifying the colour which can be hex format, e.g. #FFA500, 
    * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
+   * @property {module:svgMap~setGridLineStyle} setGridLineStyle - Set the line style of the grid line geoJson. 
+   * Can be solid, dashed or none.
    * @property {module:svgMap~setTransform} setTransform - Set the transformation options object by passing a single argument
    * which is a string indicating the key of the transformation in the parent object.
    * @property {module:svgMap~getMapWidth} getMapWidth - Gets and returns the current width of the SVG map. 
@@ -453,6 +468,7 @@ export function svgMap({
   return {
     setBoundaryColour: setBoundaryColour,
     setGridColour: setGridColour,
+    setGridLineStyle: setGridLineStyle,
     setTransform: setTransform,
     getMapWidth: getMapWidth,
     animateTransChange: animateTransChange,

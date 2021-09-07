@@ -547,6 +547,29 @@ bottom-right of the map that can be used display a dialog to change the data acc
 
         <tr>
             
+                <td class="name"><code>gridLineStyle</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Specifies the line style of the grid line geoJson. Can be solid, dashed or none. (Default solid.)</td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>boundaryColour</code></td>
             
 
@@ -703,7 +726,7 @@ bottom-right of the map that can be used display a dialog to change the data acc
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line49">line 49</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line50">line 50</a>
     </li></ul></dd>
     
 
@@ -865,7 +888,7 @@ previous.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line262">line 262</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line266">line 266</a>
     </li></ul></dd>
     
 
@@ -1075,7 +1098,7 @@ data for boundary and/or grid files.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line329">line 329</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line342">line 342</a>
     </li></ul></dd>
     
 
@@ -1214,7 +1237,7 @@ at the same time. Those at the start of the array have higher priority than thos
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line344">line 344</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line357">line 357</a>
     </li></ul></dd>
     
 
@@ -1303,7 +1326,7 @@ Clear the map of dots and legend.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line372">line 372</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line385">line 385</a>
     </li></ul></dd>
     
 
@@ -1392,7 +1415,7 @@ Return the width of the map.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line381">line 381</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line394">line 394</a>
     </li></ul></dd>
     
 
@@ -1481,7 +1504,7 @@ Redraw the map, e.g. after changing map accessor function or map identifier.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line364">line 364</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line377">line 377</a>
     </li></ul></dd>
     
 
@@ -1619,7 +1642,7 @@ Creates an image from the displayed map and downloads to user's computer.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line389">line 389</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line402">line 402</a>
     </li></ul></dd>
     
 
@@ -1758,7 +1781,7 @@ RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line288">line 288</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line292">line 292</a>
     </li></ul></dd>
     
 
@@ -1897,7 +1920,145 @@ RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line298">line 298</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line302">line 302</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~setGridLineStyle"><span class="type-signature">(inner) </span>setGridLineStyle<span class="signature">(c)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+Sets the grid style to the specified value.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>c</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">a string specifying the style which can be set to either solid, dashed or none.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line312">line 312</a>
     </li></ul></dd>
     
 
@@ -2037,7 +2198,7 @@ a data accessor function.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line309">line 309</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line322">line 322</a>
     </li></ul></dd>
     
 
@@ -2176,7 +2337,7 @@ of the legend itself.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line354">line 354</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line367">line 367</a>
     </li></ul></dd>
     
 
@@ -2314,7 +2475,7 @@ The data accessor is stored in the mapTypesSel object and referenced by this key
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line320">line 320</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line333">line 333</a>
     </li></ul></dd>
     
 
@@ -2453,7 +2614,7 @@ redisplays the map
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line246">line 246</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line250">line 250</a>
     </li></ul></dd>
     
 
@@ -2582,6 +2743,30 @@ RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.</td>
             <td class="description last">Change the colour of the grid. Pass a single argument
 which is a string specifying the colour which can be hex format, e.g. #FFA500, 
 RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>setGridLineStyle</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-svgMap.html#~setGridLineStyle">module:svgMap~setGridLineStyle</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Set the line style of the grid line geoJson. 
+Can be solid, dashed or none.</td>
         </tr>
 
     
@@ -2874,7 +3059,7 @@ which is a string indicating the key of the transformation in the parent object.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line432">line 432</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line445">line 445</a>
     </li></ul></dd>
     
 
@@ -2910,7 +3095,7 @@ which is a string indicating the key of the transformation in the parent object.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Thu Sep 02 2021 09:19:29 GMT-0700 (Pacific Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Tue Sep 07 2021 06:54:53 GMT-0700 (Pacific Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

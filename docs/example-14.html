@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>BRC Atlas Library larger datasets</title>
+  <style>
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 15px;
+    }
+    li {
+      margin-bottom: 1em;
+    }
+    #controls button {
+      margin-top: 0.5em
+    }
+
+    .loader {
+      border: 10px solid #f3f3f3; /* Light grey */
+      border-top: 10px solid #3498db; /* Blue */
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 2s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <h1>Using the BRC Atlas Library</h1>
+    <h2>BRC Atlas Library using larger datasets and busy indicators</h2>
+    <div>
+      <div id="map" style="float: left"></div>
+      <div id="controls" style="display: inline-block; margin-left: 0.5em">
+        <button onclick="showDots('Cochlearia_danica_hectads', 'Standard hectad')">Cochlearia danica - hectads</button><br/>
+        <button onclick="showDots('Cochlearia_danica_tetrads', 'Standard tetrad')">Cochlearia danica - tetrads</button><br/>
+        <button onclick="showDots('Cochlearia_danica_monads', 'Standard monad')">Cochlearia danica - monads</button><br/>
+        <button onclick="showDots('Plantago_major_hectads', 'Standard hectad')">Plantago major - hectads</button><br/>
+        <button onclick="showDots('Plantago_major_tetrads', 'Standard tetrad')">Plantago major - tetrads</button><br/>
+        <button onclick="showDots('Urtica_dioica_hectads', 'Standard hectad')">Urtica dioica - hectads</button><br/>
+        <button onclick="showDots('Urtica_dioica_tetrads', 'Standard tetrad')">Urtica dioica - tetrads</button>
+        <div style="margin-top: 0.5em">
+          <input type="radio" name="symboltype" value="circle" id="symb-poly-circle" checked> 
+          <label for="symb-poly-circle">Polygon circles</label>
+          <input type="radio" name="symboltype" value="square" id="symb-poly-square">
+          <label for="symb-poly-square">Polygon squares</label>
+          <input type="radio" name="symboltype" value="circlerad" id="symb-circle">
+          <label for="symb-circle">SVG Circles</label>
+        </div>
+        <p id="loader-text"></p>
+        <div id="loader" style="display: none; margin: 1em">
+          <div class="loader"></div>
+        </div>
+      </div>   
+    </div>
+    <br style="clear: left"/>
+    <p>
+      Explore the source of this page to see how it works.
+    </p>
+
+    <!--JS and CSS required for highlighting inline example code-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/a11y-light.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <!--Page CSS-->
+    <link rel="stylesheet" href="example.css" />
+
+    <!--D3 JS required exernal dependency of BRC Atlas library-->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <!--Leaflet JS required exernal dependency of BRC Atlas library-->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+    <!--BRC Atlas library JS and CSS-->
+    <script src="./../dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="./../dist/brcatlas.umd.css">
+    <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
+
+    <script>
+
+      var t1
+
+      function startLoad() {
+        t1 = Math.floor(Date.now() / 100)
+        document.getElementById('loader').style.display = 'block'
+        d3.select('#loader-text').html('Downloading data...')
+      }
+      function endLoad() {
+        document.getElementById('loader').style.display = 'none'
+        var t2 = Math.floor(Date.now() / 100)
+        d3.select('#loader-text').html('Downloading took ' + String((t2-t1)/10) + ' seconds' )
+      }
+      function startDraw() {
+        t1 = Math.floor(Date.now() / 100)
+        document.getElementById('loader').style.display = 'block'
+        d3.select('#loader-text').html('Displaying data...')
+      }
+      function endDraw() {
+        document.getElementById('loader').style.display = 'none'
+        var t2 = Math.floor(Date.now() / 100)
+        d3.select('#loader-text').html('Displaying took ' + String((t2-t1)/10) + ' seconds' )
+      }
+
+      var map = brcatlas.leafletMap({
+        selector: "#map",
+        callbacks: [startDraw, endDraw, startLoad, endLoad]
+      })
+      function showDots(csv, mapType) {
+        //console.log(csv, mapType)
+        var symbol = d3.select('input[name="symboltype"]:checked').node().value
+        //console.log(symbol)
+
+        map.setMapType(mapType)
+        map.setIdentfier('../bsbi/' + csv + '_' + symbol + '.csv')
+        map.redrawMap()
+      }
+
+    </script>
+  </div>
+</body>
+</html>

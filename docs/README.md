@@ -15,3 +15,4 @@ For API details - [JSDoc API documentation](https://biologicalrecordscentre.gith
 - [Configuring, adding and removing Slippy basemaps](example-10.html)
 - [Adding and removing GeoJson layers to Slippy map](example-12.html)
 - [Creating legends - simple and tabulated](example-13.html)
+- [Busy indicators and large datasets on slippy map](example-14.html)

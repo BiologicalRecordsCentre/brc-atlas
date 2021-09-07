@@ -34,9 +34,14 @@ import { svgLegend } from './svgLegend.js'
  * names are the 'keys' which should be human readable descriptiosn of the map types.
  * @param {string} opts.mapTypesKey - Sets the key of the selected data accessor function (map type).
  * @param {legendOpts} opts.legendOpts - Sets options for a map legend.
+ * @param {Array.<function>} opts.callbacks - An array of callbacks that can be used during data loading/display. 
+ * Typically these can be used to display/hide busy indicators.
+ * <br/>callback[0] is fired at the start of data redraw.
+ * <br/>callback[1] is fired at the end of data redraw.
+ * <br/>callback[2] is fired at the start of data download.
+ * <br/>callback[3] is fired at the end of data download.
  * @returns {module:slippyMap~api} Returns an API for the map.
  */
-
 
 export function leafletMap({
   // Default options in here
@@ -51,6 +56,7 @@ export function leafletMap({
   mapTypesKey = 'Standard hectad',
   mapTypesSel = dataAccessors,
   legendOpts = {display: false},
+  callbacks = []
 } = {}) {
   let taxonIdentifier, precision
   let dots = {}
@@ -95,9 +101,9 @@ export function leafletMap({
 
   const map = new L.Map(mapid, {center: [55, -4], zoom: 6, layers:[baseMaps[selectedBaselayerName]]})
   
-  map.on("viewreset", reset) // Not firing on current version - seems to be a bug
-  map.on("zoomend", reset)
-  map.on("moveend", reset)
+  map.on("viewreset", redraw) // Not firing on current version - seems to be a bug
+  map.on("zoomend", redraw)
+  map.on("moveend", redraw)
   map.zoomControl.setPosition('topright')
 
   // Record the currently selected basemap layer
@@ -182,16 +188,16 @@ export function leafletMap({
     }
   }
 
-  function reset() { 
-    // Hide point markers
-    if (markers && precision!==0) {
-      map.removeLayer(markers)
-    }
 
-    console.log('zoom', map.getZoom())
+  function redraw() {
 
-    const symbolOutline = true
-    const view = map.getBounds()
+    // redraw and yieldRedraw are separated into two separate
+    // functions so that callbacks[0] can be called before 
+    // called the rest of the code asynchronously. This is 
+    // required in order to yield control to event queue so that
+    // if callbacks[0] updates gui (e.g. to show busy indicator)
+    // it happens before rest of code executed.
+
     const deg5km = 0.0447
     let data, buffer
 
@@ -211,11 +217,10 @@ export function leafletMap({
       data = []
       buffer = 0
     }
-
+    
     if (!data || !data.records || !data.records.length) {
       d3.select(`#${mapid}`).select('.legendDiv').style('display', 'none')
       svg.style('display', 'none')
-      return
     } else {
       if (legendOpts.display) {
         d3.select(`#${mapid}`).select('.legendDiv').style('display', 'block')
@@ -227,7 +232,24 @@ export function leafletMap({
       } else {
         svg.style('display', 'block')
       }
+      //svg.style('display', 'none')
+
+      // callback[0] is fired at the start of data display
+      // can be used to show a busy indicator.
+      if (callbacks[0]) callbacks[0]()
+      setTimeout(() => yieldRedraw(data, buffer), 50)
     }
+  }
+
+  function yieldRedraw(data, buffer) { 
+    
+    // Hide point markers
+    if (markers && precision!==0) {
+      map.removeLayer(markers)
+    }
+
+    const symbolOutline = true
+    const view = map.getBounds()
 
     const filteredData = data.records.filter(function(d){
       if (d.lng  < view._southWest.lng - buffer ||
@@ -247,8 +269,11 @@ export function leafletMap({
       }
     })
 
+    //console.log(filteredData)
+
     if (precision!==0) {
       // Atlas data - goes onto an SVG where D3 can work with it
+
       const bounds = path.bounds({
         type: "FeatureCollection",
         features: filteredData.map(d => {
@@ -268,49 +293,166 @@ export function leafletMap({
 
       g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")")
 
-      // Update the features
-      const u = g.selectAll("path")
-        .data(filteredData, function(d) {
-            return d.gr
+      // I can't find a way of dealing with paths and circles in the same
+      // enter/update statement. (There may be a way using d3 symbols for
+      // creating the circles, but sizing would need work.) So instead
+      // we do two enter/update statements - one for circles and one for
+      // paths, but it means that we have to repeat all the common code
+      // for setting properties, event handlers etc.
+
+      // Separate data rendered with path and data rendered with Circle
+      const filteredDataPath = filteredData.filter(d => {
+        const shape = d.shape ? d.shape : data.shape
+        return shape!=='circlerad'
+      })
+      const filteredDataCircle = filteredData.filter(d => {
+        const shape = d.shape ? d.shape : data.shape
+        return shape==='circlerad'
+      })
+
+      // Create promises to be resolved when the circles and paths
+      // have been redrawn.
+      let pRedrawPath, pRedrawCircle
+ 
+      const up = g.selectAll("path")
+        .data(filteredDataPath, function(d) {
+          return d.gr
         })
-      u.enter()
-        .append("path")
-        .style("pointer-events", "all")
-        .style("cursor", () => {
-          if (onclick) {
-            return 'pointer'
-          }
-        })
-        .on('click', d => {
-          if (onclick) {
-            onclick(d.gr, d.id ? d.id : null, d.caption ? d.caption : null)
-          }
-        })
-        .on('mouseover', d => {
-          if (captionId) {
-            if (d.caption) {
-              d3.select(`#${captionId}`).html(d.caption)
-            } else {
-              d3.select(`#${captionId}`).html('')
-            }
-          }
-        })
-      .merge(u)
-        .attr("d", d => {
-          return path(d.geometry)
-        })
-        .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
-        .style("fill", d => d.colour ? d.colour : data.colour)
-        .attr("fill", d => d.colour)
-        .attr("stroke-width", () => {
-          if (symbolOutline) {
-            return '1'
-          } else {
-            return '0'
-          }
-        })
-      u.exit()
+      up.exit()
         .remove()
+
+      if (filteredDataPath.length) {
+
+        pRedrawPath = up.enter()
+          .append("path")
+          .style("pointer-events", "all")
+          .style("cursor", () => {
+            if (onclick) {
+              return 'pointer'
+            }
+          })
+          .on('click', d => {
+            if (onclick) {
+              onclick(d.gr, d.id ? d.id : null, d.caption ? d.caption : null)
+            }
+          })
+          .on('mouseover', d => {
+            if (captionId) {
+              if (d.caption) {
+                d3.select(`#${captionId}`).html(d.caption)
+              } else {
+                d3.select(`#${captionId}`).html('')
+              }
+            }
+          })
+        .merge(up)
+          .transition().duration(0) // Required in order to use .end promise
+          .attr("d", d => {
+            return path(d.geometry)
+          })
+          .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
+          .attr("fill", d => d.colour ? d.colour : data.colour)
+          .attr("stroke-width", () => {
+            if (symbolOutline) {
+              return '1'
+            } else {
+              return '0'
+            }
+          })
+          .end()
+      } else {
+        pRedrawPath = Promise.resolve()
+      }
+    
+      const uc = g.selectAll("circle")
+        .data(filteredDataCircle, function(d) {
+          return d.gr
+        })
+      uc.exit()
+        .remove()
+
+      if (filteredDataCircle.length) {
+        // Because of projection, the radii of the circles can end up
+        // with several values which looks wrong, so we set all to the
+        // maximum value.
+        let rad = filteredDataCircle.reduce((max, d) => {
+          const c0 = d.geometry.coordinates[0][0]
+          const c1 = d.geometry.coordinates[0][1]
+          const x0 = map.latLngToLayerPoint(new L.LatLng(c0[1], c0[0])).x
+          const x1 = map.latLngToLayerPoint(new L.LatLng(c1[1], c1[0])).x
+          const rad = Math.floor(Math.abs(x1 - x0))
+          return rad > max ? rad : max
+        }, 0)
+        if (rad === 0) rad=1
+
+        // Update the features
+        
+        pRedrawCircle = uc.enter()
+          .append("circle")
+          .style("pointer-events", "all")
+          .style("cursor", () => {
+            if (onclick) {
+              return 'pointer'
+            }
+          })
+          .on('click', d => {
+            if (onclick) {
+              onclick(d.gr, d.id ? d.id : null, d.caption ? d.caption : null)
+            }
+          })
+          .on('mouseover', d => {
+            if (captionId) {
+              if (d.caption) {
+                d3.select(`#${captionId}`).html(d.caption)
+              } else {
+                d3.select(`#${captionId}`).html('')
+              }
+            }
+          })
+        .merge(uc)
+          .transition().duration(0) // Required in order to use .end promise
+          .attr("cx", d => {
+            return  map.latLngToLayerPoint(new L.LatLng(d.lat, d.lng)).x
+          })
+          .attr("cy", d => {
+            return map.latLngToLayerPoint(new L.LatLng(d.lat, d.lng)).y
+          })
+          .attr("r", d => rad * d.size)
+          .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
+          .attr("fill", d => d.colour ? d.colour : data.colour)
+          .attr("stroke-width", () => {
+            if (symbolOutline) {
+              return '1'
+            } else {
+              return '0'
+            }
+          })
+          .end()
+      } else {
+        pRedrawCircle = Promise.resolve()
+      }
+
+      pRedrawPath.then(() => {
+        //console.log("Paths complete")
+      })
+
+      pRedrawCircle.then(() => {
+        //console.log("Circles complete")
+      })
+
+      Promise.all([pRedrawPath, pRedrawCircle]).then(() => {
+        //console.log("Paths and circles complete")
+        // callback[1] is fired at the end of data display
+        // can be used to hide a busy indicator.
+        if (callbacks[1]) callbacks[1]()
+
+        // Redisplay the SVG
+        // if (precision===0) {
+        //   svg.style('display', 'none')
+        // } else {
+        //   svg.style('display', 'block')
+        // }
+      })
     }
   }
 
@@ -340,6 +482,11 @@ export function leafletMap({
   */
   function redrawMap(){
 
+    // callback[2] is fired as start of data download and
+    // can be used to show a busy indicator. As data is
+    // loaded asychronously, the gui should be updated okay.
+    if (callbacks[2]) callbacks[2]()
+
     const accessFunction = mapTypesSel[mapTypesKey]
     accessFunction(taxonIdentifier).then(data => {
       data.records = data.records.map(d => {
@@ -363,12 +510,15 @@ export function leafletMap({
         legendSvg.remove()
       }
 
+      // callback[3] is fired at the end of data download and
+      // can be used to hide a busy indicator.
+      if (callbacks[3]) callbacks[3]()
+
       if (precision===0){
         pointMarkers()
       } else {
-        reset()
+        redraw()
       }
-     
     })
   }
 
