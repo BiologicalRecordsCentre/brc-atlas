@@ -102,8 +102,18 @@ export function leafletMap({
   const map = new L.Map(mapid, {center: [55, -4], zoom: 6, layers:[baseMaps[selectedBaselayerName]]})
   
   map.on("viewreset", redraw) // Not firing on current version - seems to be a bug
-  map.on("zoomend", redraw)
-  map.on("moveend", redraw)
+  map.on("zoomstart", () => {
+    //console.log("zoom start")
+    svg.style('display', 'none')
+  })
+  map.on("zoomend", () => {
+    //console.log("zoom end")
+    redraw()
+  })
+  map.on("moveend", () => {
+    //console.log("move end")
+    redraw()
+  })
   map.zoomControl.setPosition('topright')
 
   // Record the currently selected basemap layer
@@ -146,7 +156,11 @@ export function leafletMap({
   // visible in ESB atlas but only on Firefox on Windows.
   svg.style('overflow', 'visible')
   //const svg = d3.select(map.getPanes().overlayPane).append("svg")
-  const g = svg.append("g").attr("class", "leaflet-zoom-hide")
+
+  // Dont use the leaflet class leaflet-zoom-hide because we are handling
+  // the hide/display of SVG layer ourselves so that it is only redisplayed
+  // once dots have been regenerated (because it is quite slow)
+  const g = svg.append("g") //.attr("class", "leaflet-zoom-hide")
 
   function pointMarkers() {
     // Hide the SVG (atlas elements)
@@ -227,12 +241,12 @@ export function leafletMap({
       } else {
         d3.select(`#${mapid}`).select('.legendDiv').style('display', 'none')
       }
-      if (precision===0) {
-        svg.style('display', 'none')
-      } else {
-        svg.style('display', 'block')
-      }
-      //svg.style('display', 'none')
+
+      // if (precision===0) {
+      //   svg.style('display', 'none')
+      // } else {
+      //   svg.style('display', 'block')
+      // }
 
       // callback[0] is fired at the start of data display
       // can be used to show a busy indicator.
@@ -447,11 +461,11 @@ export function leafletMap({
         if (callbacks[1]) callbacks[1]()
 
         // Redisplay the SVG
-        // if (precision===0) {
-        //   svg.style('display', 'none')
-        // } else {
-        //   svg.style('display', 'block')
-        // }
+        if (precision===0) {
+          svg.style('display', 'none')
+        } else {
+          svg.style('display', 'block')
+        }
       })
     }
   }

@@ -9865,7 +9865,7 @@
    * @param {string} opts.captionId - The id of a DOM element into which feature-specific HTML will be displayed
    * as the mouse moves over a dot on the map. The HTML markup must be stored in an attribute called 'caption'
    * in the input data.
-  * @param {function} opts.onclick - A function that will be called if user clicks on a map
+   * @param {function} opts.onclick - A function that will be called if user clicks on a map
    * element. The function will be passed these attributes, in this order, if they exist on the
    * element: gr, id, caption. (Default - null.)
    * @param {number} opts.height - The desired height of the SVG.
@@ -10443,8 +10443,18 @@
     });
     map.on("viewreset", redraw); // Not firing on current version - seems to be a bug
 
-    map.on("zoomend", redraw);
-    map.on("moveend", redraw);
+    map.on("zoomstart", function () {
+      //console.log("zoom start")
+      svg.style('display', 'none');
+    });
+    map.on("zoomend", function () {
+      //console.log("zoom end")
+      redraw();
+    });
+    map.on("moveend", function () {
+      //console.log("move end")
+      redraw();
+    });
     map.zoomControl.setPosition('topright'); // Record the currently selected basemap layer
 
     map.on('baselayerchange', function (e) {
@@ -10490,8 +10500,11 @@
     // visible in ESB atlas but only on Firefox on Windows.
 
     svg.style('overflow', 'visible'); //const svg = d3.select(map.getPanes().overlayPane).append("svg")
+    // Dont use the leaflet class leaflet-zoom-hide because we are handling
+    // the hide/display of SVG layer ourselves so that it is only redisplayed
+    // once dots have been regenerated (because it is quite slow)
 
-    var g = svg.append("g").attr("class", "leaflet-zoom-hide");
+    var g = svg.append("g"); //.attr("class", "leaflet-zoom-hide")
 
     function pointMarkers() {
       // Hide the SVG (atlas elements)
@@ -10573,13 +10586,11 @@
           d3.select("#".concat(mapid)).select('.legendDiv').style('display', 'block');
         } else {
           d3.select("#".concat(mapid)).select('.legendDiv').style('display', 'none');
-        }
-
-        if (precision === 0) {
-          svg.style('display', 'none');
-        } else {
-          svg.style('display', 'block');
-        } //svg.style('display', 'none')
+        } // if (precision===0) {
+        //   svg.style('display', 'none')
+        // } else {
+        //   svg.style('display', 'block')
+        // }
         // callback[0] is fired at the start of data display
         // can be used to show a busy indicator.
 
@@ -10748,11 +10759,12 @@
           // callback[1] is fired at the end of data display
           // can be used to hide a busy indicator.
           if (callbacks[1]) callbacks[1](); // Redisplay the SVG
-          // if (precision===0) {
-          //   svg.style('display', 'none')
-          // } else {
-          //   svg.style('display', 'block')
-          // }
+
+          if (precision === 0) {
+            svg.style('display', 'none');
+          } else {
+            svg.style('display', 'block');
+          }
         });
       }
     }
@@ -11184,7 +11196,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.13.0";
+  var version = "0.13.1";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";

@@ -20,7 +20,7 @@ import { rasterize, serialize } from './savesvg.js'
  * @param {string} opts.captionId - The id of a DOM element into which feature-specific HTML will be displayed
  * as the mouse moves over a dot on the map. The HTML markup must be stored in an attribute called 'caption'
  * in the input data.
-* @param {function} opts.onclick - A function that will be called if user clicks on a map
+ * @param {function} opts.onclick - A function that will be called if user clicks on a map
  * element. The function will be passed these attributes, in this order, if they exist on the
  * element: gr, id, caption. (Default - null.)
  * @param {number} opts.height - The desired height of the SVG.
