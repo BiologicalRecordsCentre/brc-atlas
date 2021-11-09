@@ -231,23 +231,28 @@ export function leafletMap({
       data = []
       buffer = 0
     }
-    
-    if (!data || !data.records || !data.records.length) {
+
+    legendOpts.accessorData = data.legend
+    if (!(legendOpts.display && (legendOpts.data || legendOpts.accessorData))) {
+    //if (!legendOpts || !legendOpts.data || !legendOpts.data.lines || !legendOpts.data.lines.length) { 
       d3.select(`#${mapid}`).select('.legendDiv').style('display', 'none')
-      svg.style('display', 'none')
     } else {
       if (legendOpts.display) {
         d3.select(`#${mapid}`).select('.legendDiv').style('display', 'block')
       } else {
         d3.select(`#${mapid}`).select('.legendDiv').style('display', 'none')
       }
-
-      // if (precision===0) {
-      //   svg.style('display', 'none')
+    }
+    
+    if (!data || !data.records || !data.records.length) {
+      // d3.select(`#${mapid}`).select('.legendDiv').style('display', 'none')
+      svg.style('display', 'none')
+    } else {
+      // if (legendOpts.display) {
+      //   d3.select(`#${mapid}`).select('.legendDiv').style('display', 'block')
       // } else {
-      //   svg.style('display', 'block')
+      //   d3.select(`#${mapid}`).select('.legendDiv').style('display', 'none')
       // }
-
       // callback[0] is fired at the start of data display
       // can be used to show a busy indicator.
       if (callbacks[0]) callbacks[0]()

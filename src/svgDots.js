@@ -43,7 +43,10 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           .transition()  
             .ease(d3.easeCubic)   
             .duration(500)
-          .attr("r", d => d.size ? radiusPixels * d.size : radiusPixels)
+          .attr("r", d => {
+            const size = d.size ? d.size : data.size
+            return size ? radiusPixels * size : radiusPixels
+          })
           .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
           .attr("data-caption", d => getCaption(d))
@@ -75,7 +78,10 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           .transition()  
             .ease(d3.easeCubic)   
             .duration(500)
-          .attr("r", d => d.size ? radiusPixels * d.size * 0.5 : radiusPixels * data.size * 0.5)
+          .attr("r", d => {
+            const size = d.size ? d.size : data.size
+            return radiusPixels * size * 0.5
+          })
           .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour2 ? d.colour2 : data.colour2)
           .attr("data-caption", d => getCaption(d))
@@ -108,15 +114,22 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           .transition()  
             .ease(d3.easeCubic)   
             .duration(500)
-          .attr("width", d => d.size ? 2 * radiusPixels * d.size : 2 * radiusPixels * data.size)
-          .attr("height", d => d.size ? 2 * radiusPixels * d.size : 2 * radiusPixels * data.size)
+          .attr("width", d => {
+            const size = d.size ? d.size : data.size
+            return 2 * radiusPixels * size 
+          })
+          .attr("height", d => {
+            const size = d.size ? d.size : data.size
+            return 2 * radiusPixels * size
+          })
           .attr("transform", d => {
+            const size = d.size ? d.size : data.size
             if (checkGr(d.gr).projection === 'ir') {
               const x = transform(getCentroid(d.gr, proj).centroid)[0]
               const y = transform(getCentroid(d.gr, proj).centroid)[1]
-              return `translate(${-radiusPixels},${-radiusPixels}) rotate(5 ${x} ${y})`
+              return `translate(${-radiusPixels * size},${-radiusPixels * size}) rotate(5 ${x} ${y})`
             } else {
-              return `translate(${-radiusPixels},${-radiusPixels})`
+              return `translate(${-radiusPixels * size},${-radiusPixels * size})`
             }
           })
           .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
@@ -161,6 +174,17 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
             .ease(d3.easeCubic)   
             .duration(500)
           .attr("d", d3.symbol().type(d3.symbolSquare).size(radiusPixels * radiusPixels * 2))
+          .attr("transform", d => {
+            const x = transform(getCentroid(d.gr, proj).centroid)[0]
+            const y = transform(getCentroid(d.gr, proj).centroid)[1]
+            // TODO - only do this rotation for output projection gb
+            const size = d.size ? d.size : data.size
+            if (checkGr(d.gr).projection === 'ir') {
+              return `translate(${x},${y}) rotate(50) scale(${size})`
+            } else {
+              return `translate(${x},${y}) rotate(45) scale(${size})`
+            }
+          })
           .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
           .attr("data-caption", d => getCaption(d))
@@ -190,7 +214,8 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
             const x = transform(getCentroid(d.gr, proj).centroid)[0]
             const y = transform(getCentroid(d.gr, proj).centroid)[1]
             let extraRotate, yOffset
-            if (d.shape === 'triangle-up') {
+            const shape = d.shape ? d.shape : data.shape
+            if (shape === 'triangle-up') {
               extraRotate=0
               yOffset=radiusPixels/3
             } else {
@@ -209,6 +234,26 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
             .ease(d3.easeCubic)   
             .duration(500)
           .attr("d", d3.symbol().type(d3.symbolTriangle).size(radiusPixels * radiusPixels * 1.7))
+          .attr("transform", d => {
+            const x = transform(getCentroid(d.gr, proj).centroid)[0]
+            const y = transform(getCentroid(d.gr, proj).centroid)[1]
+            let extraRotate, yOffset
+            const shape = d.shape ? d.shape : data.shape
+            if (shape === 'triangle-up') {
+              extraRotate=0
+              yOffset=radiusPixels/3
+            } else {
+              extraRotate=180
+              yOffset=-radiusPixels/3
+            }
+            const size = d.size ? d.size : data.size
+            // TODO - only do this rotation for output projection gb
+            if (checkGr(d.gr).projection === 'ir') {
+              return `translate(${x},${y + yOffset}) rotate(${5 + extraRotate}) scale(${size})`
+            } else {
+              return `translate(${x},${y + yOffset}) rotate(${extraRotate}) scale(${size})`
+            }
+          })
           .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
           .attr("data-caption", d => getCaption(d))

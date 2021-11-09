@@ -47,7 +47,8 @@ import * as d3 from 'd3'
  * array of strings for a tabulated legend layout. For tabulated legend layout, one of the strings can be set
  * to the special value of 'symbol' to indicate the position where the legend symbol should be generated in the
  * tabualted layout. In a tabulated legend layout, the various array elements in each line are aligned with those
- * in the other lines to form columns.
+ * in the other lines to form columns. You can use the HTML tags '<i></i>' and <b></b>' to italicise and bolden text
+ * in the legend lines.
  */
 
 export function svgLegend(svg, legendOpts) {
@@ -65,6 +66,16 @@ export function svgLegend(svg, legendOpts) {
   legendData.shape = legendData.shape ? legendData.shape : 'circle'
 
   const gLegend = svg.append('g').attr('id','legend')
+
+  const parseText = (text) => {
+    let legText = text
+    legText = legText.replaceAll('<i>', '<tspan style="font-style: italic">' )
+    legText = legText.replaceAll('</i>', '</tspan>' )
+    legText = legText.replaceAll('<b>', '<tspan style="font-weight: bold">' )
+    legText = legText.replaceAll('</b>', '</tspan>' )
+
+    return legText
+  }
 
   let iUnderlinePad = 0
   let iOffset
@@ -106,7 +117,7 @@ export function svgLegend(svg, legendOpts) {
           iLength = swatchPixels * 2
         } else {
           // Generate a temporary SVG text object in order to get width
-          const t = gLegend.append('text').text(l.text[i])
+          const t = gLegend.append('text').html(parseText(l.text[i]))
           iLength = t.node().getBBox().width
           t.remove()
           l.textWidth[i] = iLength
@@ -191,7 +202,7 @@ export function svgLegend(svg, legendOpts) {
             //.attr('x', swatchPixels * 2.7)
             .attr('x', offsets[i] + alignOffset)
             .attr('y', lineHeight * (y + 2.5) - lineHeight/20 + iUnderlinePad)
-            .text(l.text[i])
+            .html(parseText(l.text[i]))
         }
       }
     }
