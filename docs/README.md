@@ -16,3 +16,4 @@ For API details - [JSDoc API documentation](https://biologicalrecordscentre.gith
 - [Adding and removing GeoJson layers to Slippy map](example-12.html)
 - [Creating legends - simple and tabulated](example-13.html)
 - [Busy indicators and large datasets on slippy map](example-14.html)
+- [Vice County boundaries on slippy map](example-15.html)

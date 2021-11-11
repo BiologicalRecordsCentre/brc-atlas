@@ -10394,6 +10394,7 @@
    * @param {Object} opts - Initialisation options.
    * @param {string} opts.selector - The CSS selector of the element which will be the parent of the leaflet map.
    * @param {string} opts.mapid - The id for the slippy map to be created.
+   * @param {boolean} opts.showVcs - Indicates whether or not the map will display Vice County boundaries.
    * @param {string} opts.captionId - The id of a DOM element into which feature-specific HTML will be displayed
    * as the mouse moves over a dot on the map. The HTML markup must be stored in an attribute called 'caption'
    * in the input data.
@@ -10424,6 +10425,8 @@
         selector = _ref$selector === void 0 ? 'body' : _ref$selector,
         _ref$mapid = _ref.mapid,
         mapid = _ref$mapid === void 0 ? 'leafletMap' : _ref$mapid,
+        _ref$showVcs = _ref.showVcs,
+        showVcs = _ref$showVcs === void 0 ? false : _ref$showVcs,
         _ref$captionId = _ref.captionId,
         captionId = _ref$captionId === void 0 ? '' : _ref$captionId,
         _ref$clusterZoomThres = _ref.clusterZoomThreshold,
@@ -10451,6 +10454,13 @@
     var dots = {};
     var geojsonLayers = {};
     var markers = null;
+    var vcs = {
+      mbrs: null,
+      vcs1000: null,
+      vcs100: {},
+      vcs10: {},
+      vcsFull: {}
+    };
     d3.select(selector).append('div').attr('id', mapid).style('width', "".concat(width, "px")).style('height', "".concat(height, "px")); // Create basemaps from config
 
     var selectedBaselayerName;
@@ -10503,6 +10513,7 @@
     });
     map.on("moveend", function () {
       //console.log("move end")
+      redrawVcs();
       redraw();
     });
     map.zoomControl.setPosition('topright'); // Record the currently selected basemap layer
@@ -10555,6 +10566,8 @@
     // once dots have been regenerated (because it is quite slow)
 
     var g = svg.append("g"); //.attr("class", "leaflet-zoom-hide")
+
+    redrawVcs();
 
     function pointMarkers() {
       // Hide the SVG (atlas elements)
@@ -10825,6 +10838,185 @@
         });
       }
     }
+
+    function redrawVcs() {
+      console.log(map.getZoom()); //const root = constants.cdn
+
+      var root = ''; // Load the VC mbr file if not already
+
+      if (showVcs) {
+        if (!vcs.mbrs) {
+          var mbrFile = "".concat(root, "/assets/vcs/mbrs.csv");
+          d3.csv(mbrFile, function (vc) {
+            return {
+              vc: vc.vc,
+              _southWest: {
+                lat: Number(vc.lllat),
+                lng: Number(vc.lllon)
+              },
+              _northEast: {
+                lat: Number(vc.urlat),
+                lng: Number(vc.urlon)
+              }
+            };
+          }).then(function (data) {
+            vcs.mbrs = data;
+            displayVcs();
+          });
+        } else {
+          displayVcs();
+        }
+      } else {
+        console.log('VCs not shown'); // Remove any VCs currently displayed
+
+        if (map.hasLayer(vcs.vcs1000)) {
+          map.removeLayer(vcs.vcs1000);
+        }
+
+        Object.keys(vcs.vcs100).forEach(function (vc) {
+          if (map.hasLayer(vcs.vcs100[vc])) {
+            map.removeLayer(vcs.vcs100[vc]);
+          }
+        });
+        Object.keys(vcs.vcs10).forEach(function (vc) {
+          if (map.hasLayer(vcs.vcs10[vc])) {
+            map.removeLayer(vcs.vcs10[vc]);
+          }
+        });
+        Object.keys(vcs.vcsFull).forEach(function (vc) {
+          if (map.hasLayer(vcs.vcsFull[vc])) {
+            map.removeLayer(vcs.vcsFull[vc]);
+          }
+        });
+      }
+
+      function displayVcs() {
+        var zoom = map.getZoom();
+
+        if (zoom < 7) {
+          console.log('VCs simpified thousand');
+
+          if (!vcs.vcs1000) {
+            console.log("loading vcs-4326-1000.geojson");
+            d3.json("".concat(root, "/assets/vcs/vcs-4326-1000.geojson")).then(function (data) {
+              vcs.vcs1000 = L.geoJSON(data).addTo(map);
+            });
+          } else {
+            if (!map.hasLayer(vcs.vcs1000)) {
+              vcs.vcs1000.addTo(map);
+            }
+          }
+        } else {
+          if (map.hasLayer(vcs.vcs1000)) {
+            map.removeLayer(vcs.vcs1000);
+          }
+        }
+
+        if (zoom >= 7 && zoom < 10) {
+          console.log('VCs simpified hundred');
+          vcsInView().forEach(function (vc) {
+            if (!vcs.vcs100[vc]) {
+              console.log("loading 100/".concat(vc, ".geojson"));
+              d3.json("".concat(root, "/assets/vcs/100/").concat(vc, ".geojson")).then(function (data) {
+                vcs.vcs100[vc] = L.geoJSON(data).addTo(map);
+              });
+            } else {
+              if (!map.hasLayer(vcs.vcs100[vc])) {
+                vcs.vcs100[vc].addTo(map);
+              }
+            }
+          });
+        } else {
+          Object.keys(vcs.vcs100).forEach(function (vc) {
+            if (map.hasLayer(vcs.vcs100[vc])) {
+              map.removeLayer(vcs.vcs100[vc]);
+            }
+          });
+        }
+
+        if (zoom >= 10 && zoom < 12) {
+          console.log('VCs simpified ten');
+          vcsInView().forEach(function (vc) {
+            if (!vcs.vcs10[vc]) {
+              console.log("loading 10/".concat(vc, ".geojson"));
+              d3.json("".concat(root, "/assets/vcs/10/").concat(vc, ".geojson")).then(function (data) {
+                vcs.vcs10[vc] = L.geoJSON(data).addTo(map);
+              });
+            } else {
+              if (!map.hasLayer(vcs.vcs10[vc])) {
+                vcs.vcs10[vc].addTo(map);
+              }
+            }
+          });
+        } else {
+          Object.keys(vcs.vcs10).forEach(function (vc) {
+            if (map.hasLayer(vcs.vcs10[vc])) {
+              map.removeLayer(vcs.vcs10[vc]);
+            }
+          });
+        }
+
+        if (zoom >= 12) {
+          console.log('VCs full res');
+          vcsInView().forEach(function (vc) {
+            if (!vcs.vcsFull[vc]) {
+              console.log("loading full/".concat(vc, ".geojson"));
+              d3.json("".concat(root, "/assets/vcs/full/").concat(vc, ".geojson")).then(function (data) {
+                vcs.vcsFull[vc] = L.geoJSON(data).addTo(map);
+              });
+            } else {
+              if (!map.hasLayer(vcs.vcsFull[vc])) {
+                vcs.vcsFull[vc].addTo(map);
+              }
+            }
+          });
+        } else {
+          Object.keys(vcs.vcsFull).forEach(function (vc) {
+            if (map.hasLayer(vcs.vcsFull[vc])) {
+              map.removeLayer(vcs.vcsFull[vc]);
+            }
+          });
+        }
+      }
+
+      function vcsInView() {
+        return vcs.mbrs.filter(function (vc) {
+          return overlaps(vc, map.getBounds());
+        }).map(function (vc) {
+          return vc.vc;
+        });
+      }
+
+      function overlaps(v1, v2) {
+        //console.log(v1, v2)
+        var v1minx = v1._southWest.lng;
+        var v1maxx = v1._northEast.lng;
+        var v1miny = v1._southWest.lat;
+        var v1maxy = v1._northEast.lat;
+        var v2minx = v2._southWest.lng;
+        var v2maxx = v2._northEast.lng;
+        var v2miny = v2._southWest.lat;
+        var v2maxy = v2._northEast.lat; // Bottom left corner of v1 overlaps v2
+
+        if (v1minx > v2minx && v1minx < v2maxx && v1miny > v2miny && v1miny < v2maxy) return true; // Bottom right corner of v1 overlaps v2
+
+        if (v1maxx > v2minx && v1maxx < v2maxx && v1miny > v2miny && v1miny < v2maxy) return true; // Top right corner of v1 overlaps v2
+
+        if (v1maxx > v2minx && v1maxx < v2maxx && v1maxy > v2miny && v1maxy < v2maxy) return true; // Top left corner of v1 overlaps v2
+
+        if (v1minx > v2minx && v1minx < v2maxx && v1maxy > v2miny && v1maxy < v2maxy) return true; // Bottom left corner of v2 overlaps v1
+
+        if (v2minx > v1minx && v2minx < v1maxx && v2miny > v1miny && v2miny < v1maxy) return true; // Bottom right corner of v2 overlaps v1
+
+        if (v2maxx > v1minx && v2maxx < v1maxx && v2miny > v1miny && v2miny < v1maxy) return true; // Top right corner of v2 overlaps v1
+
+        if (v2maxx > v1minx && v2maxx < v1maxx && v2maxy > v1miny && v2maxy < v1maxy) return true; // Top left corner of v2 overlaps v1
+
+        if (v2minx > v1minx && v2minx < v1maxx && v2maxy > v1miny && v2maxy < v1maxy) return true; // No overlap
+
+        return false;
+      }
+    }
     /** @function setMapType
       * @param {string} newMapTypesKey - A string which a key used to identify a data accessor function. 
       * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
@@ -11073,6 +11265,16 @@
         pointMarkers();
       }
     }
+    /** @function setShowVcs
+      * @description <b>This function allows you to change whether or not Vice County boundaries are displayed.</b>.
+      * @param {boolean} show - Indicates whether or not to display VCs.
+      */
+
+
+    function setShowVcs(show) {
+      showVcs = show;
+      redrawVcs();
+    }
     /**
      * @typedef {Object} api
      * @property {module:slippyMap~setIdentfier} setIdentfier - Identifies data to the data accessor function.
@@ -11088,6 +11290,7 @@
      * @property {module:slippyMap~removeGeojsonLayer} removeGeojsonLayer - Remove a geojson layer from the map.
      * @property {module:slippyMap~showOverlay} showOverlay - Show/hide the overlay layer.
      * @property {module:slippyMap~changeClusterThreshold} changeClusterThreshold - Change the zoom cluster threshold for points.
+     * @property {module:slippyMap~setShowVcs} setShowVcs - Set the boolean flag which indicates whether or not to display VCs.
      * @property {module:slippyMap~map} lmap - Returns a reference to the leaflet map object.
      */
 
@@ -11106,6 +11309,7 @@
       removeGeojsonLayer: removeGeojsonLayer,
       showOverlay: showOverlay,
       changeClusterThreshold: changeClusterThreshold,
+      setShowVcs: setShowVcs,
       lmap: map
     };
   }
@@ -11253,7 +11457,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.13.2";
+  var version = "0.14.0";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";

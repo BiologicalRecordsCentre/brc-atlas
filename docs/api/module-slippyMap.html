@@ -192,6 +192,29 @@
 
         <tr>
             
+                <td class="name"><code>showVcs</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Indicates whether or not the map will display Vice County boundaries.</td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>captionId</code></td>
             
 
@@ -474,7 +497,7 @@ Typically these can be used to display/hide busy indicators.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line46">line 46</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line47">line 47</a>
     </li></ul></dd>
     
 
@@ -634,7 +657,7 @@ Provides a method to add a basemap layer after the map is created.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line589">line 589</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line786">line 786</a>
     </li></ul></dd>
     
 
@@ -772,7 +795,7 @@ Provides a method to add a geojson layer after the map is created.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line641">line 641</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line838">line 838</a>
     </li></ul></dd>
     
 
@@ -909,7 +932,7 @@ Provides a method to add a geojson layer after the map is created.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line699">line 699</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line896">line 896</a>
     </li></ul></dd>
     
 
@@ -998,7 +1021,7 @@ Clear the map of dots and legend.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line554">line 554</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line751">line 751</a>
     </li></ul></dd>
     
 
@@ -1087,7 +1110,7 @@ Expose the leaflet map invalidate size method.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line581">line 581</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line778">line 778</a>
     </li></ul></dd>
     
 
@@ -1176,7 +1199,7 @@ Redraw the map, e.g. after changing map accessor function or map identifier.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line498">line 498</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line695">line 695</a>
     </li></ul></dd>
     
 
@@ -1314,7 +1337,7 @@ Provides a method to remove a basemap layer after the map is created.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line619">line 619</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line816">line 816</a>
     </li></ul></dd>
     
 
@@ -1452,7 +1475,7 @@ Provides a method to remove a geojson layer after the map is created.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line665">line 665</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line862">line 862</a>
     </li></ul></dd>
     
 
@@ -1592,7 +1615,7 @@ a data accessor function.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line487">line 487</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line684">line 684</a>
     </li></ul></dd>
     
 
@@ -1731,7 +1754,7 @@ of the legend itself.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line544">line 544</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line741">line 741</a>
     </li></ul></dd>
     
 
@@ -1869,7 +1892,144 @@ The data accessor is stored in the mapTypesSel object and referenced by this key
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line478">line 478</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line675">line 675</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~setShowVcs"><span class="type-signature">(inner) </span>setShowVcs<span class="signature">(show)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <b>This function allows you to change whether or not Vice County boundaries are displayed.</b>.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>show</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Indicates whether or not to display VCs.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line907">line 907</a>
     </li></ul></dd>
     
 
@@ -2030,7 +2190,7 @@ Change the size of the leaflet map.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line568">line 568</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line765">line 765</a>
     </li></ul></dd>
     
 
@@ -2168,7 +2328,7 @@ Provides a method to show/hide the leaflet overlay layer used to display atlas d
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line680">line 680</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line877">line 877</a>
     </li></ul></dd>
     
 
@@ -2552,6 +2712,29 @@ Provides a method to show/hide the leaflet overlay layer used to display atlas d
 
         <tr>
             
+                <td class="name"><code>setShowVcs</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-slippyMap.html#~setShowVcs">module:slippyMap~setShowVcs</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Set the boolean flag which indicates whether or not to display VCs.</td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>lmap</code></td>
             
 
@@ -2607,7 +2790,7 @@ Provides a method to show/hide the leaflet overlay layer used to display atlas d
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line710">line 710</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line916">line 916</a>
     </li></ul></dd>
     
 
@@ -2855,7 +3038,7 @@ Provides a method to show/hide the leaflet overlay layer used to display atlas d
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Tue Nov 09 2021 06:58:37 GMT-0800 (Pacific Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Thu Nov 11 2021 08:20:07 GMT-0800 (Pacific Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
