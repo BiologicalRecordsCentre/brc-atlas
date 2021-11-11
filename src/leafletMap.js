@@ -5,6 +5,7 @@ import * as d3 from 'd3'
 import { getCentroid, getGjson } from 'brc-atlas-bigr'
 import { dataAccessors } from './dataAccess.js'
 import { svgLegend } from './svgLegend.js'
+import { constants } from './constants.js'
 
 /**
  * @typedef {Object} basemapConfig
@@ -483,7 +484,7 @@ export function leafletMap({
   function redrawVcs() {
 
     console.log(map.getZoom())
-    const root = constants.cdn
+    const root = constants.thisCdn
     //const root = ''
 
     // Load the VC mbr file if not already

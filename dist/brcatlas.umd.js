@@ -495,7 +495,8 @@
   };
 
   var constants = {
-    cdn: 'https://unpkg.com/brc-atlas-bigr/dist'
+    bigrCdn: 'https://unpkg.com/brc-atlas-bigr/dist',
+    thisCdn: 'https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist'
   };
 
   function _classCallCheck(instance, Constructor) {
@@ -9976,9 +9977,9 @@
         _ref$mapTypesControl = _ref.mapTypesControl,
         mapTypesControl = _ref$mapTypesControl === void 0 ? false : _ref$mapTypesControl,
         _ref$boundaryGjson = _ref.boundaryGjson,
-        boundaryGjson = _ref$boundaryGjson === void 0 ? "".concat(constants.cdn, "/assets/GB-I-CI-27700-reduced.geojson") : _ref$boundaryGjson,
+        boundaryGjson = _ref$boundaryGjson === void 0 ? "".concat(constants.bigrCdn, "/assets/GB-I-CI-27700-reduced.geojson") : _ref$boundaryGjson,
         _ref$gridGjson = _ref.gridGjson,
-        gridGjson = _ref$gridGjson === void 0 ? "".concat(constants.cdn, "/assets/GB-I-grid-27700-reduced.geojson") : _ref$gridGjson,
+        gridGjson = _ref$gridGjson === void 0 ? "".concat(constants.bigrCdn, "/assets/GB-I-grid-27700-reduced.geojson") : _ref$gridGjson,
         _ref$gridLineColour = _ref.gridLineColour,
         gridLineColour = _ref$gridLineColour === void 0 ? '#7C7CD3' : _ref$gridLineColour,
         _ref$gridLineStyle = _ref.gridLineStyle,
@@ -10840,9 +10841,9 @@
     }
 
     function redrawVcs() {
-      console.log(map.getZoom()); //const root = constants.cdn
-
-      var root = ''; // Load the VC mbr file if not already
+      console.log(map.getZoom());
+      var root = constants.thisCdn; //const root = ''
+      // Load the VC mbr file if not already
 
       if (showVcs) {
         if (!vcs.mbrs) {
