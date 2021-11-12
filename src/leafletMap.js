@@ -515,7 +515,7 @@ export function leafletMap({
     // Load the VC mbr file if not already
     if (showVcs) {
       if (!vcs.mbrs) {
-        const mbrFile = `${root}/assets/vcs/mbrs.csv`
+        const mbrFile = `${root}/assets/vc/mbrs.csv`
         d3.csv(mbrFile, vc => {
           return {
             vc: vc.vc,
@@ -565,7 +565,7 @@ export function leafletMap({
         console.log('VCs simpified thousand')
         if (!vcs.vcs1000) {
           console.log("loading vcs-4326-1000.geojson")
-          d3.json(`${root}/assets/vcs/vcs-4326-1000.geojson`)
+          d3.json(`${root}/assets/vc/vcs-4326-1000.geojson`)
             .then(data => {
               vcs.vcs1000 = geojsonVcs(data)
             })
@@ -585,7 +585,7 @@ export function leafletMap({
         vcsInView().forEach(vc => {
           if (!vcs.vcs100[vc]) {
             console.log(`loading 100/${vc}.geojson`)
-            d3.json(`${root}/assets/vcs/100/${vc}.geojson`)
+            d3.json(`${root}/assets/vc/100/${vc}.geojson`)
               .then(data => {
                 vcs.vcs100[vc] = geojsonVcs(data)
               })
@@ -608,7 +608,7 @@ export function leafletMap({
         vcsInView().forEach(vc => {
           if (!vcs.vcs10[vc]) {
             console.log(`loading 10/${vc}.geojson`)
-            d3.json(`${root}/assets/vcs/10/${vc}.geojson`)
+            d3.json(`${root}/assets/vc/10/${vc}.geojson`)
               .then(data => {
                 vcs.vcs10[vc] = geojsonVcs(data)
               })
@@ -631,7 +631,7 @@ export function leafletMap({
         vcsInView().forEach(vc => {
           if (!vcs.vcsFull[vc]) {
             console.log(`loading full/${vc}.geojson`)
-            d3.json(`${root}/assets/vcs/full/${vc}.geojson`)
+            d3.json(`${root}/assets/vc/full/${vc}.geojson`)
               .then(data => {
                 vcs.vcsFull[vc] = geojsonVcs(data)
               })

@@ -10883,7 +10883,7 @@
 
       if (showVcs) {
         if (!vcs.mbrs) {
-          var mbrFile = "".concat(root, "/assets/vcs/mbrs.csv");
+          var mbrFile = "".concat(root, "/assets/vc/mbrs.csv");
           d3.csv(mbrFile, function (vc) {
             return {
               vc: vc.vc,
@@ -10935,7 +10935,7 @@
 
           if (!vcs.vcs1000) {
             console.log("loading vcs-4326-1000.geojson");
-            d3.json("".concat(root, "/assets/vcs/vcs-4326-1000.geojson")).then(function (data) {
+            d3.json("".concat(root, "/assets/vc/vcs-4326-1000.geojson")).then(function (data) {
               vcs.vcs1000 = geojsonVcs(data);
             });
           } else {
@@ -10954,7 +10954,7 @@
           vcsInView().forEach(function (vc) {
             if (!vcs.vcs100[vc]) {
               console.log("loading 100/".concat(vc, ".geojson"));
-              d3.json("".concat(root, "/assets/vcs/100/").concat(vc, ".geojson")).then(function (data) {
+              d3.json("".concat(root, "/assets/vc/100/").concat(vc, ".geojson")).then(function (data) {
                 vcs.vcs100[vc] = geojsonVcs(data);
               });
             } else {
@@ -10976,7 +10976,7 @@
           vcsInView().forEach(function (vc) {
             if (!vcs.vcs10[vc]) {
               console.log("loading 10/".concat(vc, ".geojson"));
-              d3.json("".concat(root, "/assets/vcs/10/").concat(vc, ".geojson")).then(function (data) {
+              d3.json("".concat(root, "/assets/vc/10/").concat(vc, ".geojson")).then(function (data) {
                 vcs.vcs10[vc] = geojsonVcs(data);
               });
             } else {
@@ -10998,7 +10998,7 @@
           vcsInView().forEach(function (vc) {
             if (!vcs.vcsFull[vc]) {
               console.log("loading full/".concat(vc, ".geojson"));
-              d3.json("".concat(root, "/assets/vcs/full/").concat(vc, ".geojson")).then(function (data) {
+              d3.json("".concat(root, "/assets/vc/full/").concat(vc, ".geojson")).then(function (data) {
                 vcs.vcsFull[vc] = geojsonVcs(data);
               });
             } else {
@@ -11542,7 +11542,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.14.2";
+  var version = "0.14.3";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
