@@ -10396,6 +10396,16 @@
    * @param {string} opts.selector - The CSS selector of the element which will be the parent of the leaflet map.
    * @param {string} opts.mapid - The id for the slippy map to be created.
    * @param {boolean} opts.showVcs - Indicates whether or not the map will display Vice County boundaries.
+   * @param {boolean} opts.showVcsTooltips - Indicates whether or not the name and number of the VC should be shown on click.
+   * Note that you will need to ensure that the VC has 'fill' style property set to true if you want users to be able to click
+   * anywhere within a VC boundary. You can also set the 'fillOpacity' property to 0 if you don't want the fill to be visible.
+   * (Note that the default styleVcs properties include these values.)
+   * @param {Array.<object>} opts.styleVcs - An array of objects defining styles for VCs at different zoom levels. The properties
+   * of each can be any that are meaningful to a path object in Leaflet (https://leafletjs.com/reference.html#path-option). Each
+   * object also has an property called 'zoom' which can be set to an array of Leaflet zoom levels. The style properties will
+   * only be applied if the map zoom level is in the array. A shortcut to indicating all zoom levels not included in other
+   * array members is an empty array. If the property includes only one style object, with the zoom property set to an empty
+   * array, then the style properties will be applied at all zoom levels. 
    * @param {string} opts.captionId - The id of a DOM element into which feature-specific HTML will be displayed
    * as the mouse moves over a dot on the map. The HTML markup must be stored in an attribute called 'caption'
    * in the input data.
@@ -10428,6 +10438,24 @@
         mapid = _ref$mapid === void 0 ? 'leafletMap' : _ref$mapid,
         _ref$showVcs = _ref.showVcs,
         showVcs = _ref$showVcs === void 0 ? false : _ref$showVcs,
+        _ref$showVcsTooltips = _ref.showVcsTooltips,
+        showVcsTooltips = _ref$showVcsTooltips === void 0 ? true : _ref$showVcsTooltips,
+        _ref$styleVcs = _ref.styleVcs,
+        styleVcs = _ref$styleVcs === void 0 ? [{
+      zoom: [],
+      color: 'black',
+      fill: true,
+      weight: 2,
+      opacity: 0.4,
+      fillOpacity: 0
+    }, {
+      zoom: [7, 6, 5, 4, 3, 2, 1],
+      color: 'black',
+      fill: true,
+      weight: 1,
+      opacity: 0.3,
+      fillOpacity: 0
+    }] : _ref$styleVcs,
         _ref$captionId = _ref.captionId,
         captionId = _ref$captionId === void 0 ? '' : _ref$captionId,
         _ref$clusterZoomThres = _ref.clusterZoomThreshold,
@@ -10555,18 +10583,26 @@
       point: projectPoint
     });
     var path = d3.geoPath().projection(transform);
-    map.createPane('esbatlaspane');
-    map.getPane('esbatlaspane').style.zIndex = 650;
-    var svg = d3.select(map.getPane('esbatlaspane')).append("svg");
+    map.createPane('atlaspane');
+    map.getPane('atlaspane').style.zIndex = 650;
+    var svg = d3.select(map.getPane('atlaspane')).append("svg");
     svg.attr('id', 'atlas-leaflet-svg'); // Added overflow visible to svg (02/09/2021) because it was found to fix a very odd problem - svg graphics not
     // visible in ESB atlas but only on Firefox on Windows.
 
     svg.style('overflow', 'visible'); //const svg = d3.select(map.getPanes().overlayPane).append("svg")
-    // Dont use the leaflet class leaflet-zoom-hide because we are handling
+    // Necessary to set SVG pointer events to none otherwise pointer events
+    // do not propagate to layers below (e.g. VCs). This does not interfer if a onclick config
+    // is used to set an event on feature click.
+
+    svg.style('pointer-events', 'none'); // Dont use the leaflet class leaflet-zoom-hide because we are handling
     // the hide/display of SVG layer ourselves so that it is only redisplayed
     // once dots have been regenerated (because it is quite slow)
 
     var g = svg.append("g"); //.attr("class", "leaflet-zoom-hide")
+    // Create pane for Vice Counties
+
+    map.createPane('vcpane');
+    map.getPane('vcpane').style.zIndex = 649; // Initiate VC display
 
     redrawVcs();
 
@@ -10900,7 +10936,7 @@
           if (!vcs.vcs1000) {
             console.log("loading vcs-4326-1000.geojson");
             d3.json("".concat(root, "/assets/vcs/vcs-4326-1000.geojson")).then(function (data) {
-              vcs.vcs1000 = L.geoJSON(data).addTo(map);
+              vcs.vcs1000 = geojsonVcs(data);
             });
           } else {
             if (!map.hasLayer(vcs.vcs1000)) {
@@ -10914,12 +10950,12 @@
         }
 
         if (zoom >= 7 && zoom < 10) {
-          console.log('VCs simpified hundred');
+          console.log('VCs simpified hundred', vcsInView());
           vcsInView().forEach(function (vc) {
             if (!vcs.vcs100[vc]) {
               console.log("loading 100/".concat(vc, ".geojson"));
               d3.json("".concat(root, "/assets/vcs/100/").concat(vc, ".geojson")).then(function (data) {
-                vcs.vcs100[vc] = L.geoJSON(data).addTo(map);
+                vcs.vcs100[vc] = geojsonVcs(data);
               });
             } else {
               if (!map.hasLayer(vcs.vcs100[vc])) {
@@ -10941,7 +10977,7 @@
             if (!vcs.vcs10[vc]) {
               console.log("loading 10/".concat(vc, ".geojson"));
               d3.json("".concat(root, "/assets/vcs/10/").concat(vc, ".geojson")).then(function (data) {
-                vcs.vcs10[vc] = L.geoJSON(data).addTo(map);
+                vcs.vcs10[vc] = geojsonVcs(data);
               });
             } else {
               if (!map.hasLayer(vcs.vcs10[vc])) {
@@ -10963,7 +10999,7 @@
             if (!vcs.vcsFull[vc]) {
               console.log("loading full/".concat(vc, ".geojson"));
               d3.json("".concat(root, "/assets/vcs/full/").concat(vc, ".geojson")).then(function (data) {
-                vcs.vcsFull[vc] = L.geoJSON(data).addTo(map);
+                vcs.vcsFull[vc] = geojsonVcs(data);
               });
             } else {
               if (!map.hasLayer(vcs.vcsFull[vc])) {
@@ -10977,7 +11013,55 @@
               map.removeLayer(vcs.vcsFull[vc]);
             }
           });
+        } // Reset styles depending on zoom level
+
+
+        if (map.hasLayer(vcs.vcs1000)) {
+          vcs.vcs1000.setStyle(getStyle());
         }
+
+        Object.keys(vcs.vcs100).forEach(function (vc) {
+          if (map.hasLayer(vcs.vcs100[vc])) {
+            vcs.vcs100[vc].setStyle(getStyle());
+          }
+        });
+        Object.keys(vcs.vcs10).forEach(function (vc) {
+          if (map.hasLayer(vcs.vcs10[vc])) {
+            vcs.vcs10[vc].setStyle(getStyle());
+          }
+        });
+        Object.keys(vcs.vcsFull).forEach(function (vc) {
+          if (map.hasLayer(vcs.vcsFull[vc])) {
+            vcs.vcsFull[vc].setStyle(getStyle());
+          }
+        });
+      }
+
+      function geojsonVcs(data) {
+        return L.geoJSON(data, {
+          pane: 'vcpane',
+          style: getStyle(),
+          interactive: showVcsTooltips,
+          onEachFeature: showVcsTooltips ? function (f, l) {
+            return l.bindPopup("VC: <b>".concat(f.properties['CODE'], "</b> ").concat(f.properties['NAME']));
+          } : null
+        }).addTo(map);
+      }
+
+      function getStyle() {
+        // Get style where zoom explicity named in one of the
+        // style objects zoom arrays.
+        var style = styleVcs.find(function (s) {
+          return s.zoom.indexOf(map.getZoom()) > -1;
+        }); // If not found, then find the style with empty zoom array
+
+        if (!style) {
+          style = styleVcs.find(function (s) {
+            return s.zoom.length === 0;
+          });
+        }
+
+        return style;
       }
 
       function vcsInView() {
@@ -11458,7 +11542,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.14.1";
+  var version = "0.14.2";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
