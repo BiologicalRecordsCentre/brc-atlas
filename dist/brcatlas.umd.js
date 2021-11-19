@@ -1095,8 +1095,8 @@
                 var xyWithInset = trans.point([xmid, ymid]);
                 var xyWithNoInset = trans.point([xmid, ymid], true);
                 xShift = xyWithInset[0] - xyWithNoInset[0];
-                yShift = xyWithInset[1] - xyWithNoInset[1];
-                console.log(dims);
+                yShift = xyWithInset[1] - xyWithNoInset[1]; //console.log(dims)
+
                 var clippath = d3.select('svg defs').append('clipPath').attr('id', "clippath-".concat(mapId, "-").concat(transId, "-").concat(i));
                 clippath.append('rect').attr('x', dims.x).attr('y', dims.y).attr('width', dims.width).attr('height', dims.height);
               } // Changed to use dataURL rather than file path URL so that image can be 
@@ -1140,8 +1140,8 @@
       var b = basemaps[k];
 
       if (b.imageFile) {
-        var hidden = gBasemaps.select("#basemap-".concat(b.mapId)).classed('hidden');
-        console.log(b.mapId, !hidden);
+        var hidden = gBasemaps.select("#basemap-".concat(b.mapId)).classed('hidden'); //console.log(b.mapId, !hidden)
+
         showImage(b.mapId, !hidden, gBasemaps, b.imageFile, b.worldFile, trans);
       }
     });
@@ -9637,8 +9637,6 @@
               }
             }
           }).on('click', function (d) {
-            console.log('blah blah blah blah');
-
             if (onclick) {
               onclick(d.gr, d.id ? d.id : null, d.caption ? d.caption : null);
             }
@@ -9852,57 +9850,126 @@
     gLegend.selectAll('text').style('font-size', '14px');
   }
 
-  function serialize(svg) {
-    var xmlns = "http://www.w3.org/2000/xmlns/";
-    var xlinkns = "http://www.w3.org/1999/xlink";
-    var svgns = "http://www.w3.org/2000/svg";
-    var domSvg = svg.node();
-    var cloneSvg = domSvg.cloneNode(true);
-    var d3Clone = d3.select(cloneSvg); // Delete all hidden items (backrop images) from clone
+  function saveMapImage(svg, asSvg) {
+    if (asSvg) {
+      download(serialize(svg));
+    } else {
+      rasterize(svg).then(function (blob) {
+        download(blob);
+      });
+    }
 
-    d3Clone.selectAll('.hidden').remove(); // I don't think this next loop is important in our situation
-    // const fragment = window.location.href + "#"
-    // const walker = document.createTreeWalker(svg, NodeFilter.SHOW_ELEMENT)
-    // while (walker.nextNode()) {
-    //   for (const attr of walker.currentNode.attributes) {
-    //     if (attr.value.includes(fragment)) {
-    //       attr.value = attr.value.replace(fragment, "#")
-    //     }
-    //   }
-    // }
+    function download(data) {
+      var dataUrl = URL.createObjectURL(data);
+      var file = asSvg ? 'map.svg' : 'map.png';
+      downloadLink(dataUrl, file);
+    }
 
-    cloneSvg.setAttributeNS(xmlns, "xmlns", svgns);
-    cloneSvg.setAttributeNS(xmlns, "xmlns:xlink", xlinkns);
-    var serializer = new window.XMLSerializer();
-    var string = serializer.serializeToString(cloneSvg);
-    return new Blob([string], {
-      type: "image/svg+xml"
+    function serialize(svg) {
+      var xmlns = "http://www.w3.org/2000/xmlns/";
+      var xlinkns = "http://www.w3.org/1999/xlink";
+      var svgns = "http://www.w3.org/2000/svg";
+      var domSvg = svg.node();
+      var cloneSvg = domSvg.cloneNode(true);
+      var d3Clone = d3.select(cloneSvg); // Delete all hidden items (backrop images) from clone
+
+      d3Clone.selectAll('.hidden').remove();
+      cloneSvg.setAttributeNS(xmlns, "xmlns", svgns);
+      cloneSvg.setAttributeNS(xmlns, "xmlns:xlink", xlinkns);
+      var serializer = new window.XMLSerializer();
+      var string = serializer.serializeToString(cloneSvg);
+      return new Blob([string], {
+        type: "image/svg+xml"
+      });
+    }
+
+    function rasterize(svg) {
+      var resolve, reject;
+      var domSvg = svg.node();
+      var promise = new Promise(function (y, n) {
+        return resolve = y, reject = n;
+      });
+      var image = new Image();
+      image.onerror = reject;
+
+      image.onload = function () {
+        var rect = domSvg.getBoundingClientRect(); // Create a canvas element
+
+        var canvas = document.createElement('canvas');
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        var context = canvas.getContext('2d');
+        context.drawImage(image, 0, 0, rect.width, rect.height);
+        context.canvas.toBlob(resolve);
+      };
+
+      image.src = URL.createObjectURL(serialize(svg));
+      return promise;
+    }
+  }
+  function downloadCurrentData(pData, precision, asGeojson) {
+    pData.then(function (data) {
+      var ftrs = data.records.map(function (d) {
+        if (asGeojson) {
+          // GeoJson
+          if (precision !== 0) {
+            var shape = d.shape ? d.shape : data.shape;
+            var size = d.size ? d.size : data.size;
+            return {
+              type: 'Feature',
+              geometry: getGjson(d.gr, 'wg', shape, size)
+            };
+          }
+        } else {
+          // CSV
+          if (precision !== 0) {
+            var c = getCentroid(d.gr, 'wg');
+            return "".concat(d.gr, ",").concat(c.proj, ",").concat(c.centroid[1], ",").concat(c.centroid[0]);
+          }
+        }
+      });
+
+      if (asGeojson) {
+        // GeoJson
+        var outData = {
+          "type": "FeatureCollection",
+          "name": "BRC Atlas download",
+          "crs": {
+            "type": "name",
+            "properties": {
+              "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+            }
+          },
+          "features": ftrs
+        };
+        var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(outData));
+        downloadLink(dataStr, "data.geojson");
+      } else {
+        // CSV
+        var _dataStr = "data:text/csv;charset=utf-8,gr,gr-projection,lat,lon\r\n".concat(ftrs.join("\r\n"));
+
+        downloadLink(_dataStr, "data.csv");
+      }
     });
   }
-  function rasterize(svg) {
-    var resolve, reject;
-    var domSvg = svg.node();
-    var promise = new Promise(function (y, n) {
-      return resolve = y, reject = n;
-    });
-    var image = new Image();
-    image.onerror = reject;
 
-    image.onload = function () {
-      var rect = domSvg.getBoundingClientRect(); // Create a canvas element
+  function downloadLink(dataUrl, file) {
+    // Create a link element
+    var link = document.createElement("a"); // Set link's href to point to the data URL
 
-      var canvas = document.createElement('canvas');
-      canvas.width = rect.width;
-      canvas.height = rect.height;
-      var context = canvas.getContext('2d');
-      context.drawImage(image, 0, 0, rect.width, rect.height);
-      context.canvas.toBlob(resolve);
-    };
+    link.href = dataUrl;
+    link.download = file; // Append link to the body
 
-    image.src = URL.createObjectURL(serialize(svg)); //const data = new XMLSerializer().serializeToString(domSvg)
-    //image.src = "data:image/svg+xml; charset=utf8, " + encodeURIComponent(data)
+    document.body.appendChild(link); // Dispatch click event on the link
+    // This is necessary as link.click() does not work on the latest firefox
 
-    return promise;
+    link.dispatchEvent(new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    })); // Remove link from body
+
+    document.body.removeChild(link);
   }
 
   /** @module svgMap */
@@ -10309,34 +10376,17 @@
 
 
     function saveMap(asSvg) {
-      var download = function download(data) {
-        console.log('data', data);
-        var dataUrl = URL.createObjectURL(data); // Create a link element
+      saveMapImage(svg, asSvg);
+    }
+    /** @function downloadData
+      * @param {boolean} asGeojson - a boolean value that indicates whether to generate GeoJson (if false, generates CSV). 
+      * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+      */
 
-        var link = document.createElement("a"); // Set link's href to point to the data URL
 
-        link.href = dataUrl;
-        link.download = asSvg ? 'map.svg' : 'map.png'; // Append link to the body
-
-        document.body.appendChild(link); // Dispatch click event on the link
-        // This is necessary as link.click() does not work on the latest firefox
-
-        link.dispatchEvent(new MouseEvent('click', {
-          bubbles: true,
-          cancelable: true,
-          view: window
-        })); // Remove link from body
-
-        document.body.removeChild(link);
-      };
-
-      if (asSvg) {
-        download(serialize(svg));
-      } else {
-        rasterize(svg).then(function (blob) {
-          download(blob);
-        });
-      }
+    function downloadData(asGeojson) {
+      var accessFunction = mapTypesSel[mapTypesKey];
+      downloadCurrentData(accessFunction(taxonIdentifier), 10000, asGeojson);
     }
     /**
      * @typedef {Object} api
@@ -10360,6 +10410,7 @@
      * @property {module:svgMap~redrawMap} redrawMap - Redraw the map.
      * @property {module:svgMap~clearMap} clearMap - Clear the map.
      * @property {module:svgMap~saveMap} saveMap - Save and download the map as an image.
+     * @property {module:svgMap~downloadData} downloadData - Download a the map data as a CSV or GeoJson file.
      */
 
 
@@ -10377,7 +10428,8 @@
       setLegendOpts: setLegendOpts,
       redrawMap: redrawMap,
       clearMap: clearMap,
-      saveMap: saveMap
+      saveMap: saveMap,
+      downloadData: downloadData
     };
   }
 
@@ -10423,10 +10475,10 @@
    * @param {legendOpts} opts.legendOpts - Sets options for a map legend.
    * @param {Array.<function>} opts.callbacks - An array of callbacks that can be used during data loading/display. 
    * Typically these can be used to display/hide busy indicators.
-   * <br/>callback[0] is fired at the start of data redraw.
-   * <br/>callback[1] is fired at the end of data redraw.
-   * <br/>callback[2] is fired at the start of data download.
-   * <br/>callback[3] is fired at the end of data download.
+   * <br/>callbacks[0] is fired at the start of data redraw.
+   * <br/>callbacks[1] is fired at the end of data redraw.
+   * <br/>callbacks[2] is fired at the start of data download.
+   * <br/>callbacks[3] is fired at the end of data download.
    * @returns {module:slippyMap~api} Returns an API for the map.
    */
 
@@ -10612,11 +10664,10 @@
       svg.style('display', 'none'); // Remove any previous
 
       if (markers) {
-        map.removeLayer(markers);
-        console.log('removing');
-      }
+        map.removeLayer(markers); //console.log('removing')
+      } //console.log('remaking', clusterZoomThreshold)
 
-      console.log('remaking', clusterZoomThreshold);
+
       markers = L.markerClusterGroup({
         maxClusterRadius: function maxClusterRadius(zoom) {
           return zoom <= clusterZoomThreshold ? 80 : 1; // radius in pixels
@@ -10877,7 +10928,7 @@
     }
 
     function redrawVcs() {
-      console.log(map.getZoom());
+      //console.log(map.getZoom())
       var root = constants.thisCdn; //const root = ''
       // Load the VC mbr file if not already
 
@@ -10904,8 +10955,8 @@
           displayVcs();
         }
       } else {
-        console.log('VCs not shown'); // Remove any VCs currently displayed
-
+        //console.log('VCs not shown')
+        // Remove any VCs currently displayed
         if (map.hasLayer(vcs.vcs1000)) {
           map.removeLayer(vcs.vcs1000);
         }
@@ -10931,10 +10982,9 @@
         var zoom = map.getZoom();
 
         if (zoom < 7) {
-          console.log('VCs simpified thousand');
-
+          //console.log('VCs simpified thousand')
           if (!vcs.vcs1000) {
-            console.log("loading vcs-4326-1000.geojson");
+            //console.log("loading vcs-4326-1000.geojson")
             d3.json("".concat(root, "/assets/vc/vcs-4326-1000.geojson")).then(function (data) {
               vcs.vcs1000 = geojsonVcs(data);
             });
@@ -10950,10 +11000,10 @@
         }
 
         if (zoom >= 7 && zoom < 10) {
-          console.log('VCs simpified hundred', vcsInView());
+          //console.log('VCs simpified hundred',vcsInView())
           vcsInView().forEach(function (vc) {
             if (!vcs.vcs100[vc]) {
-              console.log("loading 100/".concat(vc, ".geojson"));
+              //console.log(`loading 100/${vc}.geojson`)
               d3.json("".concat(root, "/assets/vc/100/").concat(vc, ".geojson")).then(function (data) {
                 vcs.vcs100[vc] = geojsonVcs(data);
               });
@@ -10972,10 +11022,10 @@
         }
 
         if (zoom >= 10 && zoom < 12) {
-          console.log('VCs simpified ten');
+          //console.log('VCs simpified ten')
           vcsInView().forEach(function (vc) {
             if (!vcs.vcs10[vc]) {
-              console.log("loading 10/".concat(vc, ".geojson"));
+              //console.log(`loading 10/${vc}.geojson`)
               d3.json("".concat(root, "/assets/vc/10/").concat(vc, ".geojson")).then(function (data) {
                 vcs.vcs10[vc] = geojsonVcs(data);
               });
@@ -10994,10 +11044,10 @@
         }
 
         if (zoom >= 12) {
-          console.log('VCs full res');
+          //console.log('VCs full res')
           vcsInView().forEach(function (vc) {
             if (!vcs.vcsFull[vc]) {
-              console.log("loading full/".concat(vc, ".geojson"));
+              //console.log(`loading full/${vc}.geojson`)
               d3.json("".concat(root, "/assets/vc/full/").concat(vc, ".geojson")).then(function (data) {
                 vcs.vcsFull[vc] = geojsonVcs(data);
               });
@@ -11360,6 +11410,16 @@
       showVcs = show;
       redrawVcs();
     }
+    /** @function downloadData
+      * @param {boolean} asGeojson - a boolean value that indicates whether to generate GeoJson (if false, generates CSV). 
+      * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+      */
+
+
+    function downloadData(asGeojson) {
+      var accessFunction = mapTypesSel[mapTypesKey];
+      downloadCurrentData(accessFunction(taxonIdentifier), precision, asGeojson);
+    }
     /**
      * @typedef {Object} api
      * @property {module:slippyMap~setIdentfier} setIdentfier - Identifies data to the data accessor function.
@@ -11376,6 +11436,7 @@
      * @property {module:slippyMap~showOverlay} showOverlay - Show/hide the overlay layer.
      * @property {module:slippyMap~changeClusterThreshold} changeClusterThreshold - Change the zoom cluster threshold for points.
      * @property {module:slippyMap~setShowVcs} setShowVcs - Set the boolean flag which indicates whether or not to display VCs.
+     * @property {module:slippyMap~downloadData} downloadData - Download a the map data as a CSV or GeoJson file.
      * @property {module:slippyMap~map} lmap - Returns a reference to the leaflet map object.
      */
 
@@ -11395,6 +11456,7 @@
       showOverlay: showOverlay,
       changeClusterThreshold: changeClusterThreshold,
       setShowVcs: setShowVcs,
+      downloadData: downloadData,
       lmap: map
     };
   }
@@ -11542,7 +11604,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.14.3";
+  var version = "0.15.0";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";

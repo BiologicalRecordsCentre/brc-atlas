@@ -6,6 +6,7 @@ import { getCentroid, getGjson } from 'brc-atlas-bigr'
 import { dataAccessors } from './dataAccess.js'
 import { svgLegend } from './svgLegend.js'
 import { constants } from './constants.js'
+import { downloadCurrentData } from './download.js'
 
 /**
  * @typedef {Object} basemapConfig
@@ -48,10 +49,10 @@ import { constants } from './constants.js'
  * @param {legendOpts} opts.legendOpts - Sets options for a map legend.
  * @param {Array.<function>} opts.callbacks - An array of callbacks that can be used during data loading/display. 
  * Typically these can be used to display/hide busy indicators.
- * <br/>callback[0] is fired at the start of data redraw.
- * <br/>callback[1] is fired at the end of data redraw.
- * <br/>callback[2] is fired at the start of data download.
- * <br/>callback[3] is fired at the end of data download.
+ * <br/>callbacks[0] is fired at the start of data redraw.
+ * <br/>callbacks[1] is fired at the end of data redraw.
+ * <br/>callbacks[2] is fired at the start of data download.
+ * <br/>callbacks[3] is fired at the end of data download.
  * @returns {module:slippyMap~api} Returns an API for the map.
  */
 
@@ -202,10 +203,10 @@ export function leafletMap({
     // Remove any previous
     if (markers) {
       map.removeLayer(markers)
-      console.log('removing')
+      //console.log('removing')
     }
 
-    console.log('remaking', clusterZoomThreshold)
+    //console.log('remaking', clusterZoomThreshold)
 
     markers = L.markerClusterGroup({ maxClusterRadius: function (zoom) {
       return (zoom <= clusterZoomThreshold) ? 80 : 1; // radius in pixels
@@ -508,7 +509,7 @@ export function leafletMap({
 
   function redrawVcs() {
 
-    console.log(map.getZoom())
+    //console.log(map.getZoom())
     const root = constants.thisCdn
     //const root = ''
 
@@ -536,7 +537,7 @@ export function leafletMap({
         displayVcs()
       }
     } else {
-      console.log('VCs not shown')
+      //console.log('VCs not shown')
       // Remove any VCs currently displayed
       if (map.hasLayer(vcs.vcs1000)) {
         map.removeLayer(vcs.vcs1000)
@@ -562,9 +563,9 @@ export function leafletMap({
       const zoom = map.getZoom()
 
       if (zoom < 7) {
-        console.log('VCs simpified thousand')
+        //console.log('VCs simpified thousand')
         if (!vcs.vcs1000) {
-          console.log("loading vcs-4326-1000.geojson")
+          //console.log("loading vcs-4326-1000.geojson")
           d3.json(`${root}/assets/vc/vcs-4326-1000.geojson`)
             .then(data => {
               vcs.vcs1000 = geojsonVcs(data)
@@ -581,10 +582,10 @@ export function leafletMap({
       }
 
       if (zoom >= 7 && zoom < 10)  {
-        console.log('VCs simpified hundred',vcsInView())
+        //console.log('VCs simpified hundred',vcsInView())
         vcsInView().forEach(vc => {
           if (!vcs.vcs100[vc]) {
-            console.log(`loading 100/${vc}.geojson`)
+            //console.log(`loading 100/${vc}.geojson`)
             d3.json(`${root}/assets/vc/100/${vc}.geojson`)
               .then(data => {
                 vcs.vcs100[vc] = geojsonVcs(data)
@@ -604,10 +605,10 @@ export function leafletMap({
       }
 
       if (zoom >= 10 && zoom < 12)  {
-        console.log('VCs simpified ten')
+        //console.log('VCs simpified ten')
         vcsInView().forEach(vc => {
           if (!vcs.vcs10[vc]) {
-            console.log(`loading 10/${vc}.geojson`)
+            //console.log(`loading 10/${vc}.geojson`)
             d3.json(`${root}/assets/vc/10/${vc}.geojson`)
               .then(data => {
                 vcs.vcs10[vc] = geojsonVcs(data)
@@ -627,10 +628,10 @@ export function leafletMap({
       }
 
       if (zoom >= 12)  {
-        console.log('VCs full res')
+        //console.log('VCs full res')
         vcsInView().forEach(vc => {
           if (!vcs.vcsFull[vc]) {
-            console.log(`loading full/${vc}.geojson`)
+            //console.log(`loading full/${vc}.geojson`)
             d3.json(`${root}/assets/vc/full/${vc}.geojson`)
               .then(data => {
                 vcs.vcsFull[vc] = geojsonVcs(data)
@@ -981,6 +982,16 @@ export function leafletMap({
       redrawVcs()
     }
 
+/** @function downloadData
+  * @param {boolean} asGeojson - a boolean value that indicates whether to generate GeoJson (if false, generates CSV). 
+  * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+  */
+  function downloadData(asGeojson){
+
+    const accessFunction = mapTypesSel[mapTypesKey]
+    downloadCurrentData(accessFunction(taxonIdentifier), precision, asGeojson)
+  }
+
   /**
    * @typedef {Object} api
    * @property {module:slippyMap~setIdentfier} setIdentfier - Identifies data to the data accessor function.
@@ -997,6 +1008,7 @@ export function leafletMap({
    * @property {module:slippyMap~showOverlay} showOverlay - Show/hide the overlay layer.
    * @property {module:slippyMap~changeClusterThreshold} changeClusterThreshold - Change the zoom cluster threshold for points.
    * @property {module:slippyMap~setShowVcs} setShowVcs - Set the boolean flag which indicates whether or not to display VCs.
+   * @property {module:slippyMap~downloadData} downloadData - Download a the map data as a CSV or GeoJson file.
    * @property {module:slippyMap~map} lmap - Returns a reference to the leaflet map object.
    */
   return  {
@@ -1014,6 +1026,7 @@ export function leafletMap({
     showOverlay: showOverlay,
     changeClusterThreshold: changeClusterThreshold,
     setShowVcs: setShowVcs,
+    downloadData: downloadData,
     lmap: map
   }
 }

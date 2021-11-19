@@ -9,7 +9,9 @@
     <h1>Using the BRC Atlas Library</h1>
     <h2>Show a UK distribution map from a CSV file</h2>
     <div id="map"></div>
-    <button onclick="downloadMap()">Download</button>
+    <button onclick="downloadMap()">Download image</button>
+    <button onclick="downloadData(true)">Download as GeoJson</button>
+    <button onclick="downloadData()">Download as CSV</button>
     <p>
       Include the required Javascript libraries and CSS in the page. We need the BRC Atlas JS libary, the associated
       CSS and the D3 library which is an external
@@ -122,6 +124,9 @@ WV27,circle,black,0.8,1</code>
 
       function downloadMap() {
         map.saveMap()
+      }
+      function downloadData(asGeojson) {
+        map.downloadData(asGeojson)
       }
     </script>
   </div>

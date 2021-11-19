@@ -79,7 +79,7 @@ export function showImage(mapId, show, gBasemaps, imageFile, worldFile, trans) {
                 xShift = xyWithInset[0] - xyWithNoInset[0] 
                 yShift = xyWithInset[1] - xyWithNoInset[1]
 
-                console.log(dims)
+                //console.log(dims)
                 const clippath = d3.select('svg defs')
                   .append('clipPath').attr('id', `clippath-${mapId}-${transId}-${i}`)
                 clippath.append('rect')
@@ -134,7 +134,7 @@ export function transformImages(gBasemaps, trans) {
     const b = basemaps[k]
     if (b.imageFile) {
       const hidden = gBasemaps.select(`#basemap-${b.mapId}`).classed('hidden')
-      console.log(b.mapId, !hidden)
+      //console.log(b.mapId, !hidden)
       showImage(b.mapId, !hidden, gBasemaps, b.imageFile, b.worldFile, trans)
     }
   })

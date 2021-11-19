@@ -500,10 +500,10 @@ names are the 'keys' which should be human readable descriptiosn of the map type
 
             <td class="description last">An array of callbacks that can be used during data loading/display. 
 Typically these can be used to display/hide busy indicators.
-<br/>callback[0] is fired at the start of data redraw.
-<br/>callback[1] is fired at the end of data redraw.
-<br/>callback[2] is fired at the start of data download.
-<br/>callback[3] is fired at the end of data download.</td>
+<br/>callbacks[0] is fired at the start of data redraw.
+<br/>callbacks[1] is fired at the end of data redraw.
+<br/>callbacks[2] is fired at the start of data download.
+<br/>callbacks[3] is fired at the end of data download.</td>
         </tr>
 
     
@@ -551,7 +551,7 @@ Typically these can be used to display/hide busy indicators.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line58">line 58</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line59">line 59</a>
     </li></ul></dd>
     
 
@@ -711,7 +711,7 @@ Provides a method to add a basemap layer after the map is created.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line854">line 854</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line855">line 855</a>
     </li></ul></dd>
     
 
@@ -849,7 +849,7 @@ Provides a method to add a geojson layer after the map is created.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line906">line 906</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line907">line 907</a>
     </li></ul></dd>
     
 
@@ -986,7 +986,7 @@ Provides a method to add a geojson layer after the map is created.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line964">line 964</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line965">line 965</a>
     </li></ul></dd>
     
 
@@ -1075,7 +1075,144 @@ Clear the map of dots and legend.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line819">line 819</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line820">line 820</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~downloadData"><span class="type-signature">(inner) </span>downloadData<span class="signature">(asGeojson)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>asGeojson</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">a boolean value that indicates whether to generate GeoJson (if false, generates CSV).</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line985">line 985</a>
     </li></ul></dd>
     
 
@@ -1164,7 +1301,7 @@ Expose the leaflet map invalidate size method.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line846">line 846</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line847">line 847</a>
     </li></ul></dd>
     
 
@@ -1253,7 +1390,7 @@ Redraw the map, e.g. after changing map accessor function or map identifier.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line763">line 763</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line764">line 764</a>
     </li></ul></dd>
     
 
@@ -1391,7 +1528,7 @@ Provides a method to remove a basemap layer after the map is created.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line884">line 884</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line885">line 885</a>
     </li></ul></dd>
     
 
@@ -1529,7 +1666,7 @@ Provides a method to remove a geojson layer after the map is created.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line930">line 930</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line931">line 931</a>
     </li></ul></dd>
     
 
@@ -1669,7 +1806,7 @@ a data accessor function.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line752">line 752</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line753">line 753</a>
     </li></ul></dd>
     
 
@@ -1808,7 +1945,7 @@ of the legend itself.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line809">line 809</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line810">line 810</a>
     </li></ul></dd>
     
 
@@ -1946,7 +2083,7 @@ The data accessor is stored in the mapTypesSel object and referenced by this key
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line743">line 743</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line744">line 744</a>
     </li></ul></dd>
     
 
@@ -2083,7 +2220,7 @@ The data accessor is stored in the mapTypesSel object and referenced by this key
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line975">line 975</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line976">line 976</a>
     </li></ul></dd>
     
 
@@ -2244,7 +2381,7 @@ Change the size of the leaflet map.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line833">line 833</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line834">line 834</a>
     </li></ul></dd>
     
 
@@ -2382,7 +2519,7 @@ Provides a method to show/hide the leaflet overlay layer used to display atlas d
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line945">line 945</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line946">line 946</a>
     </li></ul></dd>
     
 
@@ -2789,6 +2926,29 @@ Provides a method to show/hide the leaflet overlay layer used to display atlas d
 
         <tr>
             
+                <td class="name"><code>downloadData</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-slippyMap.html#~downloadData">module:slippyMap~downloadData</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Download a the map data as a CSV or GeoJson file.</td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>lmap</code></td>
             
 
@@ -2844,7 +3004,7 @@ Provides a method to show/hide the leaflet overlay layer used to display atlas d
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line984">line 984</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line995">line 995</a>
     </li></ul></dd>
     
 
@@ -3056,7 +3216,7 @@ Provides a method to show/hide the leaflet overlay layer used to display atlas d
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line10">line 10</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line11">line 11</a>
     </li></ul></dd>
     
 
@@ -3092,7 +3252,7 @@ Provides a method to show/hide the leaflet overlay layer used to display atlas d
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Fri Nov 12 2021 07:35:14 GMT-0800 (Pacific Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Fri Nov 19 2021 06:50:15 GMT-0800 (Pacific Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

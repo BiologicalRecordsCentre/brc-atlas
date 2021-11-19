@@ -8,7 +8,7 @@ import { dataAccessors } from './dataAccess.js'
 import { showImage, setImagePriorities, transformImages } from './svgImages.js'
 import { drawDots, removeDots } from './svgDots.js'
 import { svgLegend } from './svgLegend.js'
-import { rasterize, serialize } from './savesvg.js'
+import { saveMapImage, downloadCurrentData } from './download.js'
 
 /** 
  * @param {Object} opts - Initialisation options.
@@ -405,41 +405,16 @@ export function svgMap({
   * Creates an image from the displayed map and downloads to user's computer.
   */
   function saveMap(asSvg) {
+    saveMapImage(svg, asSvg)
+  }
 
-    const download = (data) => {
-
-      console.log('data', data)
-
-      const dataUrl = URL.createObjectURL(data)
-      // Create a link element
-      const link = document.createElement("a")
-      // Set link's href to point to the data URL
-      link.href = dataUrl
-      link.download = asSvg ? 'map.svg' : 'map.png'
-
-      // Append link to the body
-      document.body.appendChild(link)
-
-      // Dispatch click event on the link
-      // This is necessary as link.click() does not work on the latest firefox
-      link.dispatchEvent(
-        new MouseEvent('click', { 
-          bubbles: true, 
-          cancelable: true, 
-          view: window 
-        })
-      )
-      // Remove link from body
-      document.body.removeChild(link)
-    }
-
-    if (asSvg) {
-      download(serialize(svg))
-    } else {
-      rasterize(svg).then(blob => {
-        download(blob)
-      })
-    }
+/** @function downloadData
+  * @param {boolean} asGeojson - a boolean value that indicates whether to generate GeoJson (if false, generates CSV). 
+  * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+  */
+  function downloadData(asGeojson){
+    const accessFunction = mapTypesSel[mapTypesKey]
+    downloadCurrentData(accessFunction(taxonIdentifier), 10000, asGeojson)
   }
 
   /**
@@ -464,6 +439,7 @@ export function svgMap({
    * @property {module:svgMap~redrawMap} redrawMap - Redraw the map.
    * @property {module:svgMap~clearMap} clearMap - Clear the map.
    * @property {module:svgMap~saveMap} saveMap - Save and download the map as an image.
+   * @property {module:svgMap~downloadData} downloadData - Download a the map data as a CSV or GeoJson file.
    */
   return {
     setBoundaryColour: setBoundaryColour,
@@ -479,6 +455,7 @@ export function svgMap({
     setLegendOpts: setLegendOpts,
     redrawMap: redrawMap,
     clearMap: clearMap,
-    saveMap: saveMap
+    saveMap: saveMap,
+    downloadData: downloadData
   }
 }

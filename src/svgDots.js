@@ -276,7 +276,6 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
             }
           })
           .on('click', d => {
-            console.log('blah blah blah blah')
             if (onclick) {
               onclick(d.gr, d.id ? d.id : null, d.caption ? d.caption : null)
             }
