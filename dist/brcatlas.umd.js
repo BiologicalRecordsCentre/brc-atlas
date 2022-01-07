@@ -1168,6 +1168,55 @@
     return _typeof(obj);
   }
 
+  function _defineProperty(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
+    }
+
+    return obj;
+  }
+
+  function ownKeys(object, enumerableOnly) {
+    var keys = Object.keys(object);
+
+    if (Object.getOwnPropertySymbols) {
+      var symbols = Object.getOwnPropertySymbols(object);
+      if (enumerableOnly) symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+      keys.push.apply(keys, symbols);
+    }
+
+    return keys;
+  }
+
+  function _objectSpread2(target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i] != null ? arguments[i] : {};
+
+      if (i % 2) {
+        ownKeys(Object(source), true).forEach(function (key) {
+          _defineProperty(target, key, source[key]);
+        });
+      } else if (Object.getOwnPropertyDescriptors) {
+        Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+      } else {
+        ownKeys(Object(source)).forEach(function (key) {
+          Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+        });
+      }
+    }
+
+    return target;
+  }
+
   function globals (defs) {
     defs('EPSG:4326', "+title=WGS 84 (long/lat) +proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees");
     defs('EPSG:4269', "+title=NAD83 (long/lat) +proj=longlat +a=6378137.0 +b=6356752.31414036 +ellps=GRS80 +datum=NAD83 +units=degrees");
@@ -9913,18 +9962,28 @@
         if (asGeojson) {
           // GeoJson
           if (precision !== 0) {
+            var attrs = _objectSpread2({}, d);
+
+            delete attrs.gr;
             var shape = d.shape ? d.shape : data.shape;
             var size = d.size ? d.size : data.size;
             return {
               type: 'Feature',
-              geometry: getGjson(d.gr, 'wg', shape, size)
+              geometry: getGjson(d.gr, 'wg', shape, size),
+              properties: attrs
             };
           }
         } else {
           // CSV
           if (precision !== 0) {
+            var _attrs = '';
+            Object.keys(d).forEach(function (k) {
+              if (k !== 'gr') {
+                _attrs = "".concat(_attrs, ",\"").concat(d[k], "\"");
+              }
+            });
             var c = getCentroid(d.gr, 'wg');
-            return "".concat(d.gr, ",").concat(c.proj, ",").concat(c.centroid[1], ",").concat(c.centroid[0]);
+            return "".concat(d.gr, ",").concat(c.proj, ",").concat(c.centroid[1], ",").concat(c.centroid[0]).concat(_attrs);
           }
         }
       });
@@ -9946,7 +10005,15 @@
         downloadLink(dataStr, "data.geojson");
       } else {
         // CSV
-        var _dataStr = "data:text/csv;charset=utf-8,gr,gr-projection,lat,lon\r\n".concat(ftrs.join("\r\n"));
+        console.log('data.records[0]', data.records[0]);
+        var attrs = '';
+        Object.keys(data.records[0]).forEach(function (k) {
+          if (k !== 'gr') {
+            attrs = "".concat(attrs, ",\"").concat(k, "\"");
+          }
+        });
+
+        var _dataStr = "data:text/csv;charset=utf-8,gr,gr-projection,lat,lon".concat(attrs, "\r\n").concat(ftrs.join("\r\n"));
 
         downloadLink(_dataStr, "data.csv");
       }
@@ -11604,7 +11671,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.15.0";
+  var version = "0.16.0";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";

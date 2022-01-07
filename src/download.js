@@ -61,15 +61,22 @@ export function saveMapImage(svg, asSvg) {
 export function downloadCurrentData(pData, precision, asGeojson){
 
   pData.then(data => {
+
     const ftrs = data.records.map(function(d){
+
       if (asGeojson) {
         // GeoJson
         if (precision!==0) {
+
+          const attrs = {...d}
+          delete attrs.gr
+
           const shape = d.shape ? d.shape : data.shape
           const size = d.size ? d.size : data.size
           return {
             type: 'Feature',
-            geometry: getGjson(d.gr, 'wg', shape, size)
+            geometry: getGjson(d.gr, 'wg', shape, size),
+            properties: attrs
           }
         } else {
           // ToDo point data
@@ -77,8 +84,15 @@ export function downloadCurrentData(pData, precision, asGeojson){
       } else {
         // CSV
         if (precision!==0) {
+
+          let attrs = ''
+          Object.keys(d).forEach(k => {
+            if (k !== 'gr') {
+              attrs = `${attrs},"${d[k]}"`
+            }
+          })
           const c = getCentroid(d.gr, 'wg')
-          return `${d.gr},${c.proj},${c.centroid[1]},${c.centroid[0]}`
+          return `${d.gr},${c.proj},${c.centroid[1]},${c.centroid[0]}${attrs}`
         } else {
           // ToDo point data
         }
@@ -97,7 +111,15 @@ export function downloadCurrentData(pData, precision, asGeojson){
       downloadLink(dataStr, "data.geojson")
     } else {
       // CSV
-      const dataStr = `data:text/csv;charset=utf-8,gr,gr-projection,lat,lon\r\n${ftrs.join("\r\n")}`
+      console.log('data.records[0]', data.records[0])
+      let attrs = ''
+      Object.keys(data.records[0]).forEach(k => {
+        if (k !== 'gr') {
+          attrs = `${attrs},"${k}"`
+        }
+      })
+
+      const dataStr = `data:text/csv;charset=utf-8,gr,gr-projection,lat,lon${attrs}\r\n${ftrs.join("\r\n")}`
       downloadLink(dataStr, "data.csv")
     }
   })
