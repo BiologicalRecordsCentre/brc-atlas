@@ -3,15 +3,23 @@ import { getGjson, getCentroid } from 'brc-atlas-bigr'
 
 // See https://observablehq.com/@mbostock/saving-svg 
 
-export function saveMapImage(svg, asSvg) {
+let infoHeight=0
 
-  if (asSvg) {
-    download(serialize(svg))
-  } else {
-    rasterize(svg).then(blob => {
-      download(blob)
-    })
-  }
+export function saveMapImage(svg, asSvg, svgInfo) {
+
+  const pInfoAdded = addInfo(svg, svgInfo)
+
+  pInfoAdded.then(() => {
+    if (asSvg) {
+      download(serialize(svg))
+      removeInfo(svg)
+    } else {
+      rasterize(svg).then(blob => {
+        download(blob)
+        removeInfo(svg)
+      })
+    }
+  })
 
   function download(data) {
     const dataUrl = URL.createObjectURL(data)
@@ -147,4 +155,111 @@ function downloadLink(dataUrl, file) {
   )
   // Remove link from body
   document.body.removeChild(link)
+}
+
+function addInfo(svg, svgInfo) {
+
+  if (!svgInfo) return Promise.resolve()
+  
+  const infoText = svgInfo.text.split(' ')
+  const margin = svgInfo.margin ? svgInfo.margin : 0
+  const fontSize = svgInfo.fontSize ? svgInfo.fontSize : 12
+
+  // Current dimensions of map SVG
+  const height = Number(svg.attr("height"))
+  const width = Number(svg.attr("width"))
+
+  // Create svg g and text objects and positions
+  const gInfo = svg.append('g')
+  gInfo.attr('id', 'svgInfo')
+  gInfo.attr('transform', `translate(0 ${height})`)
+  
+  let tInfo = gInfo.append('text').attr('x', margin).attr('y', margin)
+  let yLastLine = margin
+  
+  infoText.forEach((w,i) => {
+    const ts = tInfo.append('tspan').style('font-size', fontSize).style('font-family', 'Arial').style('alignment-baseline', 'hanging')
+    let word
+    if (w.startsWith('<i>')) {
+      ts.style('font-style', 'italic')
+      word = w.replace('<i>', '').replace('</i>', '')
+    } else {
+      word = w
+    }
+    if (i) {
+      ts.text(` ${word}`)
+    } else {
+      ts.text(word)
+    }
+
+    if (tInfo.node().getBBox().width > width - 2 * margin) {
+      // If the latest word has caused the text element
+      // to exceed the width of the SVG, remove it and
+      // create a new line for it.
+      ts.remove()
+      const lineHeight = tInfo.node().getBBox().height
+      tInfo = gInfo.append('text')
+      yLastLine = yLastLine + lineHeight
+      tInfo.attr('x', margin)
+      tInfo.attr('y', yLastLine)
+      const tsn = tInfo.append('tspan').style('font-size', fontSize).style('font-family', 'Arial').style('alignment-baseline', 'hanging')
+      tsn.html(ts.html())
+    }
+  })
+
+  infoHeight = yLastLine + tInfo.node().getBBox().height + margin
+  const h = height+infoHeight
+  svg.attr('height', h)
+
+  if (svgInfo.img) {
+    // Image
+    return new Promise((resolve, reject) => {
+      const img = new Image()
+      img.onload = function() {
+
+        let scale = 1
+        if (this.width > width - 2 * margin) {
+          scale = (width - 2 * margin) / this.width
+        }
+        const imgWidth = scale * this.width
+        const imgHeight = scale * this.height
+
+        const iInfo = gInfo.append('image')
+        iInfo.attr('x', margin)
+        iInfo.attr('y', infoHeight)
+        iInfo.attr('width', imgWidth)
+        iInfo.attr('height', imgHeight)
+        // Use dataURL rather than file path URL so that image can be 
+        // serialised when using the saveMap method
+        iInfo.attr('href', getDataUrl(this))
+
+        infoHeight = infoHeight + margin + imgHeight
+        svg.attr('height', height + infoHeight)
+
+        resolve()
+      }
+      img.src = svgInfo.img
+    })
+  } else {
+    // No image - return resolved promise
+    return Promise.resolve()
+  }
+
+  function getDataUrl(img) {
+    // Create canvas
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    // Set width and height
+    canvas.width = img.width
+    canvas.height = img.height
+    // Draw the image - use png format to support background transparency
+    ctx.drawImage(img, 0, 0)
+    return canvas.toDataURL('image/png')
+  }
+}
+
+function removeInfo(svg) {
+  const height = Number(svg.attr("height"))
+  svg.select('#svgInfo').remove()
+  svg.attr('height', height-infoHeight)
 }

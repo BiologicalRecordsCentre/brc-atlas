@@ -10,6 +10,8 @@
     <h2>Show a UK distribution map from a CSV file</h2>
     <div id="map"></div>
     <button onclick="downloadMap()">Download image</button>
+    <button onclick="downloadMap(true)">Download svg</button>
+    <button onclick="downloadWithInfo()">Download with info</button>
     <button onclick="downloadData(true)">Download as GeoJson</button>
     <button onclick="downloadData()">Download as CSV</button>
     <p>
@@ -117,16 +119,26 @@ WV27,circle,black,0.8,1</code>
     <script>
       var map = brcatlas.svgMap({
         selector: "#map",
-        mapTypesKey: 'Standard hectad'
+        mapTypesKey: 'Standard hectad',
+        //transOptsControl: false
       })
       map.setIdentfier('./example-hectads-1.csv')
       map.redrawMap()
 
-      function downloadMap() {
-        map.saveMap()
+      function downloadMap(asSvg) {
+        map.saveMap(asSvg)
       }
       function downloadData(asGeojson) {
         map.downloadData(asGeojson)
+      }
+      function downloadWithInfo(asSvg) {
+        let info = {
+          text: '<i>Abies</i> <i>procera,</i> in <i>BSBI <i>Online</i> <i>Atlas</i> <i>2020</i>, eds P.A. Stroh, T. Humphrey, R.J. Burkmar, O.L. Pescott, D.B. Roy, & K.J. Walker. http://172.17.0.2/atlas/2cd4p9h.cqm [Accessed 07/01/2022]',
+          fontSize: 10,
+          margin: 5,
+          img: '../work/logos.png'
+        }
+        map.saveMap(asSvg, info)
       }
     </script>
   </div>

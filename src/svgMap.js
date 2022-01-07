@@ -404,8 +404,8 @@ export function svgMap({
   * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
   * Creates an image from the displayed map and downloads to user's computer.
   */
-  function saveMap(asSvg) {
-    saveMapImage(svg, asSvg)
+  function saveMap(asSvg, svgInfo) {
+    saveMapImage(svg, asSvg, svgInfo)
   }
 
 /** @function downloadData
