@@ -401,11 +401,20 @@ export function svgMap({
 
 /** @function saveMap
   * @param {boolean} asSvg - a boolean value that indicates whether to generate an SVG (if false, generates PNG image). 
+  * @param {Object} svgInfo - Initialisation options.
+  * @param {string} svgInfo.text - A text string to be displayed at the foot of the map. 
+  * This will be word-wrapped to the width of the image.
+  * Some HTML tags, e.g. <i> are recognised, but in order to facilitate word wrapping, each word must be marked up
+  * separately - there should be no white space within the tag.
+  * @param {string} svgInfo.img - The path of an image to be displayed at the foot of the map. If the image is wider
+  * than the SVG, it is rescaled to the size of the SVG.
+  * @param {number} svgInfo.fontSize - The size of the font to be used for the text string (defaults to 12)
+  * @param {number} svgInfo.margin - The size of a margin, in pixels, to be placed around the text and/or image.
   * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
   * Creates an image from the displayed map and downloads to user's computer.
   */
   function saveMap(asSvg, svgInfo) {
-    saveMapImage(svg, asSvg, svgInfo)
+    saveMapImage(svg, trans, expand, asSvg, svgInfo)
   }
 
 /** @function downloadData

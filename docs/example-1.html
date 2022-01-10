@@ -11,7 +11,7 @@
     <div id="map"></div>
     <button onclick="downloadMap()">Download image</button>
     <button onclick="downloadMap(true)">Download svg</button>
-    <button onclick="downloadWithInfo()">Download with info</button>
+    <!-- <button onclick="downloadWithInfo()">Download with info</button> -->
     <button onclick="downloadData(true)">Download as GeoJson</button>
     <button onclick="downloadData()">Download as CSV</button>
     <p>
@@ -120,6 +120,7 @@ WV27,circle,black,0.8,1</code>
       var map = brcatlas.svgMap({
         selector: "#map",
         mapTypesKey: 'Standard hectad',
+        //expand: true,
         //transOptsControl: false
       })
       map.setIdentfier('./example-hectads-1.csv')

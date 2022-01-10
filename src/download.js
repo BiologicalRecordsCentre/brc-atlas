@@ -5,18 +5,18 @@ import { getGjson, getCentroid } from 'brc-atlas-bigr'
 
 let infoHeight=0
 
-export function saveMapImage(svg, asSvg, svgInfo) {
+export function saveMapImage(svg, trans, expand, asSvg, svgInfo) {
 
-  const pInfoAdded = addInfo(svg, svgInfo)
+  const pInfoAdded = addInfo(svg, trans, expand, svgInfo)
 
   pInfoAdded.then(() => {
     if (asSvg) {
       download(serialize(svg))
-      removeInfo(svg)
+      removeInfo(svg, trans, expand)
     } else {
       rasterize(svg).then(blob => {
         download(blob)
-        removeInfo(svg)
+        removeInfo(svg, trans, expand)
       })
     }
   })
@@ -157,22 +157,22 @@ function downloadLink(dataUrl, file) {
   document.body.removeChild(link)
 }
 
-function addInfo(svg, svgInfo) {
+function addInfo(svg, trans, expand, svgInfo) {
 
   if (!svgInfo) return Promise.resolve()
   
-  const infoText = svgInfo.text.split(' ')
+  const infoText = svgInfo.text ? svgInfo.text.split(' ') : []
   const margin = svgInfo.margin ? svgInfo.margin : 0
   const fontSize = svgInfo.fontSize ? svgInfo.fontSize : 12
 
   // Current dimensions of map SVG
-  const height = Number(svg.attr("height"))
-  const width = Number(svg.attr("width"))
+  //const height = Number(svg.attr("height"))
+  //const width = Number(svg.attr("width"))
 
   // Create svg g and text objects and positions
   const gInfo = svg.append('g')
   gInfo.attr('id', 'svgInfo')
-  gInfo.attr('transform', `translate(0 ${height})`)
+  gInfo.attr('transform', `translate(0 ${trans.height})`)
   
   let tInfo = gInfo.append('text').attr('x', margin).attr('y', margin)
   let yLastLine = margin
@@ -192,7 +192,7 @@ function addInfo(svg, svgInfo) {
       ts.text(word)
     }
 
-    if (tInfo.node().getBBox().width > width - 2 * margin) {
+    if (tInfo.node().getBBox().width > trans.width - 2 * margin) {
       // If the latest word has caused the text element
       // to exceed the width of the SVG, remove it and
       // create a new line for it.
@@ -208,18 +208,24 @@ function addInfo(svg, svgInfo) {
   })
 
   infoHeight = yLastLine + tInfo.node().getBBox().height + margin
-  const h = height+infoHeight
-  svg.attr('height', h)
+  const h = trans.height+infoHeight
+  
+  //svg.attr('height', h)
+  if (expand) {
+    svg.attr("viewBox", "0 0 " + trans.width + " " +  h)
+  } else {
+    svg.attr("height", h)
+  }
 
   if (svgInfo.img) {
     // Image
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const img = new Image()
       img.onload = function() {
 
         let scale = 1
-        if (this.width > width - 2 * margin) {
-          scale = (width - 2 * margin) / this.width
+        if (this.width > trans.width - 2 * margin) {
+          scale = (trans.width - 2 * margin) / this.width
         }
         const imgWidth = scale * this.width
         const imgHeight = scale * this.height
@@ -234,7 +240,12 @@ function addInfo(svg, svgInfo) {
         iInfo.attr('href', getDataUrl(this))
 
         infoHeight = infoHeight + margin + imgHeight
-        svg.attr('height', height + infoHeight)
+        //svg.attr('height', height + infoHeight)
+        if (expand) {
+          svg.attr("viewBox", "0 0 " + trans.width + " " +  (trans.height  + infoHeight))
+        } else {
+          svg.attr("height", trans.height + infoHeight)
+        }
 
         resolve()
       }
@@ -258,8 +269,14 @@ function addInfo(svg, svgInfo) {
   }
 }
 
-function removeInfo(svg) {
-  const height = Number(svg.attr("height"))
+function removeInfo(svg, trans, expand) {
+  //const height = Number(svg.attr("height"))
   svg.select('#svgInfo').remove()
-  svg.attr('height', height-infoHeight)
+  //svg.attr('height', height-infoHeight)
+
+  if (expand) {
+    svg.attr("viewBox", "0 0 " + trans.width + " " +  trans.height)
+  } else {
+    svg.attr("height", trans.height)
+  }
 }
