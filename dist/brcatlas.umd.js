@@ -11809,6 +11809,7 @@
   var type = "module";
   var main = "dist/brcatlas.umd.js";
   var browser = "dist/brcatlas.umd.js";
+  var browsermin = "dist/brcatlas.min.umd.js";
   var scripts = {
   	lint: "npx eslint src",
   	test: "jest",
@@ -11856,6 +11857,7 @@
   	type: type,
   	main: main,
   	browser: browser,
+  	browsermin: browsermin,
   	scripts: scripts,
   	author: author,
   	license: license,

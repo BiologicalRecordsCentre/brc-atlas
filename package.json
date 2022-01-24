@@ -5,6 +5,7 @@
   "type": "module",
   "main": "dist/brcatlas.umd.js",
   "browser": "dist/brcatlas.umd.js",
+  "browsermin": "dist/brcatlas.min.umd.js",
   "scripts": {
     "lint": "npx eslint src",
     "test": "jest",
