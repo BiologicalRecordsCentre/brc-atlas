@@ -433,27 +433,31 @@
   }
 
   function csvGr(file, precision) {
-    return new Promise(function (resolve, reject) {
-      d3.csv(file, function (r) {
-        if (r.gr) {
-          return {
-            gr: r.gr,
-            caption: "<strong>Grid ref: </strong>".concat(r.gr),
-            colour: r.colour,
-            shape: r.shape,
-            opacity: r.opacity,
-            size: r.size
-          };
-        }
-      }).then(function (data) {
-        resolve({
-          records: data,
-          precision: precision
+    if (file) {
+      return new Promise(function (resolve, reject) {
+        d3.csv(file, function (r) {
+          if (r.gr) {
+            return {
+              gr: r.gr,
+              caption: "<strong>Grid ref: </strong>".concat(r.gr),
+              colour: r.colour,
+              shape: r.shape,
+              opacity: r.opacity,
+              size: r.size
+            };
+          }
+        }).then(function (data) {
+          resolve({
+            records: data,
+            precision: precision
+          });
+        })["catch"](function (e) {
+          reject(e);
         });
-      })["catch"](function (e) {
-        reject(e);
       });
-    });
+    } else {
+      return Promise.resolve();
+    }
   }
   /** @constant
   * @description This object has properties corresponding to a number of data access
@@ -9450,6 +9454,7 @@
     return new Promise(function (resolve, reject) {
       if (typeof accessFunction === 'function') {
         accessFunction(taxonIdentifier).then(function (data) {
+          if (!data) return;
           var radiusPixels = getRadiusPixels(transform, data.precision); // circles
 
           var recCircles;
@@ -10372,12 +10377,14 @@
       svg.select('#legend').remove(); // Remove here to avoid legend resizing if inset options changed.
 
       drawDots(svg, captionId, onclick, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj).then(function (data) {
-        svg.select('#legend').remove(); // Also must remove here to avoid some bad effects. 
+        if (data) {
+          svg.select('#legend').remove(); // Also must remove here to avoid some bad effects. 
 
-        legendOpts.accessorData = data.legend;
+          legendOpts.accessorData = data.legend;
 
-        if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
-          svgLegend(svg, legendOpts);
+          if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
+            svgLegend(svg, legendOpts);
+          }
         }
       });
     }
@@ -10389,7 +10396,7 @@
     /** @function setTransform
       * @param {string} newTransOptsKey - specifies the key of the transformation object in the parent object.
       * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
-      * The method sets a map transforamation by selecting the one with the passed in key. It also
+      * The method sets a map transformation by selecting the one with the passed in key. It also
       * redisplays the map 
       */
 
@@ -10402,6 +10409,42 @@
       drawInsetBoxes();
       refreshMapDots();
       transformImages(basemaps, trans);
+    }
+    /** @function setBoundary
+      * @param {string} newGeojson - specifies the path of a geojson object.
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+      * The method replaces any existing map boundary geojson with the geojson in the file passed. It also
+      * redisplays the map.
+      */
+
+
+    function setBoundary(newGeojson) {
+      pBoundary = d3.json(newGeojson).then(function (data) {
+        dataBoundary = data;
+        drawBoundaryAndGrid();
+        setSvgSize();
+        drawInsetBoxes();
+        refreshMapDots();
+        transformImages(basemaps, trans);
+      });
+    }
+    /** @function setGrid
+      * @param {string} newGeojson - specifies the path of a geojson object.
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+      * The method replaces any existing grid geojson with the geojson in the file passed. It also
+      * redisplays the map.
+      */
+
+
+    function setGrid(newGeojson) {
+      pBoundary = d3.json(newGeojson).then(function (data) {
+        dataGrid = data;
+        drawBoundaryAndGrid();
+        setSvgSize();
+        drawInsetBoxes();
+        refreshMapDots();
+        transformImages(basemaps, trans);
+      });
     }
     /** @function animateTransChange
       * @param {string} newTransOptsKey - specifies the key of the transformation object in the parent object.
@@ -10615,6 +10658,8 @@
 
 
     return {
+      setBoundary: setBoundary,
+      setGrid: setGrid,
       setBoundaryColour: setBoundaryColour,
       setGridColour: setGridColour,
       setGridLineStyle: setGridLineStyle,

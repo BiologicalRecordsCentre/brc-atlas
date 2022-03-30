@@ -15,27 +15,31 @@ function csvHectad(file) {
   return csvGr(file, 10000)
 }
 function csvGr(file, precision) {
-  return new Promise((resolve, reject) => {
-    d3.csv(file, function(r) {
-      if (r.gr) {
-        return({
-          gr: r.gr,
-          caption: `<strong>Grid ref: </strong>${r.gr}`,
-          colour: r.colour,
-          shape: r.shape,
-          opacity: r.opacity,
-          size: r.size,
+  if (file) {
+    return new Promise((resolve, reject) => {
+      d3.csv(file, function(r) {
+        if (r.gr) {
+          return({
+            gr: r.gr,
+            caption: `<strong>Grid ref: </strong>${r.gr}`,
+            colour: r.colour,
+            shape: r.shape,
+            opacity: r.opacity,
+            size: r.size,
+          })
+        }
+      }).then(function(data) {
+        resolve({
+          records: data,
+          precision: precision,
         })
-      }
-    }).then(function(data) {
-      resolve({
-        records: data,
-        precision: precision,
+      }).catch(function(e){
+        reject(e)
       })
-    }).catch(function(e){
-      reject(e)
     })
-  })
+  } else {
+    return Promise.resolve()
+  }
 }
 
 /** @constant

@@ -21,6 +21,9 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
   return new Promise((resolve, reject) => {
     if(typeof accessFunction === 'function') {
       accessFunction(taxonIdentifier).then(data => {
+
+        if (!data) return
+        
         const radiusPixels = getRadiusPixels(transform, data.precision)
         // circles
         let recCircles

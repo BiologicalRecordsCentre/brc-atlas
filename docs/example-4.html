@@ -50,6 +50,7 @@
 
     <button onclick="downloadMapImage()">Download png image</button>
     <button onclick="downloadMapSvg()">Download svg</button>
+    <button onclick="changeView()">Change view</button>
 
     <!--JS and CSS required for highlighting inline example code-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
@@ -137,6 +138,26 @@
               ymax: 494000
             },
           },
+          vc10: {
+            id: 'vc10',
+            caption: 'Isle of Wight (10)',
+            bounds: {
+              xmin: 426736,
+              ymin: 69180,
+              xmax: 469473,
+              ymax: 102938
+            }
+          },
+          vc11: {
+            id: 'vc11',
+            caption: 'South Hampshire (11)',
+            bounds: {
+              xmin: 398898,
+              ymin: 77884,
+              xmax: 484372,
+              ymax: 145400
+            }
+          }
         },
         boundaryGjson: './chesh-lancs-vcs-27700.geojson',
         gridGjson: './chesh-lancs-hectad-grid-27700.geojson',
@@ -205,6 +226,22 @@
 
       function downloadMapSvg() {
         map.saveMap({format: 'svg'})
+      }
+
+      function changeView() {
+
+        var code = '11'
+        var fileRoot = './vcs/'
+        var vckey = 'vc' + code
+        var backImg = fileRoot + 'background/' + vckey + '.png'
+        var backWld = fileRoot + 'background/' + vckey + '.pgw'
+        var boundary = fileRoot + 'boundaries/' + vckey + '.geojson'
+        var grid = fileRoot + 'grids/' + vckey + '-hectad.geojson'
+
+        map.setTransform(vckey)
+        map.basemapImage(vckey, true, backImg, backWld)
+        map.setGrid(grid)
+        map.setBoundary(boundary)
       }
     </script>
   </div>

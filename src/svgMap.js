@@ -234,11 +234,13 @@ export function svgMap({
     svg.select('#legend').remove() // Remove here to avoid legend resizing if inset options changed.
     drawDots(svg, captionId, onclick, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj)
       .then (data => {
-        svg.select('#legend').remove() // Also must remove here to avoid some bad effects. 
-        legendOpts.accessorData = data.legend
-        if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
-          svgLegend(svg, legendOpts)
-        }  
+        if (data) {
+          svg.select('#legend').remove() // Also must remove here to avoid some bad effects. 
+          legendOpts.accessorData = data.legend
+          if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
+            svgLegend(svg, legendOpts)
+          }  
+        }
     })
   }
 
@@ -250,7 +252,7 @@ export function svgMap({
 /** @function setTransform
   * @param {string} newTransOptsKey - specifies the key of the transformation object in the parent object.
   * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
-  * The method sets a map transforamation by selecting the one with the passed in key. It also
+  * The method sets a map transformation by selecting the one with the passed in key. It also
   * redisplays the map 
   */
   function setTransform (newTransOptsKey) {
@@ -262,6 +264,41 @@ export function svgMap({
     refreshMapDots()
     transformImages(basemaps, trans)
   }
+
+/** @function setBoundary
+  * @param {string} newGeojson - specifies the path of a geojson object.
+  * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+  * The method replaces any existing map boundary geojson with the geojson in the file passed. It also
+  * redisplays the map.
+  */
+  function setBoundary(newGeojson) {
+    pBoundary = d3.json(newGeojson).then(data => {
+      dataBoundary = data
+      drawBoundaryAndGrid()
+      setSvgSize()
+      drawInsetBoxes()
+      refreshMapDots()
+      transformImages(basemaps, trans)
+    })
+  }
+
+
+/** @function setGrid
+  * @param {string} newGeojson - specifies the path of a geojson object.
+  * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+  * The method replaces any existing grid geojson with the geojson in the file passed. It also
+  * redisplays the map.
+  */
+ function setGrid(newGeojson) {
+  pBoundary = d3.json(newGeojson).then(data => {
+    dataGrid = data
+    drawBoundaryAndGrid()
+    setSvgSize()
+    drawInsetBoxes()
+    refreshMapDots()
+    transformImages(basemaps, trans)
+  })
+}
 
 /** @function animateTransChange
   * @param {string} newTransOptsKey - specifies the key of the transformation object in the parent object.
@@ -451,6 +488,8 @@ export function svgMap({
    * @property {module:svgMap~downloadData} downloadData - Download a the map data as a CSV or GeoJson file.
    */
   return {
+    setBoundary: setBoundary,
+    setGrid: setGrid,
     setBoundaryColour: setBoundaryColour,
     setGridColour: setGridColour,
     setGridLineStyle: setGridLineStyle,
