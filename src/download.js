@@ -170,9 +170,14 @@ function addInfo(svg, trans, expand, svgInfo) {
   //const width = Number(svg.attr("width"))
 
   // Create svg g and text objects and positions
+
+
   const gInfo = svg.append('g')
   gInfo.attr('id', 'svgInfo')
   gInfo.attr('transform', `translate(0 ${trans.height})`)
+
+  let mask = gInfo.append('rect').attr('x', 0).attr('y', 0).attr('width', trans.width)
+    .style('fill', 'white')
   
   let tInfo = gInfo.append('text').attr('x', margin).attr('y', margin)
   let yLastLine = margin
@@ -246,6 +251,8 @@ function addInfo(svg, trans, expand, svgInfo) {
         } else {
           svg.attr("height", trans.height + infoHeight)
         }
+
+        mask.style("height", infoHeight)
 
         resolve()
       }

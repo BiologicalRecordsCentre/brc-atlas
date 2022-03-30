@@ -10060,6 +10060,7 @@
     var gInfo = svg.append('g');
     gInfo.attr('id', 'svgInfo');
     gInfo.attr('transform', "translate(0 ".concat(trans.height, ")"));
+    var mask = gInfo.append('rect').attr('x', 0).attr('y', 0).attr('width', trans.width).style('fill', 'white');
     var tInfo = gInfo.append('text').attr('x', margin).attr('y', margin);
     var yLastLine = margin;
     infoText.forEach(function (w, i) {
@@ -10132,6 +10133,7 @@
             svg.attr("height", trans.height + infoHeight);
           }
 
+          mask.style("height", infoHeight);
           resolve();
         };
 
