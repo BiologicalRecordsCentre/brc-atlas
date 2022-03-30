@@ -9553,7 +9553,7 @@
           }).attr("transform", function (d) {
             var size = d.size ? d.size : data.size;
 
-            if (checkGr(d.gr).projection === 'ir') {
+            if (checkGr(d.gr).projection === 'ir' && proj === 'gb') {
               var x = transform(getCentroid(d.gr, proj).centroid)[0];
               var y = transform(getCentroid(d.gr, proj).centroid)[1];
               return "translate(".concat(-radiusPixels * size, ",").concat(-radiusPixels * size, ") rotate(5 ").concat(x, " ").concat(y, ")");
@@ -9588,20 +9588,19 @@
             return d.colour ? d.colour : data.colour;
           }).attr("transform", function (d) {
             var x = transform(getCentroid(d.gr, proj).centroid)[0];
-            var y = transform(getCentroid(d.gr, proj).centroid)[1]; // TODO - only do this rotation for output projection gb
+            var y = transform(getCentroid(d.gr, proj).centroid)[1];
 
-            if (checkGr(d.gr).projection === 'ir') {
+            if (checkGr(d.gr).projection === 'ir' && proj === 'gb') {
               return "translate(".concat(x, ",").concat(y, ") rotate(50)");
             } else {
               return "translate(".concat(x, ",").concat(y, ") rotate(45)");
             }
           }).merge(diamonds).transition().ease(d3.easeCubic).duration(500).attr("d", d3.symbol().type(d3.symbolSquare).size(radiusPixels * radiusPixels * 2)).attr("transform", function (d) {
             var x = transform(getCentroid(d.gr, proj).centroid)[0];
-            var y = transform(getCentroid(d.gr, proj).centroid)[1]; // TODO - only do this rotation for output projection gb
-
+            var y = transform(getCentroid(d.gr, proj).centroid)[1];
             var size = d.size ? d.size : data.size;
 
-            if (checkGr(d.gr).projection === 'ir') {
+            if (checkGr(d.gr).projection === 'ir' && proj === 'gb') {
               return "translate(".concat(x, ",").concat(y, ") rotate(50) scale(").concat(size, ")");
             } else {
               return "translate(".concat(x, ",").concat(y, ") rotate(45) scale(").concat(size, ")");
@@ -9644,10 +9643,9 @@
             } else {
               extraRotate = 180;
               yOffset = -radiusPixels / 3;
-            } // TODO - only do this rotation for output projection gb
+            }
 
-
-            if (checkGr(d.gr).projection === 'ir') {
+            if (checkGr(d.gr).projection === 'ir' && proj === 'gb') {
               return "translate(".concat(x, ",").concat(y + yOffset, ") rotate(").concat(5 + extraRotate, ")");
             } else {
               return "translate(".concat(x, ",").concat(y + yOffset, ") rotate(").concat(extraRotate, ")");
@@ -9666,9 +9664,9 @@
               yOffset = -radiusPixels / 3;
             }
 
-            var size = d.size ? d.size : data.size; // TODO - only do this rotation for output projection gb
+            var size = d.size ? d.size : data.size;
 
-            if (checkGr(d.gr).projection === 'ir') {
+            if (checkGr(d.gr).projection === 'ir' && proj === 'gb') {
               return "translate(".concat(x, ",").concat(y + yOffset, ") rotate(").concat(5 + extraRotate, ") scale(").concat(size, ")");
             } else {
               return "translate(".concat(x, ",").concat(y + yOffset, ") rotate(").concat(extraRotate, ") scale(").concat(size, ")");
@@ -10446,6 +10444,17 @@
         transformImages(basemaps, trans);
       });
     }
+    /** @function setProj
+      * @param {string} newProj - specifies a new projection for the map.
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+      * The method replaces any existing map projection so that, for example, a map can be switched between
+      * British and Irish grid projections.
+      */
+
+
+    function setProj(newProj) {
+      proj = newProj;
+    }
     /** @function animateTransChange
       * @param {string} newTransOptsKey - specifies the key of the transformation object in the parent object.
       * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
@@ -10633,6 +10642,10 @@
     }
     /**
      * @typedef {Object} api
+     * @property {module:svgMap~setBoundary} setBoundary - Change the map boundary. Pass a single argument
+     * which is the path of a geojson file.
+     * @property {module:svgMap~setGrid} setGrid - Change the grid lines for the map. Pass a single argument
+     * which is the path of a geojson file.
      * @property {module:svgMap~setBoundaryColour} setBoundaryColour - Change the colour of the boundary. Pass a single argument
      * which is a string specifying the colour which can be hex format, e.g. #FFA500, 
      * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
@@ -10654,6 +10667,7 @@
      * @property {module:svgMap~clearMap} clearMap - Clear the map.
      * @property {module:svgMap~saveMap} saveMap - Save and download the map as an image.
      * @property {module:svgMap~downloadData} downloadData - Download a the map data as a CSV or GeoJson file.
+     * @property {module:svgMap~setProj} setProj - Change the map projection. The argument is a string of the form 'gb', 'ir' or 'ci'.
      */
 
 
@@ -10674,7 +10688,8 @@
       redrawMap: redrawMap,
       clearMap: clearMap,
       saveMap: saveMap,
-      downloadData: downloadData
+      downloadData: downloadData,
+      setProj: setProj
     };
   }
 
@@ -11849,7 +11864,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.16.1";
+  var version = "0.17.0";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";

@@ -127,7 +127,7 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           })
           .attr("transform", d => {
             const size = d.size ? d.size : data.size
-            if (checkGr(d.gr).projection === 'ir') {
+            if (checkGr(d.gr).projection === 'ir' && proj === 'gb') {
               const x = transform(getCentroid(d.gr, proj).centroid)[0]
               const y = transform(getCentroid(d.gr, proj).centroid)[1]
               return `translate(${-radiusPixels * size},${-radiusPixels * size}) rotate(5 ${x} ${y})`
@@ -165,8 +165,7 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           .attr("transform", d => {
             const x = transform(getCentroid(d.gr, proj).centroid)[0]
             const y = transform(getCentroid(d.gr, proj).centroid)[1]
-            // TODO - only do this rotation for output projection gb
-            if (checkGr(d.gr).projection === 'ir') {
+            if (checkGr(d.gr).projection === 'ir' && proj === 'gb') {
               return `translate(${x},${y}) rotate(50)`
             } else {
               return `translate(${x},${y}) rotate(45)`
@@ -180,9 +179,8 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           .attr("transform", d => {
             const x = transform(getCentroid(d.gr, proj).centroid)[0]
             const y = transform(getCentroid(d.gr, proj).centroid)[1]
-            // TODO - only do this rotation for output projection gb
             const size = d.size ? d.size : data.size
-            if (checkGr(d.gr).projection === 'ir') {
+            if (checkGr(d.gr).projection === 'ir' && proj === 'gb') {
               return `translate(${x},${y}) rotate(50) scale(${size})`
             } else {
               return `translate(${x},${y}) rotate(45) scale(${size})`
@@ -225,8 +223,7 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
               extraRotate=180
               yOffset=-radiusPixels/3
             }
-            // TODO - only do this rotation for output projection gb
-            if (checkGr(d.gr).projection === 'ir') {
+            if (checkGr(d.gr).projection === 'ir' && proj === 'gb') {
               return `translate(${x},${y + yOffset}) rotate(${5 + extraRotate})`
             } else {
               return `translate(${x},${y + yOffset}) rotate(${extraRotate})`
@@ -250,8 +247,7 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
               yOffset=-radiusPixels/3
             }
             const size = d.size ? d.size : data.size
-            // TODO - only do this rotation for output projection gb
-            if (checkGr(d.gr).projection === 'ir') {
+            if (checkGr(d.gr).projection === 'ir' && proj === 'gb') {
               return `translate(${x},${y + yOffset}) rotate(${5 + extraRotate}) scale(${size})`
             } else {
               return `translate(${x},${y + yOffset}) rotate(${extraRotate}) scale(${size})`

@@ -300,6 +300,16 @@ export function svgMap({
   })
 }
 
+/** @function setProj
+  * @param {string} newProj - specifies a new projection for the map.
+  * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+  * The method replaces any existing map projection so that, for example, a map can be switched between
+  * British and Irish grid projections.
+  */
+ function setProj(newProj) {
+  proj = newProj
+}
+
 /** @function animateTransChange
   * @param {string} newTransOptsKey - specifies the key of the transformation object in the parent object.
   * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
@@ -465,6 +475,10 @@ export function svgMap({
 
   /**
    * @typedef {Object} api
+   * @property {module:svgMap~setBoundary} setBoundary - Change the map boundary. Pass a single argument
+   * which is the path of a geojson file.
+   * @property {module:svgMap~setGrid} setGrid - Change the grid lines for the map. Pass a single argument
+   * which is the path of a geojson file.
    * @property {module:svgMap~setBoundaryColour} setBoundaryColour - Change the colour of the boundary. Pass a single argument
    * which is a string specifying the colour which can be hex format, e.g. #FFA500, 
    * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
@@ -486,6 +500,7 @@ export function svgMap({
    * @property {module:svgMap~clearMap} clearMap - Clear the map.
    * @property {module:svgMap~saveMap} saveMap - Save and download the map as an image.
    * @property {module:svgMap~downloadData} downloadData - Download a the map data as a CSV or GeoJson file.
+   * @property {module:svgMap~setProj} setProj - Change the map projection. The argument is a string of the form 'gb', 'ir' or 'ci'.
    */
   return {
     setBoundary: setBoundary,
@@ -504,6 +519,7 @@ export function svgMap({
     redrawMap: redrawMap,
     clearMap: clearMap,
     saveMap: saveMap,
-    downloadData: downloadData
+    downloadData: downloadData,
+    setProj: setProj
   }
 }
