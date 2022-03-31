@@ -10258,7 +10258,7 @@
         _ref$callbackOptions = _ref.callbackOptions,
         callbackOptions = _ref$callbackOptions === void 0 ? null : _ref$callbackOptions;
 
-    var trans, basemaps, boundary, boundaryf, dataBoundary, grid, dataGrid, taxonIdentifier; // Create a parent div for the SVG within the parent element passed
+    var trans, basemaps, boundary, boundaryf, dataBoundary, grid, dataGrid, taxonIdentifier, title; // Create a parent div for the SVG within the parent element passed
     // as an argument. Allows us to style correctly for positioning etc.
 
     var mainDiv = d3.select("".concat(selector)).append("div").attr('id', mapid).style("position", "relative").style("display", "inline"); // Map loading spinner
@@ -10276,7 +10276,8 @@
     boundaryf = svg.append("g").attr("id", "boundaryf");
     basemaps = svg.append("g").attr("id", "backimage");
     boundary = svg.append("g").attr("id", "boundary");
-    grid = svg.append("g").attr("id", "grid").style("stroke-dasharray", gridLineStyle === "dashed" ? "3,2" : "").style("display", gridLineStyle === "none" ? "none" : ""); // Options dialog. 
+    grid = svg.append("g").attr("id", "grid").style("stroke-dasharray", gridLineStyle === "dashed" ? "3,2" : "").style("display", gridLineStyle === "none" ? "none" : "");
+    title = svg.append("g").attr("id", "title"); // Options dialog. 
 
     if (transOptsControl && Object.keys(transOptsSel).length > 1 || mapTypesControl && Object.keys(mapTypesSel).length > 1) {
       // Add gear icon to invoke options dialog
@@ -10352,15 +10353,17 @@
     }
 
     function drawBoundaryAndGrid() {
+      boundaryf.selectAll("path").remove();
+      boundary.selectAll("path").remove();
+
       if (dataBoundary) {
-        boundaryf.selectAll("path").remove();
         boundaryf.append("path").datum(dataBoundary).attr("d", trans.d3Path).style("stroke-opacity", 0).style("fill", boundaryFill);
-        boundary.selectAll("path").remove();
         boundary.append("path").datum(dataBoundary).attr("d", trans.d3Path).style("fill-opacity", 0).style("stroke", boundaryColour);
       }
 
+      grid.selectAll("path").remove();
+
       if (dataGrid) {
-        grid.selectAll("path").remove();
         grid.append("path").datum(dataGrid).attr("d", trans.d3Path).style("fill-opacity", 0).style("stroke", gridLineColour);
       }
     }
@@ -10410,6 +10413,26 @@
       refreshMapDots();
       transformImages(basemaps, trans);
     }
+    /** @function setHeight
+      * @param {string} newHeight - specifies the height of the SVG object.
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+      * The method resets the height of the main map SVG. 
+      */
+
+
+    function setHeight(newHeight) {
+      height = newHeight; // Removed the stuff below because the transformations
+      // interferred with transformations triggered by other
+      // methods when called straight afterwards. It is envisaged
+      // that other methods would normally be called straight
+      // after this one.
+      // trans = createTrans(transOptsSel[transOptsKey], height)
+      // drawBoundaryAndGrid()
+      // setSvgSize()
+      // drawInsetBoxes()
+      // refreshMapDots()
+      // transformImages(basemaps, trans)
+    }
     /** @function setBoundary
       * @param {string} newGeojson - specifies the path of a geojson object.
       * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
@@ -10419,14 +10442,15 @@
 
 
     function setBoundary(newGeojson) {
-      pBoundary = d3.json(newGeojson).then(function (data) {
-        dataBoundary = data;
+      if (newGeojson) {
+        pBoundary = d3.json(newGeojson).then(function (data) {
+          dataBoundary = data;
+          drawBoundaryAndGrid();
+        });
+      } else {
+        dataBoundary = null;
         drawBoundaryAndGrid();
-        setSvgSize();
-        drawInsetBoxes();
-        refreshMapDots();
-        transformImages(basemaps, trans);
-      });
+      }
     }
     /** @function setGrid
       * @param {string} newGeojson - specifies the path of a geojson object.
@@ -10437,14 +10461,15 @@
 
 
     function setGrid(newGeojson) {
-      pBoundary = d3.json(newGeojson).then(function (data) {
-        dataGrid = data;
+      if (newGeojson) {
+        pBoundary = d3.json(newGeojson).then(function (data) {
+          dataGrid = data;
+          drawBoundaryAndGrid();
+        });
+      } else {
+        dataGrid = null;
         drawBoundaryAndGrid();
-        setSvgSize();
-        drawInsetBoxes();
-        refreshMapDots();
-        transformImages(basemaps, trans);
-      });
+      }
     }
     /** @function setProj
       * @param {string} newProj - specifies a new projection for the map.
@@ -10602,6 +10627,7 @@
 
     function clearMap() {
       svg.select('#legend').remove();
+      title.selectAll('*').remove();
       removeDots(svg);
     }
     /** @function getMapWidth
@@ -10642,6 +10668,26 @@
       var accessFunction = mapTypesSel[mapTypesKey];
       downloadCurrentData(accessFunction(taxonIdentifier), 10000, asGeojson);
     }
+    /** @function setMapTitle
+      * @param {string} text - A text value for the map title (can include <b> and <i> tags). 
+      * @param {number} fontSize - A number indicating font size in pixels.
+      * @param {number} x - a number indicating origin x position of text in map svg.
+      * @param {number} y - a number indicating origin y position of text in map svg.
+      * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+      * Creates a title which can be positioned independently of the legend. This is useful when the legend needs
+      * to be moved, but the title does not.
+      */
+
+
+    function setMapTitle(text, fontSize, x, y) {
+      var tText = text;
+      tText = tText.replaceAll('<i>', '<tspan style="font-style: italic">');
+      tText = tText.replaceAll('</i>', '</tspan>');
+      tText = tText.replaceAll('<b>', '<tspan style="font-weight: bold">');
+      tText = tText.replaceAll('</b>', '</tspan>');
+      title.selectAll('*').remove();
+      title.append('text').html(tText).attr('x', x).attr('y', y).attr('font-size', fontSize + 'px').style('font-family', 'Arial, Helvetica, sans-serif');
+    }
     /**
      * @typedef {Object} api
      * @property {module:svgMap~setBoundary} setBoundary - Change the map boundary. Pass a single argument
@@ -10670,6 +10716,7 @@
      * @property {module:svgMap~saveMap} saveMap - Save and download the map as an image.
      * @property {module:svgMap~downloadData} downloadData - Download a the map data as a CSV or GeoJson file.
      * @property {module:svgMap~setProj} setProj - Change the map projection. The argument is a string of the form 'gb', 'ir' or 'ci'.
+     * @property {module:svgMap~setProj} setHeight - Reset the height of the main map SVG object.
      */
 
 
@@ -10691,7 +10738,9 @@
       clearMap: clearMap,
       saveMap: saveMap,
       downloadData: downloadData,
-      setProj: setProj
+      setProj: setProj,
+      setHeight: setHeight,
+      setMapTitle: setMapTitle
     };
   }
 
@@ -11866,7 +11915,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.17.0";
+  var version = "0.18.0";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
