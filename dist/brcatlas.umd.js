@@ -501,7 +501,8 @@
   var constants = {
     bigrCdn: 'https://unpkg.com/brc-atlas-bigr/dist',
     thisCdn: 'https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist'
-  };
+  }; // For testing only
+  //constants.bigrCdn = ''
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -10199,6 +10200,9 @@
    * @param {string} opts.gridGjson - The URL of a grid geoJson file to display.
    * @param {string} opts.gridLineColour - Specifies the line colour of grid line geoJson.
    * @param {string} opts.gridLineStyle - Specifies the line style of the grid line geoJson. Can be solid, dashed or none. (Default solid.)
+   * @param {string} opts.vcGjson - The URL of a vice county geoJson file to display.
+   * @param {string} opts.vcColour - Specifies the line colour of the vice county geoJson.
+   * @param {string} opts.vcLineStyle - Specifies the line style of the vice county line geoJson. Can none or something else (which gives solid line). (Default none.)
    * @param {string} opts.boundaryColour - Specifies the line colour of the boundary geoJson.
    * @param {string} opts.boundaryFill - Specifies the fill colour of the boundary geoJson.
    * @param {string} opts.seaFill - Specifies the fill colour of the area outside the boundary geoJson.
@@ -10243,10 +10247,16 @@
         boundaryGjson = _ref$boundaryGjson === void 0 ? "".concat(constants.bigrCdn, "/assets/GB-I-CI-27700-reduced.geojson") : _ref$boundaryGjson,
         _ref$gridGjson = _ref.gridGjson,
         gridGjson = _ref$gridGjson === void 0 ? "".concat(constants.bigrCdn, "/assets/GB-I-grid-27700-reduced.geojson") : _ref$gridGjson,
+        _ref$vcGjson = _ref.vcGjson,
+        vcGjson = _ref$vcGjson === void 0 ? "".concat(constants.bigrCdn, "/assets/vc/vcs-lines-27700-mapshaper-2.geojson") : _ref$vcGjson,
         _ref$gridLineColour = _ref.gridLineColour,
         gridLineColour = _ref$gridLineColour === void 0 ? '#7C7CD3' : _ref$gridLineColour,
         _ref$gridLineStyle = _ref.gridLineStyle,
         gridLineStyle = _ref$gridLineStyle === void 0 ? 'solid' : _ref$gridLineStyle,
+        _ref$vcLineStyle = _ref.vcLineStyle,
+        vcLineStyle = _ref$vcLineStyle === void 0 ? 'none' : _ref$vcLineStyle,
+        _ref$vcColour = _ref.vcColour,
+        vcColour = _ref$vcColour === void 0 ? '#7C7CD3' : _ref$vcColour,
         _ref$boundaryColour = _ref.boundaryColour,
         boundaryColour = _ref$boundaryColour === void 0 ? '#7C7CD3' : _ref$boundaryColour,
         _ref$boundaryFill = _ref.boundaryFill,
@@ -10258,7 +10268,7 @@
         _ref$callbackOptions = _ref.callbackOptions,
         callbackOptions = _ref$callbackOptions === void 0 ? null : _ref$callbackOptions;
 
-    var trans, basemaps, boundary, boundaryf, dataBoundary, grid, dataGrid, taxonIdentifier, title; // Create a parent div for the SVG within the parent element passed
+    var trans, basemaps, boundary, boundaryf, dataBoundary, grid, dataGrid, vc, dataVc, taxonIdentifier, title; // Create a parent div for the SVG within the parent element passed
     // as an argument. Allows us to style correctly for positioning etc.
 
     var mainDiv = d3.select("".concat(selector)).append("div").attr('id', mapid).style("position", "relative").style("display", "inline"); // Map loading spinner
@@ -10276,6 +10286,7 @@
     boundaryf = svg.append("g").attr("id", "boundaryf");
     basemaps = svg.append("g").attr("id", "backimage");
     boundary = svg.append("g").attr("id", "boundary");
+    vc = svg.append("g").attr("id", "vc").style("display", vcLineStyle === "none" ? "none" : "");
     grid = svg.append("g").attr("id", "grid").style("stroke-dasharray", gridLineStyle === "dashed" ? "3,2" : "").style("display", gridLineStyle === "none" ? "none" : "");
     title = svg.append("g").attr("id", "title"); // Options dialog. 
 
@@ -10294,7 +10305,7 @@
     setSvgSize();
     drawInsetBoxes(); // Load boundary data
 
-    var pBoundary, pGrid;
+    var pBoundary, pGrid, pVc;
 
     if (boundaryGjson) {
       pBoundary = d3.json(boundaryGjson).then(function (data) {
@@ -10311,10 +10322,19 @@
       });
     } else {
       pGrid = Promise.resolve();
+    } // Load VC data
+
+
+    if (vcGjson) {
+      pVc = d3.json(vcGjson).then(function (data) {
+        dataVc = data;
+      });
+    } else {
+      pVc = Promise.resolve();
     } // Once loaded, draw booundary and grid
 
 
-    Promise.all([pBoundary, pGrid]).then(function () {
+    Promise.all([pBoundary, pGrid, pVc]).then(function () {
       drawBoundaryAndGrid();
       mapLoader.classed('map-loader-hidden', true);
     }); // End of initialisation
@@ -10365,6 +10385,12 @@
 
       if (dataGrid) {
         grid.append("path").datum(dataGrid).attr("d", trans.d3Path).style("fill-opacity", 0).style("stroke", gridLineColour);
+      }
+
+      vc.selectAll("path").remove();
+
+      if (dataVc) {
+        vc.append("path").datum(dataVc).attr("d", trans.d3Path).style("fill-opacity", 0).style("stroke", vcColour);
       }
     }
 
@@ -10527,6 +10553,7 @@
 
     function setBoundaryColour(c) {
       boundary.style("stroke", c);
+      boundary.selectAll('path').style("stroke", c);
     }
     /** @function setGridColour
       * @param {string} c - a string specifying the colour which can be hex format, e.g. #FFA500, 
@@ -10538,6 +10565,7 @@
 
     function setGridColour(c) {
       grid.style("stroke", c);
+      grid.selectAll('path').style("stroke", c);
     }
     /** @function setGridLineStyle
       * @param {string} c - a string specifying the style which can be set to either solid, dashed or none. 
@@ -10549,6 +10577,28 @@
     function setGridLineStyle(c) {
       grid.style("stroke-dasharray", c === "dashed" ? "3,2" : "1,0");
       grid.style("display", c === "none" ? "none" : "");
+    }
+    /** @function setVcLineStyle
+      * @param {string} c - a string specifying the style which can be set to either none or something else (which will create solid). 
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+      * Sets the line style of the Vice County lines to the specified value.
+      */
+
+
+    function setVcLineStyle(c) {
+      vc.style("display", c === "none" ? "none" : "");
+    }
+    /** @function setVcColour
+      * @param {string} c - a string specifying the colour which can be hex format, e.g. #FFA500, 
+      * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+      * Sets the colour ov the vice count lines to the specified colour.
+      */
+
+
+    function setVcColour(c) {
+      vc.style("stroke", c);
+      vc.selectAll('path').style("stroke", c);
     }
     /** @function setIdentfier
       * @param {string} identifier - a string which identifies some data to 
@@ -10700,8 +10750,13 @@
      * @property {module:svgMap~setGridColour} setGridColour - Change the colour of the grid. Pass a single argument
      * which is a string specifying the colour which can be hex format, e.g. #FFA500, 
      * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
+     * @property {module:svgMap~setVcColour} setVcColour - Change the colour of the vice county lines. Pass a single argument
+     * which is a string specifying the colour which can be hex format, e.g. #FFA500, 
+     * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
      * @property {module:svgMap~setGridLineStyle} setGridLineStyle - Set the line style of the grid line geoJson. 
      * Can be solid, dashed or none.
+     * @property {module:svgMap~setVcLineStyle} setVcLineStyle - Set the line style of the Vice County line geoJson. 
+     * Can be none or something else (which will give solid line).
      * @property {module:svgMap~setTransform} setTransform - Set the transformation options object by passing a single argument
      * which is a string indicating the key of the transformation in the parent object.
      * @property {module:svgMap~getMapWidth} getMapWidth - Gets and returns the current width of the SVG map. 
@@ -10726,6 +10781,8 @@
       setBoundaryColour: setBoundaryColour,
       setGridColour: setGridColour,
       setGridLineStyle: setGridLineStyle,
+      setVcLineStyle: setVcLineStyle,
+      setVcColour: setVcColour,
       setTransform: setTransform,
       getMapWidth: getMapWidth,
       animateTransChange: animateTransChange,
@@ -11240,7 +11297,8 @@
 
     function redrawVcs() {
       //console.log(map.getZoom())
-      var root = constants.thisCdn; //const root = ''
+      var root = constants.thisCdn; // Uncomment before compiling for production
+      // const root = '' // For testing with new local assets
       // Load the VC mbr file if not already
 
       if (showVcs) {
@@ -11296,7 +11354,7 @@
           //console.log('VCs simpified thousand')
           if (!vcs.vcs1000) {
             //console.log("loading vcs-4326-1000.geojson")
-            d3.json("".concat(root, "/assets/vc/vcs-4326-1000.geojson")).then(function (data) {
+            d3.json("".concat(root, "/assets/vc/vcs-4326-mapshaper-2.geojson")).then(function (data) {
               vcs.vcs1000 = geojsonVcs(data);
             });
           } else {
@@ -11915,7 +11973,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.18.0";
+  var version = "0.19.0";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";

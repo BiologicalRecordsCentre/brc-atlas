@@ -510,8 +510,8 @@ export function leafletMap({
   function redrawVcs() {
 
     //console.log(map.getZoom())
-    const root = constants.thisCdn
-    //const root = ''
+    const root = constants.thisCdn // Uncomment before compiling for production
+    // const root = '' // For testing with new local assets
 
     // Load the VC mbr file if not already
     if (showVcs) {
@@ -566,7 +566,7 @@ export function leafletMap({
         //console.log('VCs simpified thousand')
         if (!vcs.vcs1000) {
           //console.log("loading vcs-4326-1000.geojson")
-          d3.json(`${root}/assets/vc/vcs-4326-1000.geojson`)
+          d3.json(`${root}/assets/vc/vcs-4326-mapshaper-2.geojson`)
             .then(data => {
               vcs.vcs1000 = geojsonVcs(data)
             })
