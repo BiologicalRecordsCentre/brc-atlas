@@ -68,7 +68,7 @@ export function svgMap({
   mapTypesControl = false,
   boundaryGjson = `${constants.bigrCdn}/assets/GB-I-CI-27700-reduced.geojson`,
   gridGjson = `${constants.bigrCdn}/assets/GB-I-grid-27700-reduced.geojson`,
-  vcGjson = `${constants.bigrCdn}/assets/vc/vcs-lines-27700-mapshaper-2.geojson`,
+  vcGjson = `${constants.thisCdn}/assets/vc/vcs-lines-27700-mapshaper-2.geojson`,
   gridLineColour = '#7C7CD3',
   gridLineStyle = 'solid',
   vcLineStyle = 'none',
