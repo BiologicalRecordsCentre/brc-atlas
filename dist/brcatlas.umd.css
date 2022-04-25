@@ -1,58 +1,4 @@
-.hidden {
-  visibility: hidden;
-}
-
-.legendDiv {
-  font-size: 16px;
-  background-color: rgba(255,255,255,0.7)
-}
-
-.map-loader {
-  background-color: transparent;
-  display: inline-block;
-  position: absolute;
-  z-index: 5000;
-}
-
-.map-loader-inner {
-  background-color: white;
-  margin: 5px;
-  padding: 5px;
-  border-radius: 5px;
-  text-align: center;
-}
-
-.map-loader-spinner {
-  display: inline-block;
-  border: 4px solid #f3f3f3; /* Light grey */
-  border-top: 4px solid #3498db; /* Blue */
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  animation: spin 2s linear infinite;
-}
-
-.map-loader-text {
-  display: inline-block;
-  margin: 0 10px;
-  position: relative;
-  top: -0.5em;
-}
-
-.map-loader-hidden {
-  display: none;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Found this necessary in some host environments that reset this property
-Case in points was Drupal Adaptive theme on Earthworm Society of Britain website. */
-#atlas-leaflet-svg {
-  max-height: fit-content;
-}/**************************\
+/**************************\
   Basic Modal Styles
 \**************************/
 
@@ -201,4 +147,58 @@ Case in points was Drupal Adaptive theme on Earthworm Society of Britain website
   .micromodal-slide .modal__container,
   .micromodal-slide .modal__overlay {
     will-change: transform;
-  }
+  }.hidden {
+  visibility: hidden;
+}
+
+.legendDiv {
+  font-size: 16px;
+  background-color: rgba(255,255,255,0.7)
+}
+
+.map-loader {
+  background-color: transparent;
+  display: inline-block;
+  position: absolute;
+  z-index: 5000;
+}
+
+.map-loader-inner {
+  background-color: white;
+  margin: 5px;
+  padding: 5px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.map-loader-spinner {
+  display: inline-block;
+  border: 4px solid #f3f3f3; /* Light grey */
+  border-top: 4px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 2s linear infinite;
+}
+
+.map-loader-text {
+  display: inline-block;
+  margin: 0 10px;
+  position: relative;
+  top: -0.5em;
+}
+
+.map-loader-hidden {
+  display: none;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Found this necessary in some host environments that reset this property
+Case in points was Drupal Adaptive theme on Earthworm Society of Britain website. */
+#atlas-leaflet-svg {
+  max-height: fit-content;
+}
