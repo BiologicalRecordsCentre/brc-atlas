@@ -4,4 +4,4 @@ export const constants = {
 }
 
 // For testing only
-//constants.bigrCdn = ''
+// constants.thisCdn = ''

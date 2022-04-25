@@ -502,7 +502,8 @@
     bigrCdn: 'https://unpkg.com/brc-atlas-bigr/dist',
     thisCdn: 'https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist'
   }; // For testing only
-  //constants.bigrCdn = ''
+
+  constants.thisCdn = '';
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -10248,7 +10249,7 @@
         _ref$gridGjson = _ref.gridGjson,
         gridGjson = _ref$gridGjson === void 0 ? "".concat(constants.bigrCdn, "/assets/GB-I-grid-27700-reduced.geojson") : _ref$gridGjson,
         _ref$vcGjson = _ref.vcGjson,
-        vcGjson = _ref$vcGjson === void 0 ? "".concat(constants.bigrCdn, "/assets/GB-I-grid-27700-reduced.geojson") : _ref$vcGjson,
+        vcGjson = _ref$vcGjson === void 0 ? "".concat(constants.thisCdn, "/assets/vc/vcs-lines-27700-mapshaper-2-reduced.geojson") : _ref$vcGjson,
         _ref$gridLineColour = _ref.gridLineColour,
         gridLineColour = _ref$gridLineColour === void 0 ? '#7C7CD3' : _ref$gridLineColour,
         _ref$gridLineStyle = _ref.gridLineStyle,
