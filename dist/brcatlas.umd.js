@@ -502,8 +502,7 @@
     bigrCdn: 'https://unpkg.com/brc-atlas-bigr/dist',
     thisCdn: 'https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist'
   }; // For testing only
-
-  constants.thisCdn = '';
+  // constants.thisCdn = ''
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -11974,7 +11973,7 @@
   }
 
   var name = "brcatlas";
-  var version = "0.19.2";
+  var version = "0.19.3";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
