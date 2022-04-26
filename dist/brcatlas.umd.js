@@ -10197,16 +10197,19 @@
    * @param {boolean} opts.mapTypesControl - Indicates whether or not a control should be shown in the
    * bottom-right of the map that can be used display a dialog to change the data accessor (map type) options.
    * @param {string} opts.boundaryGjson - The URL of a boundary geoJson file to display.
+   * @param {string} opts.boundaryColour - Specifies the line colour of the boundary geoJson.
+   * @param {string} opts.boundaryFill - Specifies the fill colour of the boundary geoJson.
+   * @param {string} opts.seaFill - Specifies the fill colour of the area outside the boundary geoJson.
+   * @param {string} opts.insetColour - Specifies the line colour of map inset boxes.
    * @param {string} opts.gridGjson - The URL of a grid geoJson file to display.
    * @param {string} opts.gridLineColour - Specifies the line colour of grid line geoJson.
    * @param {string} opts.gridLineStyle - Specifies the line style of the grid line geoJson. Can be solid, dashed or none. (Default solid.)
    * @param {string} opts.vcGjson - The URL of a vice county geoJson file to display.
    * @param {string} opts.vcColour - Specifies the line colour of the vice county geoJson.
    * @param {string} opts.vcLineStyle - Specifies the line style of the vice county line geoJson. Can none or something else (which gives solid line). (Default none.)
-   * @param {string} opts.boundaryColour - Specifies the line colour of the boundary geoJson.
-   * @param {string} opts.boundaryFill - Specifies the fill colour of the boundary geoJson.
-   * @param {string} opts.seaFill - Specifies the fill colour of the area outside the boundary geoJson.
-   * @param {string} opts.insetColour - Specifies the line colour of map inset boxes.
+   * @param {string} opts.countryGjson - The URL of a country geoJson file to display.
+   * @param {string} opts.countryColour - Specifies the line colour of the country geoJson.
+   * @param {string} opts.countryLineStyle - Specifies the line style of the country geoJson. Can none or something else (which gives solid line). (Default none.)
    * @param {function} opts.callbackOptions - Specifies a callback function to be executed if user options dialog used.
    * @returns {module:svgMap~api} api - Returns an API for the map.
    */
@@ -10249,6 +10252,8 @@
         gridGjson = _ref$gridGjson === void 0 ? "".concat(constants.bigrCdn, "/assets/GB-I-grid-27700-reduced.geojson") : _ref$gridGjson,
         _ref$vcGjson = _ref.vcGjson,
         vcGjson = _ref$vcGjson === void 0 ? "".concat(constants.bigrCdn, "/assets/GB-I-vcs-27700-reduced.geojson") : _ref$vcGjson,
+        _ref$countryGjson = _ref.countryGjson,
+        countryGjson = _ref$countryGjson === void 0 ? "".concat(constants.bigrCdn, "/assets/GB-I-countries-27700-reduced.geojson") : _ref$countryGjson,
         _ref$gridLineColour = _ref.gridLineColour,
         gridLineColour = _ref$gridLineColour === void 0 ? '#7C7CD3' : _ref$gridLineColour,
         _ref$gridLineStyle = _ref.gridLineStyle,
@@ -10257,6 +10262,10 @@
         vcLineStyle = _ref$vcLineStyle === void 0 ? 'none' : _ref$vcLineStyle,
         _ref$vcColour = _ref.vcColour,
         vcColour = _ref$vcColour === void 0 ? '#7C7CD3' : _ref$vcColour,
+        _ref$countryLineStyle = _ref.countryLineStyle,
+        countryLineStyle = _ref$countryLineStyle === void 0 ? 'none' : _ref$countryLineStyle,
+        _ref$countryColour = _ref.countryColour,
+        countryColour = _ref$countryColour === void 0 ? '#7C7CD3' : _ref$countryColour,
         _ref$boundaryColour = _ref.boundaryColour,
         boundaryColour = _ref$boundaryColour === void 0 ? '#7C7CD3' : _ref$boundaryColour,
         _ref$boundaryFill = _ref.boundaryFill,
@@ -10268,7 +10277,7 @@
         _ref$callbackOptions = _ref.callbackOptions,
         callbackOptions = _ref$callbackOptions === void 0 ? null : _ref$callbackOptions;
 
-    var trans, basemaps, boundary, boundaryf, dataBoundary, grid, dataGrid, vc, dataVc, taxonIdentifier, title; // Create a parent div for the SVG within the parent element passed
+    var trans, basemaps, boundary, boundaryf, dataBoundary, grid, dataGrid, vc, dataVc, country, dataCountry, taxonIdentifier, title; // Create a parent div for the SVG within the parent element passed
     // as an argument. Allows us to style correctly for positioning etc.
 
     var mainDiv = d3.select("".concat(selector)).append("div").attr('id', mapid).style("position", "relative").style("display", "inline"); // Map loading spinner
@@ -10287,6 +10296,7 @@
     basemaps = svg.append("g").attr("id", "backimage");
     boundary = svg.append("g").attr("id", "boundary");
     vc = svg.append("g").attr("id", "vc").style("display", vcLineStyle === "none" ? "none" : "");
+    country = svg.append("g").attr("id", "country").style("display", countryLineStyle === "none" ? "none" : "");
     grid = svg.append("g").attr("id", "grid").style("stroke-dasharray", gridLineStyle === "dashed" ? "3,2" : "").style("display", gridLineStyle === "none" ? "none" : "");
     title = svg.append("g").attr("id", "title"); // Options dialog. 
 
@@ -10305,7 +10315,7 @@
     setSvgSize();
     drawInsetBoxes(); // Load boundary data
 
-    var pBoundary, pGrid, pVc;
+    var pBoundary, pGrid, pVc, pCountry;
 
     if (boundaryGjson) {
       pBoundary = d3.json(boundaryGjson).then(function (data) {
@@ -10322,6 +10332,15 @@
       });
     } else {
       pGrid = Promise.resolve();
+    } // Load country data
+
+
+    if (countryGjson) {
+      pCountry = d3.json(countryGjson).then(function (data) {
+        dataCountry = data;
+      });
+    } else {
+      pCountry = Promise.resolve();
     } // Load VC data
 
 
@@ -10334,7 +10353,7 @@
     } // Once loaded, draw booundary and grid
 
 
-    Promise.all([pBoundary, pGrid, pVc]).then(function () {
+    Promise.allSettled([pBoundary, pGrid, pVc, pCountry]).then(function () {
       drawBoundaryAndGrid();
       mapLoader.classed('map-loader-hidden', true);
     }); // End of initialisation
@@ -10391,6 +10410,12 @@
 
       if (dataVc) {
         vc.append("path").datum(dataVc).attr("d", trans.d3Path).style("fill-opacity", 0).style("stroke", vcColour);
+      }
+
+      country.selectAll("path").remove();
+
+      if (dataCountry) {
+        country.append("path").datum(dataCountry).attr("d", trans.d3Path).style("fill-opacity", 0).style("stroke", countryColour);
       }
     }
 
@@ -10600,6 +10625,28 @@
       vc.style("stroke", c);
       vc.selectAll('path').style("stroke", c);
     }
+    /** @function setCountryLineStyle
+      * @param {string} c - a string specifying the style which can be set to either none or something else (which will create solid). 
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+      * Sets the line style of the countries to the specified value.
+      */
+
+
+    function setCountryLineStyle(c) {
+      country.style("display", c === "none" ? "none" : "");
+    }
+    /** @function setCountryColour
+    * @param {string} c - a string specifying the colour which can be hex format, e.g. #FFA500, 
+    * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
+    * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+    * Sets the line colour of the countries to the specified colour.
+    */
+
+
+    function setCountryColour(c) {
+      country.style("stroke", c);
+      country.selectAll('path').style("stroke", c);
+    }
     /** @function setIdentfier
       * @param {string} identifier - a string which identifies some data to 
       * a data accessor function.
@@ -10750,11 +10797,16 @@
      * @property {module:svgMap~setGridColour} setGridColour - Change the colour of the grid. Pass a single argument
      * which is a string specifying the colour which can be hex format, e.g. #FFA500, 
      * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
+     * @property {module:svgMap~setCountryColour} setCountryColour - Change the colour of the country boundaries. Pass a single argument
+     * which is a string specifying the colour which can be hex format, e.g. #FFA500, 
+     * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
      * @property {module:svgMap~setVcColour} setVcColour - Change the colour of the vice county lines. Pass a single argument
      * which is a string specifying the colour which can be hex format, e.g. #FFA500, 
      * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
      * @property {module:svgMap~setGridLineStyle} setGridLineStyle - Set the line style of the grid line geoJson. 
      * Can be solid, dashed or none.
+     * @property {module:svgMap~setCountryLineStyle} setCountryLineStyle - Set the line style of the country boundaries geoJson. 
+     * Can be none or something else (which will give solid line).
      * @property {module:svgMap~setVcLineStyle} setVcLineStyle - Set the line style of the Vice County line geoJson. 
      * Can be none or something else (which will give solid line).
      * @property {module:svgMap~setTransform} setTransform - Set the transformation options object by passing a single argument
@@ -10783,6 +10835,8 @@
       setGridLineStyle: setGridLineStyle,
       setVcLineStyle: setVcLineStyle,
       setVcColour: setVcColour,
+      setCountryLineStyle: setCountryLineStyle,
+      setCountryColour: setCountryColour,
       setTransform: setTransform,
       getMapWidth: getMapWidth,
       animateTransChange: animateTransChange,
