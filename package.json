@@ -1,6 +1,6 @@
 {
   "name": "brcatlas",
-  "version": "0.19.7",
+  "version": "0.19.8",
   "description": "Javascript library for web-based biological records atlas mapping in the British Isles.",
   "type": "module",
   "main": "dist/brcatlas.umd.js",
@@ -9,7 +9,6 @@
   "scripts": {
     "lint": "npx eslint src",
     "test": "jest",
-    "prepare": "node script-prepublish.js",
     "build": "rollup --config",
     "docs": "jsdoc ./src/ -R README.md -d ./docs/api"
   },

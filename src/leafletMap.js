@@ -514,23 +514,24 @@ export function leafletMap({
 
   function redrawCountries() {
 
-    console.log('showCountries', showCountries, countries)
+    //console.log('showCountries', showCountries, countries)
 
     const zoom = map.getZoom()
     const root = constants.thisCdn
 
     if (showCountries && zoom < 7) {
       if (!countries.countries1000) {
+        countries.countries1000 = 'loading'
         d3.json(`${root}/assets/country/countries-4326-2.geojson`)
           .then(data => {
             countries.countries1000 = geojsonCountries(data)
           })
-      } else {
+      } else if (countries.countries1000 !== 'loading') {
         if (!map.hasLayer(countries.countries1000)) {
           countries.countries1000.addTo(map)
         }
       }
-    } else {
+    } else if (countries.countries1000 !== 'loading') {
       if (map.hasLayer(countries.countries1000)) {
         map.removeLayer(countries.countries1000)
       }
@@ -538,16 +539,17 @@ export function leafletMap({
 
     if (showCountries && zoom >= 7 && zoom < 10)  {
       if (!countries.countries100) {
+        countries.countries100 = 'loading'
         d3.json(`${root}/assets/country/countries-4326-5.geojson`)
           .then(data => {
             countries.countries100 = geojsonCountries(data)
           })
-      } else {
+      } else if (countries.countries100 !== 'loading') {
         if (!map.hasLayer(countries.countries100)) {
           countries.countries100.addTo(map)
         }
       }
-    } else {
+    } else if (countries.countries100 !== 'loading') {
       if (map.hasLayer(countries.countries100)) {
         map.removeLayer(countries.countries100)
       }
@@ -555,16 +557,17 @@ export function leafletMap({
 
     if (showCountries && zoom >= 10 && zoom < 12)  {
       if (!countries.countries10) {
+        countries.countries10 = 'loading'
         d3.json(`${root}/assets/country/countries-4326-25.geojson`)
           .then(data => {
             countries.countries10 = geojsonCountries(data)
           })
-      } else {
+      } else if (countries.countries10 !== 'loading') {
         if (!map.hasLayer(countries.countries10)) {
           countries.countries10.addTo(map)
         }
       }
-    } else {
+    } else if (countries.countries10 !== 'loading') {
       if (map.hasLayer(countries.countries10)) {
         map.removeLayer(countries.countries10)
       }
@@ -572,16 +575,17 @@ export function leafletMap({
 
     if (showCountries && zoom >= 12)  {
       if (!countries.countriesFull) {
+        countries.countriesFull = 'loading'
         d3.json(`${root}/assets/country/countries-4326-80.geojson`)
           .then(data => {
             countries.countriesFull = geojsonCountries(data)
           })
-      } else {
+      } else if (countries.countriesFull !== 'loading') {
         if (!map.hasLayer(countries.countriesFull)) {
           countries.countriesFull.addTo(map)
         }
       }
-    } else {
+    } else if (countries.countriesFull !== 'loading') {
       if (map.hasLayer(countries.countriesFull)) {
         map.removeLayer(countries.countriesFull)
       }
@@ -627,7 +631,6 @@ export function leafletMap({
         displayVcs()
       }
     } else {
-      //console.log('VCs not shown')
       // Remove any VCs currently displayed
       if (map.hasLayer(vcs.vcs1000)) {
         map.removeLayer(vcs.vcs1000)
@@ -652,35 +655,38 @@ export function leafletMap({
     function displayVcs() {
       const zoom = map.getZoom()
 
+      // Because the d3.json load is asynchronous, can be
+      // kicked off more than once for same file so we
+      // use the 'loading' flag to prevent this.
+
       if (zoom < 7) {
-        //console.log('VCs simpified thousand')
         if (!vcs.vcs1000) {
-          //console.log("loading vcs-4326-1000.geojson")
+          vcs.vcs1000 = 'loading'
           d3.json(`${root}/assets/vc/vcs-4326-1000.geojson`)
             .then(data => {
               vcs.vcs1000 = geojsonVcs(data)
             })
-        } else {
+        } else if (vcs.vcs1000 !== 'loading') {
           if (!map.hasLayer(vcs.vcs1000)) {
             vcs.vcs1000.addTo(map)
           }
         }
-      } else {
+      } else if (vcs.vcs1000 !== 'loading') {
         if (map.hasLayer(vcs.vcs1000)) {
           map.removeLayer(vcs.vcs1000)
         }
       }
 
       if (zoom >= 7 && zoom < 10)  {
-        //console.log('VCs simpified hundred',vcsInView())
+
         vcsInView().forEach(vc => {
           if (!vcs.vcs100[vc]) {
-            //console.log(`loading 100/${vc}.geojson`)
+            vcs.vcs100[vc] = 'loading'
             d3.json(`${root}/assets/vc/100/${vc}.geojson`)
               .then(data => {
                 vcs.vcs100[vc] = geojsonVcs(data)
               })
-          } else {
+          } else if (vcs.vcs100[vc] !== 'loading'){
             if (!map.hasLayer(vcs.vcs100[vc])) {
               vcs.vcs100[vc].addTo(map)
             }
@@ -688,8 +694,10 @@ export function leafletMap({
         })
       } else {
         Object.keys(vcs.vcs100).forEach(vc => {
-          if (map.hasLayer(vcs.vcs100[vc])) {
-            map.removeLayer(vcs.vcs100[vc])
+          if (vcs.vcs100[vc] !== 'loading') {
+            if (map.hasLayer(vcs.vcs100[vc])) {
+              map.removeLayer(vcs.vcs100[vc])
+            }
           }
         })
       }
@@ -698,12 +706,12 @@ export function leafletMap({
         //console.log('VCs simpified ten')
         vcsInView().forEach(vc => {
           if (!vcs.vcs10[vc]) {
-            //console.log(`loading 10/${vc}.geojson`)
+            vcs.vcs10[vc] = 'loading'
             d3.json(`${root}/assets/vc/10/${vc}.geojson`)
               .then(data => {
                 vcs.vcs10[vc] = geojsonVcs(data)
               })
-          } else {
+          } else if (vcs.vcs10[vc] !== 'loading') {
             if (!map.hasLayer(vcs.vcs10[vc])) {
               vcs.vcs10[vc].addTo(map)
             }
@@ -711,8 +719,10 @@ export function leafletMap({
         })
       } else {
         Object.keys(vcs.vcs10).forEach(vc => {
-          if (map.hasLayer(vcs.vcs10[vc])) {
-            map.removeLayer(vcs.vcs10[vc])
+          if (vcs.vcs10[vc] !== 'loading') {
+            if (map.hasLayer(vcs.vcs10[vc])) {
+              map.removeLayer(vcs.vcs10[vc])
+            }
           }
         })
       }
@@ -721,12 +731,12 @@ export function leafletMap({
         //console.log('VCs full res')
         vcsInView().forEach(vc => {
           if (!vcs.vcsFull[vc]) {
-            //console.log(`loading full/${vc}.geojson`)
+            vcs.vcsFull[vc] = 'loading'
             d3.json(`${root}/assets/vc/full/${vc}.geojson`)
               .then(data => {
                 vcs.vcsFull[vc] = geojsonVcs(data)
               })
-          } else {
+          } else if (vcs.vcsFull[vc] !== 'loading') {
             if (!map.hasLayer(vcs.vcsFull[vc])) {
               vcs.vcsFull[vc].addTo(map)
             }
@@ -734,28 +744,30 @@ export function leafletMap({
         })
       } else {
         Object.keys(vcs.vcsFull).forEach(vc => {
-          if (map.hasLayer(vcs.vcsFull[vc])) {
-            map.removeLayer(vcs.vcsFull[vc])
+          if (vcs.vcsFull[vc] !== 'loading') {
+            if (map.hasLayer(vcs.vcsFull[vc])) {
+              map.removeLayer(vcs.vcsFull[vc])
+            }
           }
         })
       }
 
       // Reset styles depending on zoom level
-      if (map.hasLayer(vcs.vcs1000)) {
+      if (vcs.vcs1000 !== 'loading' && map.hasLayer(vcs.vcs1000)) {
         vcs.vcs1000.setStyle(getStyle())
       }
       Object.keys(vcs.vcs100).forEach(vc => {
-        if (map.hasLayer(vcs.vcs100[vc])) {
+        if (vcs.vcs100[vc] !== 'loading' && map.hasLayer(vcs.vcs100[vc])) {
           vcs.vcs100[vc].setStyle(getStyle())
         }
       })
       Object.keys(vcs.vcs10).forEach(vc => {
-        if (map.hasLayer(vcs.vcs10[vc])) {
+        if (vcs.vcs10[vc] !== 'loading' && map.hasLayer(vcs.vcs10[vc])) {
           vcs.vcs10[vc].setStyle(getStyle())
         }
       })
       Object.keys(vcs.vcsFull).forEach(vc => {
-        if (map.hasLayer(vcs.vcsFull[vc])) {
+        if (vcs.vcsFull[vc] !== 'loading' && map.hasLayer(vcs.vcsFull[vc])) {
           vcs.vcsFull[vc].setStyle(getStyle())
         }
       })
@@ -867,25 +879,27 @@ export function leafletMap({
 
     const accessFunction = mapTypesSel[mapTypesKey]
     accessFunction(taxonIdentifier).then(data => {
-      data.records = data.records.map(d => {
-        const ll = getCentroid(d.gr, 'wg').centroid
-        d.lat = ll[1]
-        d.lng = ll[0]
-        return d
-      })
-      dots[`p${data.precision}`] = data
-      precision = data.precision
+      if (data && data.records) {
+        data.records = data.records.map(d => {
+          const ll = getCentroid(d.gr, 'wg').centroid
+          d.lat = ll[1]
+          d.lng = ll[0]
+          return d
+        })
+        dots[`p${data.precision}`] = data
+        precision = data.precision
 
-      //Legend
-      legendOpts.accessorData = data.legend
-      if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
-        const legendSvg = d3.select(selector).append('svg') 
-        svgLegend(legendSvg, legendOpts)
-        const bbox = legendSvg.node().getBBox()
-        const w = legendOpts.width ? legendOpts.width : bbox.x + bbox.width + bbox.x
-        const h = legendOpts.height ? legendOpts.height : bbox.y + bbox.height + bbox.y
-        d3.select(`#${mapid}`).select('.legendDiv').html(`<svg class="legendSvg" width="${w}" height="${h}">${legendSvg.html()}</svg>`)
-        legendSvg.remove()
+        //Legend
+        legendOpts.accessorData = data.legend
+        if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
+          const legendSvg = d3.select(selector).append('svg') 
+          svgLegend(legendSvg, legendOpts)
+          const bbox = legendSvg.node().getBBox()
+          const w = legendOpts.width ? legendOpts.width : bbox.x + bbox.width + bbox.x
+          const h = legendOpts.height ? legendOpts.height : bbox.y + bbox.height + bbox.y
+          d3.select(`#${mapid}`).select('.legendDiv').html(`<svg class="legendSvg" width="${w}" height="${h}">${legendSvg.html()}</svg>`)
+          legendSvg.remove()
+        }
       }
 
       // callback[3] is fired at the end of data download and
