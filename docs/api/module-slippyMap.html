@@ -192,6 +192,29 @@
 
         <tr>
             
+                <td class="name"><code>showCountries</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Indicates whether or not the map will display Country boundaries.</td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>showVcs</code></td>
             
 
@@ -231,7 +254,10 @@
 
             
 
-            <td class="description last">Indicates whether or not the name and number of the VC should be shown on click.Note that you will need to ensure that the VC has 'fill' style property set to true if you want users to be able to clickanywhere within a VC boundary. You can also set the 'fillOpacity' property to 0 if you don't want the fill to be visible.(Note that the default styleVcs properties include these values.)</td>
+            <td class="description last">Indicates whether or not the name and number of the VC should be shown on click.
+Note that you will need to ensure that the VC has 'fill' style property set to true if you want users to be able to click
+anywhere within a VC boundary. You can also set the 'fillOpacity' property to 0 if you don't want the fill to be visible.
+(Note that the default styleVcs properties include these values.)</td>
         </tr>
 
     
@@ -254,7 +280,12 @@
 
             
 
-            <td class="description last">An array of objects defining styles for VCs at different zoom levels. The propertiesof each can be any that are meaningful to a path object in Leaflet (https://leafletjs.com/reference.html#path-option). Eachobject also has an property called 'zoom' which can be set to an array of Leaflet zoom levels. The style properties willonly be applied if the map zoom level is in the array. A shortcut to indicating all zoom levels not included in otherarray members is an empty array. If the property includes only one style object, with the zoom property set to an emptyarray, then the style properties will be applied at all zoom levels.</td>
+            <td class="description last">An array of objects defining styles for VCs at different zoom levels. The properties
+of each can be any that are meaningful to a path object in Leaflet (https://leafletjs.com/reference.html#path-option). Each
+object also has an property called 'zoom' which can be set to an array of Leaflet zoom levels. The style properties will
+only be applied if the map zoom level is in the array. A shortcut to indicating all zoom levels not included in other
+array members is an empty array. If the property includes only one style object, with the zoom property set to an empty
+array, then the style properties will be applied at all zoom levels.</td>
         </tr>
 
     
@@ -277,7 +308,9 @@
 
             
 
-            <td class="description last">The id of a DOM element into which feature-specific HTML will be displayedas the mouse moves over a dot on the map. The HTML markup must be stored in an attribute called 'caption'in the input data.</td>
+            <td class="description last">The id of a DOM element into which feature-specific HTML will be displayed
+as the mouse moves over a dot on the map. The HTML markup must be stored in an attribute called 'caption'
+in the input data.</td>
         </tr>
 
     
@@ -300,7 +333,8 @@
 
             
 
-            <td class="description last">The leaflet zoom level above which clustering will be turnedoff for point display (except for points in same location) (default 1 - i.e. clustering always one)</td>
+            <td class="description last">The leaflet zoom level above which clustering will be turned
+off for point display (except for points in same location) (default 1 - i.e. clustering always one)</td>
         </tr>
 
     
@@ -323,7 +357,9 @@
 
             
 
-            <td class="description last">A function that will be called if user clicks on a mapelement. The function will be passed these attributes, in this order, if they exist on theelement: gr, id, caption. (Default - null.)</td>
+            <td class="description last">A function that will be called if user clicks on a map
+element. The function will be passed these attributes, in this order, if they exist on the
+element: gr, id, caption. (Default - null.)</td>
         </tr>
 
     
@@ -415,7 +451,8 @@
 
             
 
-            <td class="description last">Sets an object whose properties are data access functions. The propertynames are the 'keys' which should be human readable descriptiosn of the map types.</td>
+            <td class="description last">Sets an object whose properties are data access functions. The property
+names are the 'keys' which should be human readable descriptiosn of the map types.</td>
         </tr>
 
     
@@ -484,7 +521,12 @@
 
             
 
-            <td class="description last">An array of callbacks that can be used during data loading/display. Typically these can be used to display/hide busy indicators.<br/>callbacks[0] is fired at the start of data redraw.<br/>callbacks[1] is fired at the end of data redraw.<br/>callbacks[2] is fired at the start of data download.<br/>callbacks[3] is fired at the end of data download.</td>
+            <td class="description last">An array of callbacks that can be used during data loading/display. 
+Typically these can be used to display/hide busy indicators.
+<br/>callbacks[0] is fired at the start of data redraw.
+<br/>callbacks[1] is fired at the end of data redraw.
+<br/>callbacks[2] is fired at the start of data download.
+<br/>callbacks[3] is fired at the end of data download.</td>
         </tr>
 
     
@@ -532,7 +574,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line59">line 59</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line60">line 60</a>
     </li></ul></dd>
     
 
@@ -598,7 +640,8 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the leafletMap function</b>.Provides a method to add a basemap layer after the map is created.
+    <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+Provides a method to add a basemap layer after the map is created.
 </div>
 
 
@@ -691,7 +734,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line855">line 855</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line949">line 949</a>
     </li></ul></dd>
     
 
@@ -735,7 +778,8 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the leafletMap function</b>.Provides a method to add a geojson layer after the map is created.
+    <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+Provides a method to add a geojson layer after the map is created.
 </div>
 
 
@@ -828,7 +872,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line907">line 907</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line1001">line 1001</a>
     </li></ul></dd>
     
 
@@ -965,7 +1009,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line965">line 965</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line1059">line 1059</a>
     </li></ul></dd>
     
 
@@ -1009,7 +1053,8 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the leafletMap function</b>.Clear the map of dots and legend.
+    <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+Clear the map of dots and legend.
 </div>
 
 
@@ -1053,7 +1098,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line820">line 820</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line914">line 914</a>
     </li></ul></dd>
     
 
@@ -1190,7 +1235,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line985">line 985</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line1088">line 1088</a>
     </li></ul></dd>
     
 
@@ -1234,7 +1279,8 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the leafletMap function</b>.Expose the leaflet map invalidate size method.
+    <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+Expose the leaflet map invalidate size method.
 </div>
 
 
@@ -1278,7 +1324,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line847">line 847</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line941">line 941</a>
     </li></ul></dd>
     
 
@@ -1322,7 +1368,8 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the leafletMap function</b>.Redraw the map, e.g. after changing map accessor function or map identifier.
+    <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+Redraw the map, e.g. after changing map accessor function or map identifier.
 </div>
 
 
@@ -1366,7 +1413,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line764">line 764</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line858">line 858</a>
     </li></ul></dd>
     
 
@@ -1410,7 +1457,8 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the leafletMap function</b>.Provides a method to remove a basemap layer after the map is created.
+    <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+Provides a method to remove a basemap layer after the map is created.
 </div>
 
 
@@ -1503,7 +1551,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line885">line 885</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line979">line 979</a>
     </li></ul></dd>
     
 
@@ -1547,7 +1595,8 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the leafletMap function</b>.Provides a method to remove a geojson layer after the map is created.
+    <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+Provides a method to remove a geojson layer after the map is created.
 </div>
 
 
@@ -1640,7 +1689,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line931">line 931</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line1025">line 1025</a>
     </li></ul></dd>
     
 
@@ -1684,7 +1733,9 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the leafletMap function</b>.The data accessor function, specified elsewhere, will use this identifier to accessthe correct data.
+    <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+The data accessor function, specified elsewhere, will use this identifier to access
+the correct data.
 </div>
 
 
@@ -1736,7 +1787,8 @@
 
             
 
-            <td class="description last">A string which identifies some data to a data accessor function.</td>
+            <td class="description last">A string which identifies some data to 
+a data accessor function.</td>
         </tr>
 
     
@@ -1777,7 +1829,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line753">line 753</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line847">line 847</a>
     </li></ul></dd>
     
 
@@ -1821,7 +1873,9 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the leafletMap function</b>.The legend options object can be used to specify properties of a legend and even the contentof the legend itself.
+    <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+The legend options object can be used to specify properties of a legend and even the content
+of the legend itself.
 </div>
 
 
@@ -1914,7 +1968,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line810">line 810</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line904">line 904</a>
     </li></ul></dd>
     
 
@@ -1958,7 +2012,8 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the leafletMap function</b>.The data accessor is stored in the mapTypesSel object and referenced by this key.
+    <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+The data accessor is stored in the mapTypesSel object and referenced by this key.
 </div>
 
 
@@ -2051,7 +2106,144 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line744">line 744</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line838">line 838</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~setShowCountries"><span class="type-signature">(inner) </span>setShowCountries<span class="signature">(show)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <b>This function allows you to change whether or not Country boundaries are displayed.</b>.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>show</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Indicates whether or not to display Countries.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line1079">line 1079</a>
     </li></ul></dd>
     
 
@@ -2188,7 +2380,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line976">line 976</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line1070">line 1070</a>
     </li></ul></dd>
     
 
@@ -2232,7 +2424,8 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the leafletMap function</b>.Change the size of the leaflet map.
+    <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+Change the size of the leaflet map.
 </div>
 
 
@@ -2348,7 +2541,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line834">line 834</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line928">line 928</a>
     </li></ul></dd>
     
 
@@ -2392,7 +2585,8 @@
 
 
 <div class="description">
-    <b>This function allows you to show/hide the leaflet overlay layer (atlas layer)</b>.Provides a method to show/hide the leaflet overlay layer used to display atlas data.
+    <b>This function allows you to show/hide the leaflet overlay layer (atlas layer)</b>.
+Provides a method to show/hide the leaflet overlay layer used to display atlas data.
 </div>
 
 
@@ -2485,7 +2679,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line946">line 946</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line1040">line 1040</a>
     </li></ul></dd>
     
 
@@ -2892,6 +3086,29 @@
 
         <tr>
             
+                <td class="name"><code>setShowCountries</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-slippyMap.html#~setShowCountries">module:slippyMap~setShowCountries</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Set the boolean flag which indicates whether or not to display Countries.</td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>downloadData</code></td>
             
 
@@ -2970,7 +3187,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line995">line 995</a>
+        <a href="leafletMap.js.html">leafletMap.js</a>, <a href="leafletMap.js.html#line1098">line 1098</a>
     </li></ul></dd>
     
 
@@ -3218,7 +3435,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Fri Apr 22 2022 17:15:02 GMT+0100 (British Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Apr 27 2022 03:57:25 GMT-0700 (Pacific Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

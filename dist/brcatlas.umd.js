@@ -498,11 +498,75 @@
     'Standard hectad': csvHectad
   };
 
+  var name = "brcatlas";
+  var version = "0.19.7";
+  var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
+  var type = "module";
+  var main = "dist/brcatlas.umd.js";
+  var browser = "dist/brcatlas.umd.js";
+  var browsermin = "dist/brcatlas.min.umd.js";
+  var scripts = {
+  	lint: "npx eslint src",
+  	test: "jest",
+  	prepare: "node script-prepublish.js",
+  	build: "rollup --config",
+  	docs: "jsdoc ./src/ -R README.md -d ./docs/api"
+  };
+  var author = "CEH Biological Records Centre";
+  var license = "GPL-3.0-only";
+  var files = [
+  	"dist"
+  ];
+  var repository = {
+  	type: "git",
+  	url: "https://github.com/BiologicalRecordsCentre/brc-atlas.git"
+  };
+  var dependencies = {
+  	"brc-atlas-bigr": "^2.2.2",
+  	d3: "^5.16.0",
+  	leaflet: "^1.7.1",
+  	"leaflet-control-custom": "^1.0.0",
+  	"leaflet.markercluster": "^1.5.0",
+  	micromodal: "^0.4.6"
+  };
+  var devDependencies = {
+  	"@babel/core": "^7.10.4",
+  	"@babel/preset-env": "^7.10.4",
+  	"@rollup/plugin-babel": "^5.0.4",
+  	"@rollup/plugin-commonjs": "^13.0.0",
+  	"@rollup/plugin-json": "^4.1.0",
+  	"@rollup/plugin-node-resolve": "^8.1.0",
+  	"copy-dir": "^1.3.0",
+  	eslint: "^7.4.0",
+  	"eslint-plugin-jest": "^23.17.1",
+  	jest: "^26.1.0",
+  	rollup: "^2.23.0",
+  	"rollup-plugin-css-only": "^2.1.0",
+  	"rollup-plugin-eslint": "^7.0.0",
+  	"rollup-plugin-terser": "^6.1.0"
+  };
+  var pkg = {
+  	name: name,
+  	version: version,
+  	description: description,
+  	type: type,
+  	main: main,
+  	browser: browser,
+  	browsermin: browsermin,
+  	scripts: scripts,
+  	author: author,
+  	license: license,
+  	files: files,
+  	repository: repository,
+  	dependencies: dependencies,
+  	devDependencies: devDependencies
+  };
+
   var constants = {
     bigrCdn: 'https://unpkg.com/brc-atlas-bigr/dist',
-    thisCdn: 'https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest'
+    thisCdn: "https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@".concat(pkg.version)
   }; // For testing only
-  // constants.thisCdn = ''
+  //constants.thisCdn = ''
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -10247,13 +10311,13 @@
         _ref$mapTypesControl = _ref.mapTypesControl,
         mapTypesControl = _ref$mapTypesControl === void 0 ? false : _ref$mapTypesControl,
         _ref$boundaryGjson = _ref.boundaryGjson,
-        boundaryGjson = _ref$boundaryGjson === void 0 ? "".concat(constants.bigrCdn, "/assets/GB-I-CI-27700-reduced.geojson") : _ref$boundaryGjson,
+        boundaryGjson = _ref$boundaryGjson === void 0 ? "".concat(constants.thisCdn, "/assets/GB-I-CI-27700-reduced.geojson") : _ref$boundaryGjson,
         _ref$gridGjson = _ref.gridGjson,
-        gridGjson = _ref$gridGjson === void 0 ? "".concat(constants.bigrCdn, "/assets/GB-I-grid-27700-reduced.geojson") : _ref$gridGjson,
+        gridGjson = _ref$gridGjson === void 0 ? "".concat(constants.thisCdn, "/assets/GB-I-grid-27700-reduced.geojson") : _ref$gridGjson,
         _ref$vcGjson = _ref.vcGjson,
-        vcGjson = _ref$vcGjson === void 0 ? "".concat(constants.bigrCdn, "/assets/GB-I-vcs-27700-reduced.geojson") : _ref$vcGjson,
+        vcGjson = _ref$vcGjson === void 0 ? "".concat(constants.thisCdn, "/assets/GB-I-vcs-27700-reduced.geojson") : _ref$vcGjson,
         _ref$countryGjson = _ref.countryGjson,
-        countryGjson = _ref$countryGjson === void 0 ? "".concat(constants.bigrCdn, "/assets/GB-I-countries-27700-reduced.geojson") : _ref$countryGjson,
+        countryGjson = _ref$countryGjson === void 0 ? "".concat(constants.thisCdn, "/assets/GB-I-countries-27700-reduced.geojson") : _ref$countryGjson,
         _ref$gridLineColour = _ref.gridLineColour,
         gridLineColour = _ref$gridLineColour === void 0 ? '#7C7CD3' : _ref$gridLineColour,
         _ref$gridLineStyle = _ref.gridLineStyle,
@@ -10869,6 +10933,7 @@
    * @param {Object} opts - Initialisation options.
    * @param {string} opts.selector - The CSS selector of the element which will be the parent of the leaflet map.
    * @param {string} opts.mapid - The id for the slippy map to be created.
+   * @param {boolean} opts.showCountries - Indicates whether or not the map will display Country boundaries.
    * @param {boolean} opts.showVcs - Indicates whether or not the map will display Vice County boundaries.
    * @param {boolean} opts.showVcsTooltips - Indicates whether or not the name and number of the VC should be shown on click.
    * Note that you will need to ensure that the VC has 'fill' style property set to true if you want users to be able to click
@@ -10910,6 +10975,8 @@
         selector = _ref$selector === void 0 ? 'body' : _ref$selector,
         _ref$mapid = _ref.mapid,
         mapid = _ref$mapid === void 0 ? 'leafletMap' : _ref$mapid,
+        _ref$showCountries = _ref.showCountries,
+        showCountries = _ref$showCountries === void 0 ? false : _ref$showCountries,
         _ref$showVcs = _ref.showVcs,
         showVcs = _ref$showVcs === void 0 ? false : _ref$showVcs,
         _ref$showVcsTooltips = _ref.showVcsTooltips,
@@ -10964,6 +11031,12 @@
       vcs10: {},
       vcsFull: {}
     };
+    var countries = {
+      countries1000: null,
+      countries100: null,
+      countries10: null,
+      countriesFull: null
+    };
     d3.select(selector).append('div').attr('id', mapid).style('width', "".concat(width, "px")).style('height', "".concat(height, "px")); // Create basemaps from config
 
     var selectedBaselayerName;
@@ -11012,6 +11085,7 @@
     });
     map.on("zoomend", function () {
       //console.log("zoom end")
+      redrawCountries();
       redraw();
     });
     map.on("moveend", function () {
@@ -11076,9 +11150,10 @@
     // Create pane for Vice Counties
 
     map.createPane('vcpane');
-    map.getPane('vcpane').style.zIndex = 649; // Initiate VC display
+    map.getPane('vcpane').style.zIndex = 649; // Initiate VC and Country display
 
     redrawVcs();
+    redrawCountries();
 
     function pointMarkers() {
       // Hide the SVG (atlas elements)
@@ -11349,11 +11424,86 @@
       }
     }
 
+    function redrawCountries() {
+      console.log('showCountries', showCountries, countries);
+      var zoom = map.getZoom();
+      var root = constants.thisCdn;
+
+      if (showCountries && zoom < 7) {
+        if (!countries.countries1000) {
+          d3.json("".concat(root, "/assets/country/countries-4326-2.geojson")).then(function (data) {
+            countries.countries1000 = geojsonCountries(data);
+          });
+        } else {
+          if (!map.hasLayer(countries.countries1000)) {
+            countries.countries1000.addTo(map);
+          }
+        }
+      } else {
+        if (map.hasLayer(countries.countries1000)) {
+          map.removeLayer(countries.countries1000);
+        }
+      }
+
+      if (showCountries && zoom >= 7 && zoom < 10) {
+        if (!countries.countries100) {
+          d3.json("".concat(root, "/assets/country/countries-4326-5.geojson")).then(function (data) {
+            countries.countries100 = geojsonCountries(data);
+          });
+        } else {
+          if (!map.hasLayer(countries.countries100)) {
+            countries.countries100.addTo(map);
+          }
+        }
+      } else {
+        if (map.hasLayer(countries.countries100)) {
+          map.removeLayer(countries.countries100);
+        }
+      }
+
+      if (showCountries && zoom >= 10 && zoom < 12) {
+        if (!countries.countries10) {
+          d3.json("".concat(root, "/assets/country/countries-4326-25.geojson")).then(function (data) {
+            countries.countries10 = geojsonCountries(data);
+          });
+        } else {
+          if (!map.hasLayer(countries.countries10)) {
+            countries.countries10.addTo(map);
+          }
+        }
+      } else {
+        if (map.hasLayer(countries.countries10)) {
+          map.removeLayer(countries.countries10);
+        }
+      }
+
+      if (showCountries && zoom >= 12) {
+        if (!countries.countriesFull) {
+          d3.json("".concat(root, "/assets/country/countries-4326-80.geojson")).then(function (data) {
+            countries.countriesFull = geojsonCountries(data);
+          });
+        } else {
+          if (!map.hasLayer(countries.countriesFull)) {
+            countries.countriesFull.addTo(map);
+          }
+        }
+      } else {
+        if (map.hasLayer(countries.countriesFull)) {
+          map.removeLayer(countries.countriesFull);
+        }
+      }
+
+      function geojsonCountries(data) {
+        return L.geoJSON(data, {
+          pane: 'vcpane',
+          style: getStyle()
+        }).addTo(map);
+      }
+    }
+
     function redrawVcs() {
       //console.log(map.getZoom())
-      var root = constants.thisCdn; // Uncomment before compiling for production
-      // const root = '' // For testing with new local assets
-      // Load the VC mbr file if not already
+      var root = constants.thisCdn; // Load the VC mbr file if not already
 
       if (showVcs) {
         if (!vcs.mbrs) {
@@ -11408,7 +11558,7 @@
           //console.log('VCs simpified thousand')
           if (!vcs.vcs1000) {
             //console.log("loading vcs-4326-1000.geojson")
-            d3.json("".concat(root, "/assets/vc/vcs-4326-mapshaper-2.geojson")).then(function (data) {
+            d3.json("".concat(root, "/assets/vc/vcs-4326-1000.geojson")).then(function (data) {
               vcs.vcs1000 = geojsonVcs(data);
             });
           } else {
@@ -11511,30 +11661,20 @@
       }
 
       function geojsonVcs(data) {
+        var fn = null;
+
+        if (showVcsTooltips) {
+          fn = function fn(f, l) {
+            return l.bindPopup("VC: <b>".concat(f.properties['CODE'], "</b> ").concat(f.properties['NAME']));
+          };
+        }
+
         return L.geoJSON(data, {
           pane: 'vcpane',
           style: getStyle(),
           interactive: showVcsTooltips,
-          onEachFeature: showVcsTooltips ? function (f, l) {
-            return l.bindPopup("VC: <b>".concat(f.properties['CODE'], "</b> ").concat(f.properties['NAME']));
-          } : null
+          onEachFeature: fn
         }).addTo(map);
-      }
-
-      function getStyle() {
-        // Get style where zoom explicity named in one of the
-        // style objects zoom arrays.
-        var style = styleVcs.find(function (s) {
-          return s.zoom.indexOf(map.getZoom()) > -1;
-        }); // If not found, then find the style with empty zoom array
-
-        if (!style) {
-          style = styleVcs.find(function (s) {
-            return s.zoom.length === 0;
-          });
-        }
-
-        return style;
       }
 
       function vcsInView() {
@@ -11574,6 +11714,22 @@
 
         return false;
       }
+    }
+
+    function getStyle() {
+      // Get style where zoom explicity named in one of the
+      // style objects zoom arrays.
+      var style = styleVcs.find(function (s) {
+        return s.zoom.indexOf(map.getZoom()) > -1;
+      }); // If not found, then find the style with empty zoom array
+
+      if (!style) {
+        style = styleVcs.find(function (s) {
+          return s.zoom.length === 0;
+        });
+      }
+
+      return style;
     }
     /** @function setMapType
       * @param {string} newMapTypesKey - A string which a key used to identify a data accessor function. 
@@ -11833,6 +11989,16 @@
       showVcs = show;
       redrawVcs();
     }
+    /** @function setShowCountries
+      * @description <b>This function allows you to change whether or not Country boundaries are displayed.</b>.
+      * @param {boolean} show - Indicates whether or not to display Countries.
+      */
+
+
+    function setShowCountries(show) {
+      showCountries = show;
+      redrawCountries();
+    }
     /** @function downloadData
       * @param {boolean} asGeojson - a boolean value that indicates whether to generate GeoJson (if false, generates CSV). 
       * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
@@ -11859,6 +12025,7 @@
      * @property {module:slippyMap~showOverlay} showOverlay - Show/hide the overlay layer.
      * @property {module:slippyMap~changeClusterThreshold} changeClusterThreshold - Change the zoom cluster threshold for points.
      * @property {module:slippyMap~setShowVcs} setShowVcs - Set the boolean flag which indicates whether or not to display VCs.
+     * @property {module:slippyMap~setShowCountries} setShowCountries - Set the boolean flag which indicates whether or not to display Countries.
      * @property {module:slippyMap~downloadData} downloadData - Download a the map data as a CSV or GeoJson file.
      * @property {module:slippyMap~map} lmap - Returns a reference to the leaflet map object.
      */
@@ -11879,6 +12046,7 @@
       showOverlay: showOverlay,
       changeClusterThreshold: changeClusterThreshold,
       setShowVcs: setShowVcs,
+      setShowCountries: setShowCountries,
       downloadData: downloadData,
       lmap: map
     };
@@ -12025,70 +12193,6 @@
       };
     }
   }
-
-  var name = "brcatlas";
-  var version = "0.19.6";
-  var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
-  var type = "module";
-  var main = "dist/brcatlas.umd.js";
-  var browser = "dist/brcatlas.umd.js";
-  var browsermin = "dist/brcatlas.min.umd.js";
-  var scripts = {
-  	lint: "npx eslint src",
-  	test: "jest",
-  	prepare: "node script-prepublish.js",
-  	build: "rollup --config",
-  	docs: "jsdoc ./src/ -R README.md -d ./docs/api"
-  };
-  var author = "CEH Biological Records Centre";
-  var license = "GPL-3.0-only";
-  var files = [
-  	"dist"
-  ];
-  var repository = {
-  	type: "git",
-  	url: "https://github.com/BiologicalRecordsCentre/brc-atlas.git"
-  };
-  var dependencies = {
-  	"brc-atlas-bigr": "^2.2.2",
-  	d3: "^5.16.0",
-  	leaflet: "^1.7.1",
-  	"leaflet-control-custom": "^1.0.0",
-  	"leaflet.markercluster": "^1.5.0",
-  	micromodal: "^0.4.6"
-  };
-  var devDependencies = {
-  	"@babel/core": "^7.10.4",
-  	"@babel/preset-env": "^7.10.4",
-  	"@rollup/plugin-babel": "^5.0.4",
-  	"@rollup/plugin-commonjs": "^13.0.0",
-  	"@rollup/plugin-json": "^4.1.0",
-  	"@rollup/plugin-node-resolve": "^8.1.0",
-  	"copy-dir": "^1.3.0",
-  	eslint: "^7.4.0",
-  	"eslint-plugin-jest": "^23.17.1",
-  	jest: "^26.1.0",
-  	rollup: "^2.23.0",
-  	"rollup-plugin-css-only": "^2.1.0",
-  	"rollup-plugin-eslint": "^7.0.0",
-  	"rollup-plugin-terser": "^6.1.0"
-  };
-  var pkg = {
-  	name: name,
-  	version: version,
-  	description: description,
-  	type: type,
-  	main: main,
-  	browser: browser,
-  	browsermin: browsermin,
-  	scripts: scripts,
-  	author: author,
-  	license: license,
-  	files: files,
-  	repository: repository,
-  	dependencies: dependencies,
-  	devDependencies: devDependencies
-  };
 
   // to assist with trouble shooting.
 

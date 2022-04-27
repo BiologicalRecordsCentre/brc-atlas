@@ -21,6 +21,7 @@ import { downloadCurrentData } from './download.js'
  * @param {Object} opts - Initialisation options.
  * @param {string} opts.selector - The CSS selector of the element which will be the parent of the leaflet map.
  * @param {string} opts.mapid - The id for the slippy map to be created.
+ * @param {boolean} opts.showCountries - Indicates whether or not the map will display Country boundaries.
  * @param {boolean} opts.showVcs - Indicates whether or not the map will display Vice County boundaries.
  * @param {boolean} opts.showVcsTooltips - Indicates whether or not the name and number of the VC should be shown on click.
  * Note that you will need to ensure that the VC has 'fill' style property set to true if you want users to be able to click
@@ -60,6 +61,7 @@ export function leafletMap({
   // Default options in here
   selector = 'body',
   mapid = 'leafletMap',
+  showCountries=false,
   showVcs = false,
   showVcsTooltips = true,
   styleVcs = [
@@ -82,6 +84,7 @@ export function leafletMap({
   const geojsonLayers = {}
   let markers = null
   const vcs = {mbrs: null, vcs1000: null, vcs100: {}, vcs10: {}, vcsFull: {}}
+  const countries = {countries1000: null, countries100: null, countries10: null, countriesFull: null}
 
   d3.select(selector).append('div')
     .attr('id', mapid)
@@ -128,6 +131,7 @@ export function leafletMap({
   })
   map.on("zoomend", () => {
     //console.log("zoom end")
+    redrawCountries()
     redraw()
   })
   map.on("moveend", () => {
@@ -192,8 +196,9 @@ export function leafletMap({
   map.createPane('vcpane')
   map.getPane('vcpane').style.zIndex = 649
 
-  // Initiate VC display
+  // Initiate VC and Country display
   redrawVcs()
+  redrawCountries()
 
   function pointMarkers() {
     // Hide the SVG (atlas elements)
@@ -507,12 +512,97 @@ export function leafletMap({
     }
   }
 
+  function redrawCountries() {
+
+    console.log('showCountries', showCountries, countries)
+
+    const zoom = map.getZoom()
+    const root = constants.thisCdn
+
+    if (showCountries && zoom < 7) {
+      if (!countries.countries1000) {
+        d3.json(`${root}/assets/country/countries-4326-2.geojson`)
+          .then(data => {
+            countries.countries1000 = geojsonCountries(data)
+          })
+      } else {
+        if (!map.hasLayer(countries.countries1000)) {
+          countries.countries1000.addTo(map)
+        }
+      }
+    } else {
+      if (map.hasLayer(countries.countries1000)) {
+        map.removeLayer(countries.countries1000)
+      }
+    }
+
+    if (showCountries && zoom >= 7 && zoom < 10)  {
+      if (!countries.countries100) {
+        d3.json(`${root}/assets/country/countries-4326-5.geojson`)
+          .then(data => {
+            countries.countries100 = geojsonCountries(data)
+          })
+      } else {
+        if (!map.hasLayer(countries.countries100)) {
+          countries.countries100.addTo(map)
+        }
+      }
+    } else {
+      if (map.hasLayer(countries.countries100)) {
+        map.removeLayer(countries.countries100)
+      }
+    }
+
+    if (showCountries && zoom >= 10 && zoom < 12)  {
+      if (!countries.countries10) {
+        d3.json(`${root}/assets/country/countries-4326-25.geojson`)
+          .then(data => {
+            countries.countries10 = geojsonCountries(data)
+          })
+      } else {
+        if (!map.hasLayer(countries.countries10)) {
+          countries.countries10.addTo(map)
+        }
+      }
+    } else {
+      if (map.hasLayer(countries.countries10)) {
+        map.removeLayer(countries.countries10)
+      }
+    }
+
+    if (showCountries && zoom >= 12)  {
+      if (!countries.countriesFull) {
+        d3.json(`${root}/assets/country/countries-4326-80.geojson`)
+          .then(data => {
+            countries.countriesFull = geojsonCountries(data)
+          })
+      } else {
+        if (!map.hasLayer(countries.countriesFull)) {
+          countries.countriesFull.addTo(map)
+        }
+      }
+    } else {
+      if (map.hasLayer(countries.countriesFull)) {
+        map.removeLayer(countries.countriesFull)
+      }
+    }
+
+    function geojsonCountries(data) {
+      
+      return L.geoJSON(data, 
+        {
+          pane: 'vcpane', 
+          style: getStyle()
+        }
+      ).addTo(map)
+    }
+  }
+
   function redrawVcs() {
 
     //console.log(map.getZoom())
-    const root = constants.thisCdn // Uncomment before compiling for production
-    // const root = '' // For testing with new local assets
-
+    const root = constants.thisCdn 
+  
     // Load the VC mbr file if not already
     if (showVcs) {
       if (!vcs.mbrs) {
@@ -566,7 +656,7 @@ export function leafletMap({
         //console.log('VCs simpified thousand')
         if (!vcs.vcs1000) {
           //console.log("loading vcs-4326-1000.geojson")
-          d3.json(`${root}/assets/vc/vcs-4326-mapshaper-2.geojson`)
+          d3.json(`${root}/assets/vc/vcs-4326-1000.geojson`)
             .then(data => {
               vcs.vcs1000 = geojsonVcs(data)
             })
@@ -672,31 +762,24 @@ export function leafletMap({
     }
 
     function geojsonVcs(data) {
+      let fn = null
+      if (showVcsTooltips) {
+        fn = (f, l) => {
+          return l.bindPopup(`VC: <b>${f.properties['CODE']}</b> ${f.properties['NAME']}`)
+        }
+      }
       return L.geoJSON(data, 
         {
           pane: 'vcpane', 
           style: getStyle(), 
           interactive: showVcsTooltips,
-          onEachFeature: showVcsTooltips ? (f, l) => l.bindPopup(`VC: <b>${f.properties['CODE']}</b> ${f.properties['NAME']}`) : null
+          onEachFeature: fn
         }
       ).addTo(map)
     }
-
-    function getStyle() {
-      // Get style where zoom explicity named in one of the
-      // style objects zoom arrays.
-      let style = styleVcs.find(s => s.zoom.indexOf(map.getZoom())>-1)
-      // If not found, then find the style with empty zoom array
-      if (!style) {
-        style = styleVcs.find(s => s.zoom.length===0)
-      }
-      return style
-    }
-
     function vcsInView() {
       return vcs.mbrs.filter(vc => overlaps(vc, map.getBounds())).map(vc => vc.vc)
     }
-
     function overlaps(v1, v2) {
 
       //console.log(v1, v2)
@@ -738,7 +821,17 @@ export function leafletMap({
       // No overlap
       return false
     }
+  }
 
+  function getStyle() {
+    // Get style where zoom explicity named in one of the
+    // style objects zoom arrays.
+    let style = styleVcs.find(s => s.zoom.indexOf(map.getZoom())>-1)
+    // If not found, then find the style with empty zoom array
+    if (!style) {
+      style = styleVcs.find(s => s.zoom.length===0)
+    }
+    return style
   }
 
 /** @function setMapType
@@ -982,6 +1075,15 @@ export function leafletMap({
       redrawVcs()
     }
 
+/** @function setShowCountries
+  * @description <b>This function allows you to change whether or not Country boundaries are displayed.</b>.
+  * @param {boolean} show - Indicates whether or not to display Countries.
+  */
+ function setShowCountries(show) {
+  showCountries = show
+  redrawCountries()
+}
+
 /** @function downloadData
   * @param {boolean} asGeojson - a boolean value that indicates whether to generate GeoJson (if false, generates CSV). 
   * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
@@ -1008,6 +1110,7 @@ export function leafletMap({
    * @property {module:slippyMap~showOverlay} showOverlay - Show/hide the overlay layer.
    * @property {module:slippyMap~changeClusterThreshold} changeClusterThreshold - Change the zoom cluster threshold for points.
    * @property {module:slippyMap~setShowVcs} setShowVcs - Set the boolean flag which indicates whether or not to display VCs.
+   * @property {module:slippyMap~setShowCountries} setShowCountries - Set the boolean flag which indicates whether or not to display Countries.
    * @property {module:slippyMap~downloadData} downloadData - Download a the map data as a CSV or GeoJson file.
    * @property {module:slippyMap~map} lmap - Returns a reference to the leaflet map object.
    */
@@ -1026,6 +1129,7 @@ export function leafletMap({
     showOverlay: showOverlay,
     changeClusterThreshold: changeClusterThreshold,
     setShowVcs: setShowVcs,
+    setShowCountries: setShowCountries,
     downloadData: downloadData,
     lmap: map
   }

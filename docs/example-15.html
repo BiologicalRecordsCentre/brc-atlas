@@ -13,7 +13,8 @@
       <div id="map2" style="flex: 10"></div>
     </div>
     
-    <button id="toggle" onclick="toggle()">Show VCs</button>
+    <button id="toggleVcs" onclick="toggleVcs()">Show VCs</button>
+    <button id="toggleCountries" onclick="toggleCountries()">Show Countries</button>
     <p>
       Include the required Javascript libraries and CSS in the page. We need the BRC Atlas JS libary and the associated
       CSS. We also need the D3 and Leaflet libraries which are external dependecies of 
@@ -46,6 +47,7 @@
 
     <script>
       var showVcs = false
+      var showCountries = false
 
       var map1 = brcatlas.leafletMap({
         selector: "#map1",
@@ -69,16 +71,26 @@
       //map2.setIdentfier('./example-hectads-1.csv')
       //map2.redrawMap()
 
-      function toggle() {
+      function toggleVcs() {
         showVcs = !showVcs
-        var btn = document.getElementById('toggle')
+        var btn = document.getElementById('toggleVcs')
         btn.innerText = showVcs ? "Hide VCs" : "Show VCs"
 
         map1.setShowVcs(showVcs)
 
-        //map2.setVcLineStyle(showVcs ? '' : 'none')
-        map2.setCountryLineStyle(showVcs ? '' : 'none')
+        map2.setVcLineStyle(showVcs ? '' : 'none')
         map2.setBoundaryColour(showVcs ? 'white' : '#7C7CD3')
+      }
+
+      function toggleCountries() {
+        showCountries = !showCountries
+        var btn = document.getElementById('toggleCountries')
+        btn.innerText = showCountries ? "Hide Countries" : "Show Countries"
+
+        map1.setShowCountries(showCountries)
+
+        map2.setCountryLineStyle(showCountries ? '' : 'none')
+        map2.setBoundaryColour(showCountries ? 'white' : '#7C7CD3')
       }
     </script>
   </div>
