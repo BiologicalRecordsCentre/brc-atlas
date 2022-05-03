@@ -37,11 +37,13 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
         circles.enter()
           .append("circle")
           .classed('dotCircle dot', true)
+          // .attr('clip-path', 'circle()')
           .attr("cx", d => transform(getCentroid(d.gr, proj).centroid)[0])
           .attr("cy", d => transform(getCentroid(d.gr, proj).centroid)[1]) 
           .attr("r", 0)
-          .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
+          .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
+          .attr("stroke", d => d.stroke ? d.stroke : data.stroke ? data.stroke : null )
         .merge(circles)
           .transition()  
             .ease(d3.easeCubic)   
@@ -50,7 +52,7 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
             const size = d.size ? d.size : data.size
             return size ? radiusPixels * size : radiusPixels
           })
-          .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
+          .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
           .attr("data-caption", d => getCaption(d))
         circles.exit()
@@ -72,10 +74,11 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           bullseyes.enter()
           .append("circle")
           .classed('dotBullseye dot', true)
+          // .attr('clip-path', 'circle()')
           .attr("cx", d => transform(getCentroid(d.gr, proj).centroid)[0])
           .attr("cy", d => transform(getCentroid(d.gr, proj).centroid)[1]) 
           .attr("r", 0)
-          .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
+          .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour2 ? d.colour2 : data.colour2)
         .merge(bullseyes)
           .transition()  
@@ -85,7 +88,7 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
             const size = d.size ? d.size : data.size
             return radiusPixels * size * 0.5
           })
-          .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
+          .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour2 ? d.colour2 : data.colour2)
           .attr("data-caption", d => getCaption(d))
           bullseyes.exit()
@@ -111,8 +114,9 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           .attr("y", d => transform(getCentroid(d.gr, proj).centroid)[1])
           .attr("width", 0)
           .attr("height", 0) 
-          .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
+          .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
+          .attr("stroke", d => d.stroke ? d.stroke : data.stroke ? data.stroke : null )
         .merge(squares)
           .transition()  
             .ease(d3.easeCubic)   
@@ -135,7 +139,7 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
               return `translate(${-radiusPixels * size},${-radiusPixels * size})`
             }
           })
-          .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
+          .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
           .attr("data-caption", d => getCaption(d))
         squares.exit()
@@ -160,8 +164,9 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           .append("path")
           .classed('dotDiamond dot', true)
           .attr("d", d3.symbol().type(d3.symbolSquare).size(0))
-          .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
+          .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
+          .attr("stroke", d => d.stroke ? d.stroke : data.stroke ? data.stroke : null )
           .attr("transform", d => {
             const x = transform(getCentroid(d.gr, proj).centroid)[0]
             const y = transform(getCentroid(d.gr, proj).centroid)[1]
@@ -186,7 +191,7 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
               return `translate(${x},${y}) rotate(45) scale(${size})`
             }
           })
-          .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
+          .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
           .attr("data-caption", d => getCaption(d))
         diamonds.exit()
@@ -209,8 +214,9 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           .append("path")
           .classed('dotTriangle dot', true)
           .attr("d", d3.symbol().type(d3.symbolTriangle).size(0))
-          .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
+          .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
+          .attr("stroke", d => d.stroke ? d.stroke : data.stroke ? data.stroke : null )
           .attr("transform", d => {
             const x = transform(getCentroid(d.gr, proj).centroid)[0]
             const y = transform(getCentroid(d.gr, proj).centroid)[1]
@@ -253,7 +259,7 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
               return `translate(${x},${y + yOffset}) rotate(${extraRotate}) scale(${size})`
             }
           })
-          .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
+          .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
           .attr("data-caption", d => getCaption(d))
         triangle.exit()

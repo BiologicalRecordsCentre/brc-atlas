@@ -25,7 +25,7 @@ function csvGr(file, precision) {
             colour: r.colour,
             shape: r.shape,
             opacity: r.opacity,
-            size: r.size,
+            size: r.size
           })
         }
       }).then(function(data) {
@@ -70,6 +70,9 @@ function csvGr(file, precision) {
 * by the <i>captionId</i> option of an svg or leaflet map when the mouse cursor moves over the
 * element representing this gr on the map.
 * </ul>
+* The following columns are optional:
+* <li> <b>stroke<b> a colour specifying an outline for the symbol which can be hex format, e.g. #FFA500, 
+* RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red. If not present, no outline will be drawn.
 *  @type {object}
 */
 export const dataAccessors = {

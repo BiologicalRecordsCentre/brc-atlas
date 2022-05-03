@@ -487,6 +487,9 @@
   * by the <i>captionId</i> option of an svg or leaflet map when the mouse cursor moves over the
   * element representing this gr on the map.
   * </ul>
+  * The following columns are optional:
+  * <li> <b>stroke<b> a colour specifying an outline for the symbol which can be hex format, e.g. #FFA500, 
+  * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red. If not present, no outline will be drawn.
   *  @type {object}
   */
 
@@ -499,7 +502,7 @@
   };
 
   var name = "brcatlas";
-  var version = "0.19.8";
+  var version = "0.20.0";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
@@ -9534,18 +9537,21 @@
           var circles = svg.selectAll('.dotCircle').data(recCircles, function (d) {
             return d.gr;
           });
-          circles.enter().append("circle").classed('dotCircle dot', true).attr("cx", function (d) {
+          circles.enter().append("circle").classed('dotCircle dot', true) // .attr('clip-path', 'circle()')
+          .attr("cx", function (d) {
             return transform(getCentroid(d.gr, proj).centroid)[0];
           }).attr("cy", function (d) {
             return transform(getCentroid(d.gr, proj).centroid)[1];
-          }).attr("r", 0).attr("opacity", function (d) {
+          }).attr("r", 0).attr("fill-opacity", function (d) {
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
+          }).attr("stroke", function (d) {
+            return d.stroke ? d.stroke : data.stroke ? data.stroke : null;
           }).merge(circles).transition().ease(d3.easeCubic).duration(500).attr("r", function (d) {
             var size = d.size ? d.size : data.size;
             return size ? radiusPixels * size : radiusPixels;
-          }).attr("opacity", function (d) {
+          }).attr("fill-opacity", function (d) {
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
@@ -9567,18 +9573,19 @@
           var bullseyes = svg.selectAll('.dotBullseye').data(recBullseyes, function (d) {
             return d.gr;
           });
-          bullseyes.enter().append("circle").classed('dotBullseye dot', true).attr("cx", function (d) {
+          bullseyes.enter().append("circle").classed('dotBullseye dot', true) // .attr('clip-path', 'circle()')
+          .attr("cx", function (d) {
             return transform(getCentroid(d.gr, proj).centroid)[0];
           }).attr("cy", function (d) {
             return transform(getCentroid(d.gr, proj).centroid)[1];
-          }).attr("r", 0).attr("opacity", function (d) {
+          }).attr("r", 0).attr("fill-opacity", function (d) {
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour2 ? d.colour2 : data.colour2;
           }).merge(bullseyes).transition().ease(d3.easeCubic).duration(500).attr("r", function (d) {
             var size = d.size ? d.size : data.size;
             return radiusPixels * size * 0.5;
-          }).attr("opacity", function (d) {
+          }).attr("fill-opacity", function (d) {
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour2 ? d.colour2 : data.colour2;
@@ -9604,10 +9611,12 @@
             return transform(getCentroid(d.gr, proj).centroid)[0];
           }).attr("y", function (d) {
             return transform(getCentroid(d.gr, proj).centroid)[1];
-          }).attr("width", 0).attr("height", 0).attr("opacity", function (d) {
+          }).attr("width", 0).attr("height", 0).attr("fill-opacity", function (d) {
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
+          }).attr("stroke", function (d) {
+            return d.stroke ? d.stroke : data.stroke ? data.stroke : null;
           }).merge(squares).transition().ease(d3.easeCubic).duration(500).attr("width", function (d) {
             var size = d.size ? d.size : data.size;
             return 2 * radiusPixels * size;
@@ -9624,7 +9633,7 @@
             } else {
               return "translate(".concat(-radiusPixels * size, ",").concat(-radiusPixels * size, ")");
             }
-          }).attr("opacity", function (d) {
+          }).attr("fill-opacity", function (d) {
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
@@ -9646,10 +9655,12 @@
           var diamonds = svg.selectAll('.dotDiamond').data(recDiamonds, function (d) {
             return d.gr;
           });
-          diamonds.enter().append("path").classed('dotDiamond dot', true).attr("d", d3.symbol().type(d3.symbolSquare).size(0)).attr("opacity", function (d) {
+          diamonds.enter().append("path").classed('dotDiamond dot', true).attr("d", d3.symbol().type(d3.symbolSquare).size(0)).attr("fill-opacity", function (d) {
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
+          }).attr("stroke", function (d) {
+            return d.stroke ? d.stroke : data.stroke ? data.stroke : null;
           }).attr("transform", function (d) {
             var x = transform(getCentroid(d.gr, proj).centroid)[0];
             var y = transform(getCentroid(d.gr, proj).centroid)[1];
@@ -9669,7 +9680,7 @@
             } else {
               return "translate(".concat(x, ",").concat(y, ") rotate(45) scale(").concat(size, ")");
             }
-          }).attr("opacity", function (d) {
+          }).attr("fill-opacity", function (d) {
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
@@ -9691,10 +9702,12 @@
           var triangle = svg.selectAll('.dotTriangle').data(recTriangles, function (d) {
             return d.gr;
           });
-          triangle.enter().append("path").classed('dotTriangle dot', true).attr("d", d3.symbol().type(d3.symbolTriangle).size(0)).attr("opacity", function (d) {
+          triangle.enter().append("path").classed('dotTriangle dot', true).attr("d", d3.symbol().type(d3.symbolTriangle).size(0)).attr("fill-opacity", function (d) {
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
+          }).attr("stroke", function (d) {
+            return d.stroke ? d.stroke : data.stroke ? data.stroke : null;
           }).attr("transform", function (d) {
             var x = transform(getCentroid(d.gr, proj).centroid)[0];
             var y = transform(getCentroid(d.gr, proj).centroid)[1];
@@ -9735,7 +9748,7 @@
             } else {
               return "translate(".concat(x, ",").concat(y + yOffset, ") rotate(").concat(extraRotate, ") scale(").concat(size, ")");
             }
-          }).attr("opacity", function (d) {
+          }).attr("fill-opacity", function (d) {
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
@@ -9785,10 +9798,15 @@
   /**
    * @typedef {Object} legendDefintion
    * @property {string} title - a title caption for the legend.
-   * @property {string} color - a colour for the legend symbols which can be hex format, e.g. #FFA500, 
+   * @property {string} colour - a colour for the legend symbols which can be hex format, e.g. #FFA500, 
    * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red. (Can be overriden by individual legend lines.)
+   * @property {string} colour2 - second colour for legend symbols of bullseye shape which can be hex format, e.g. #FFA500, 
+   * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red. (Can be overriden by individual legend lines.)
+   * @property {string} stroke - a colour for the border of the legend symbols which can be hex format, e.g. #FFA500, 
+   * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red. (Can be overriden by individual legend lines.)
+   * If not specified, no border is drawn.
    * @property {string} shape - describes symbol shapes for the legend.
-   * Valid values are: circle, square, diamond, triangle-up, triangle-down. (Can be overriden by individual legend lines.)
+   * Valid values are: circle, bullseye, square, diamond, triangle-up, triangle-down. (Can be overriden by individual legend lines.)
    * @property {number} size - a number between 0 and 1.
    * This can be used to scale the size of the legend dots. (Can be overriden by individual legend lines.)
    * @property {number} opacity - a number between 0 and 1 indicating the opacity of the legend symbols for the whole legend. 0 is completely
@@ -9802,10 +9820,15 @@
 
   /**
    * @typedef {Object} legendLine
-   * @property {string} color - a colour for the legend symbol which can be hex format, e.g. #FFA500, 
+   * @property {string} colour - a colour for the legend symbol which can be hex format, e.g. #FFA500, 
    * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red. Overrides any value set for the whole legend.
+   * @property {string} colour2 - second colour for legend symbols of bullseye symbol which can be hex format, e.g. #FFA500, 
+   * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red. Overrides any value set for the whole legend.
+   * @property {string} stroke - a colour for the border of the legend symbol which can be hex format, e.g. #FFA500, 
+   * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red. Overrides any value set for the whole legend.
+   * If not specified, no border is drawn.
    * @property {string} shape - describes symbol shape for the legend line.
-   * Valid values are: circle, square, diamond, triangle-up, triangle-down. Overrides any value set for the whole legend.
+   * Valid values are: circle, bullseye, square, diamond, triangle-up, triangle-down. Overrides any value set for the whole legend.
    * @property {number} size - a number between 0 and 1.
    * This can be used to scale the size of the legend dots. Overrides any value set for the whole legend.
    * @property {number} opacity - a number between 0 and 1 indicating the opacity of the legend symbol. 0 is completely
@@ -9918,6 +9941,7 @@
       var opacity = l.opacity ? l.opacity : legendData.opacity;
       var colour = l.colour ? l.colour : legendData.colour;
       var colour2 = l.colour2 ? l.colour2 : legendData.colour2;
+      var stroke = l.stroke ? l.stroke : legendData.stroke ? legendData.stroke : null;
       var dot;
 
       for (var _i2 = 0; _i2 < nCells; _i2++) {
@@ -9930,7 +9954,7 @@
               dot = gLegend.append('circle').attr("r", swatchPixels * size) //.attr("cx", swatchPixels * 1)
               .attr("cx", offsets[_i2] + swatchPixels).attr("cy", lineHeight * (y + 2.5) - swatchPixels + iUnderlinePad);
               gLegend.append('circle').attr("r", swatchPixels * size * 0.5) //.attr("cx", swatchPixels * 1)
-              .attr("cx", offsets[_i2] + swatchPixels).attr("cy", lineHeight * (y + 2.5) - swatchPixels + iUnderlinePad).style('fill', colour2).style('opacity', opacity);
+              .attr("cx", offsets[_i2] + swatchPixels).attr("cy", lineHeight * (y + 2.5) - swatchPixels + iUnderlinePad).style('fill', colour2).style('fill-opacity', opacity);
             } else if (shape === 'square') {
               dot = gLegend.append('rect').attr("width", swatchPixels * 2 * size).attr("height", swatchPixels * 2 * size) //.attr("x", swatchPixels * (1 - size))
               .attr("x", offsets[_i2] + swatchPixels * (1 - size)).attr("y", lineHeight * (y + 2.5) - 2 * swatchPixels + swatchPixels * (1 - size) + iUnderlinePad);
@@ -9945,7 +9969,7 @@
               .attr("transform", "translate(".concat(offsets[_i2] + swatchPixels, ",").concat(lineHeight * (y + 2.5) - swatchPixels, ") rotate(180)"));
             }
 
-            dot.style('fill', colour).style('opacity', opacity);
+            dot.style('fill', colour).style('fill-opacity', opacity).style('stroke', stroke);
           } else {
             //const y = iLine - iOffset
             var alignOffset = legendData.raligned[_i2] ? maxWidths[_i2] - l.textWidth[_i2] : 0;

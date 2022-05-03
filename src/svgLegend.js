@@ -17,10 +17,15 @@ import * as d3 from 'd3'
 /**
  * @typedef {Object} legendDefintion
  * @property {string} title - a title caption for the legend.
- * @property {string} color - a colour for the legend symbols which can be hex format, e.g. #FFA500, 
+ * @property {string} colour - a colour for the legend symbols which can be hex format, e.g. #FFA500, 
  * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red. (Can be overriden by individual legend lines.)
+ * @property {string} colour2 - second colour for legend symbols of bullseye shape which can be hex format, e.g. #FFA500, 
+ * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red. (Can be overriden by individual legend lines.)
+ * @property {string} stroke - a colour for the border of the legend symbols which can be hex format, e.g. #FFA500, 
+ * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red. (Can be overriden by individual legend lines.)
+ * If not specified, no border is drawn.
  * @property {string} shape - describes symbol shapes for the legend.
- * Valid values are: circle, square, diamond, triangle-up, triangle-down. (Can be overriden by individual legend lines.)
+ * Valid values are: circle, bullseye, square, diamond, triangle-up, triangle-down. (Can be overriden by individual legend lines.)
  * @property {number} size - a number between 0 and 1.
  * This can be used to scale the size of the legend dots. (Can be overriden by individual legend lines.)
  * @property {number} opacity - a number between 0 and 1 indicating the opacity of the legend symbols for the whole legend. 0 is completely
@@ -34,10 +39,15 @@ import * as d3 from 'd3'
 
 /**
  * @typedef {Object} legendLine
- * @property {string} color - a colour for the legend symbol which can be hex format, e.g. #FFA500, 
+ * @property {string} colour - a colour for the legend symbol which can be hex format, e.g. #FFA500, 
  * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red. Overrides any value set for the whole legend.
+ * @property {string} colour2 - second colour for legend symbols of bullseye symbol which can be hex format, e.g. #FFA500, 
+ * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red. Overrides any value set for the whole legend.
+ * @property {string} stroke - a colour for the border of the legend symbol which can be hex format, e.g. #FFA500, 
+ * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red. Overrides any value set for the whole legend.
+ * If not specified, no border is drawn.
  * @property {string} shape - describes symbol shape for the legend line.
- * Valid values are: circle, square, diamond, triangle-up, triangle-down. Overrides any value set for the whole legend.
+ * Valid values are: circle, bullseye, square, diamond, triangle-up, triangle-down. Overrides any value set for the whole legend.
  * @property {number} size - a number between 0 and 1.
  * This can be used to scale the size of the legend dots. Overrides any value set for the whole legend.
  * @property {number} opacity - a number between 0 and 1 indicating the opacity of the legend symbol. 0 is completely
@@ -147,6 +157,7 @@ export function svgLegend(svg, legendOpts) {
     let opacity = l.opacity ? l.opacity : legendData.opacity
     let colour = l.colour ? l.colour : legendData.colour
     let colour2 = l.colour2 ? l.colour2 : legendData.colour2
+    let stroke = l.stroke ? l.stroke : legendData.stroke ? legendData.stroke : null
     let dot
 
     for (let i = 0; i < nCells; i++) {
@@ -170,7 +181,7 @@ export function svgLegend(svg, legendOpts) {
               .attr("cx", offsets[i] + swatchPixels)
               .attr("cy", lineHeight * (y + 2.5) - swatchPixels + iUnderlinePad)
               .style('fill', colour2)
-              .style('opacity', opacity)
+              .style('fill-opacity', opacity)
           } else if (shape === 'square') {
             dot = gLegend.append('rect')
               .attr ("width", swatchPixels * 2 * size)
@@ -194,7 +205,7 @@ export function svgLegend(svg, legendOpts) {
               //.attr("transform", `translate(${swatchPixels * 1},${lineHeight * (y + 2.5) - swatchPixels}) rotate(180)`)
               .attr("transform", `translate(${offsets[i] + swatchPixels},${lineHeight * (y + 2.5) - swatchPixels}) rotate(180)`)
           }
-          dot.style('fill', colour).style('opacity', opacity)
+          dot.style('fill', colour).style('fill-opacity', opacity).style('stroke', stroke)
         } else {
           //const y = iLine - iOffset
           const alignOffset = legendData.raligned[i] ? maxWidths[i] - l.textWidth[i] : 0
