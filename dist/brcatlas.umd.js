@@ -9537,8 +9537,7 @@
           var circles = svg.selectAll('.dotCircle').data(recCircles, function (d) {
             return d.gr;
           });
-          circles.enter().append("circle").classed('dotCircle dot', true) // .attr('clip-path', 'circle()')
-          .attr("cx", function (d) {
+          circles.enter().append("circle").classed('dotCircle dot', true).attr("cx", function (d) {
             return transform(getCentroid(d.gr, proj).centroid)[0];
           }).attr("cy", function (d) {
             return transform(getCentroid(d.gr, proj).centroid)[1];
@@ -9546,8 +9545,6 @@
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
-          }).attr("stroke", function (d) {
-            return d.stroke ? d.stroke : data.stroke ? data.stroke : null;
           }).merge(circles).transition().ease(d3.easeCubic).duration(500).attr("r", function (d) {
             var size = d.size ? d.size : data.size;
             return size ? radiusPixels * size : radiusPixels;
@@ -9555,7 +9552,9 @@
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
-          }).attr("data-caption", function (d) {
+          }).attr("stroke", function (d) {
+            return d.stroke ? d.stroke : data.stroke ? data.stroke : null;
+          }).attr('clip-path', 'circle()').attr("data-caption", function (d) {
             return getCaption(d);
           });
           circles.exit().transition().ease(d3.easeCubic).duration(500).attr("r", 0).remove(); // bullseye
@@ -9615,8 +9614,6 @@
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
-          }).attr("stroke", function (d) {
-            return d.stroke ? d.stroke : data.stroke ? data.stroke : null;
           }).merge(squares).transition().ease(d3.easeCubic).duration(500).attr("width", function (d) {
             var size = d.size ? d.size : data.size;
             return 2 * radiusPixels * size;
@@ -9637,6 +9634,8 @@
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
+          }).attr("stroke", function (d) {
+            return d.stroke ? d.stroke : data.stroke ? data.stroke : null;
           }).attr("data-caption", function (d) {
             return getCaption(d);
           });
@@ -9659,8 +9658,6 @@
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
-          }).attr("stroke", function (d) {
-            return d.stroke ? d.stroke : data.stroke ? data.stroke : null;
           }).attr("transform", function (d) {
             var x = transform(getCentroid(d.gr, proj).centroid)[0];
             var y = transform(getCentroid(d.gr, proj).centroid)[1];
@@ -9684,6 +9681,8 @@
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
+          }).attr("stroke", function (d) {
+            return d.stroke ? d.stroke : data.stroke ? data.stroke : null;
           }).attr("data-caption", function (d) {
             return getCaption(d);
           });
@@ -9706,8 +9705,6 @@
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
-          }).attr("stroke", function (d) {
-            return d.stroke ? d.stroke : data.stroke ? data.stroke : null;
           }).attr("transform", function (d) {
             var x = transform(getCentroid(d.gr, proj).centroid)[0];
             var y = transform(getCentroid(d.gr, proj).centroid)[1];
@@ -9752,6 +9749,8 @@
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
+          }).attr("stroke", function (d) {
+            return d.stroke ? d.stroke : data.stroke ? data.stroke : null;
           }).attr("data-caption", function (d) {
             return getCaption(d);
           });
@@ -9949,7 +9948,7 @@
           if (l.text[_i2] === 'symbol') {
             if (shape === 'circle') {
               dot = gLegend.append('circle').attr("r", swatchPixels * size) //.attr("cx", swatchPixels * 1)
-              .attr("cx", offsets[_i2] + swatchPixels).attr("cy", lineHeight * (y + 2.5) - swatchPixels + iUnderlinePad);
+              .attr("cx", offsets[_i2] + swatchPixels).attr("cy", lineHeight * (y + 2.5) - swatchPixels + iUnderlinePad).attr('clip-path', 'circle()');
             } else if (shape === 'bullseye') {
               dot = gLegend.append('circle').attr("r", swatchPixels * size) //.attr("cx", swatchPixels * 1)
               .attr("cx", offsets[_i2] + swatchPixels).attr("cy", lineHeight * (y + 2.5) - swatchPixels + iUnderlinePad);
@@ -11360,15 +11359,18 @@
           }).merge(up).transition().duration(0) // Required in order to use .end promise
           .attr("d", function (d) {
             return path(d.geometry);
-          }).attr("opacity", function (d) {
+          }).attr("fill-opacity", function (d) {
             return d.opacity ? d.opacity : data.opacity;
           }).attr("fill", function (d) {
             return d.colour ? d.colour : data.colour;
-          }).attr("stroke-width", function () {
-            {
-              return '1';
-            }
-          }).end();
+          }).attr("stroke", 'black') // .attr("stroke-width", () => {
+          //   if (symbolOutline) {
+          //     return '1'
+          //   } else {
+          //     return '0'
+          //   }
+          // })
+          .end();
         } else {
           pRedrawPath = Promise.resolve();
         }
@@ -11415,15 +11417,18 @@
             return map.latLngToLayerPoint(new L.LatLng(d.lat, d.lng)).y;
           }).attr("r", function (d) {
             return rad * d.size;
-          }).attr("opacity", function (d) {
+          }).attr("fill-opacity", function (d) {
             return d.opacity ? d.opacity : data.opacity;
           }).attr("fill", function (d) {
             return d.colour ? d.colour : data.colour;
-          }).attr("stroke-width", function () {
-            {
-              return '1';
-            }
-          }).end();
+          }).attr("stroke", 'black') // .attr("stroke-width", () => {
+          //   if (symbolOutline) {
+          //     return '1'
+          //   } else {
+          //     return '0'
+          //   }
+          // })
+          .end();
         } else {
           pRedrawCircle = Promise.resolve();
         }

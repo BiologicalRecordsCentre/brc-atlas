@@ -37,13 +37,11 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
         circles.enter()
           .append("circle")
           .classed('dotCircle dot', true)
-          // .attr('clip-path', 'circle()')
           .attr("cx", d => transform(getCentroid(d.gr, proj).centroid)[0])
           .attr("cy", d => transform(getCentroid(d.gr, proj).centroid)[1]) 
           .attr("r", 0)
           .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
-          .attr("stroke", d => d.stroke ? d.stroke : data.stroke ? data.stroke : null )
         .merge(circles)
           .transition()  
             .ease(d3.easeCubic)   
@@ -54,6 +52,8 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           })
           .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
+          .attr("stroke", d => d.stroke ? d.stroke : data.stroke ? data.stroke : null )
+          .attr('clip-path', 'circle()')
           .attr("data-caption", d => getCaption(d))
         circles.exit()
           .transition()
@@ -116,7 +116,6 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           .attr("height", 0) 
           .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
-          .attr("stroke", d => d.stroke ? d.stroke : data.stroke ? data.stroke : null )
         .merge(squares)
           .transition()  
             .ease(d3.easeCubic)   
@@ -141,6 +140,7 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           })
           .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
+          .attr("stroke", d => d.stroke ? d.stroke : data.stroke ? data.stroke : null )
           .attr("data-caption", d => getCaption(d))
         squares.exit()
           .transition()
@@ -166,7 +166,6 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           .attr("d", d3.symbol().type(d3.symbolSquare).size(0))
           .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
-          .attr("stroke", d => d.stroke ? d.stroke : data.stroke ? data.stroke : null )
           .attr("transform", d => {
             const x = transform(getCentroid(d.gr, proj).centroid)[0]
             const y = transform(getCentroid(d.gr, proj).centroid)[1]
@@ -193,6 +192,7 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           })
           .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
+          .attr("stroke", d => d.stroke ? d.stroke : data.stroke ? data.stroke : null )
           .attr("data-caption", d => getCaption(d))
         diamonds.exit()
           .transition()
@@ -216,7 +216,6 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           .attr("d", d3.symbol().type(d3.symbolTriangle).size(0))
           .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
-          .attr("stroke", d => d.stroke ? d.stroke : data.stroke ? data.stroke : null )
           .attr("transform", d => {
             const x = transform(getCentroid(d.gr, proj).centroid)[0]
             const y = transform(getCentroid(d.gr, proj).centroid)[1]
@@ -261,6 +260,7 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           })
           .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
+          .attr("stroke", d => d.stroke ? d.stroke : data.stroke ? data.stroke : null )
           .attr("data-caption", d => getCaption(d))
         triangle.exit()
           .transition()

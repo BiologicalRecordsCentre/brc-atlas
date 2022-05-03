@@ -406,15 +406,16 @@ export function leafletMap({
           .attr("d", d => {
             return path(d.geometry)
           })
-          .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
+          .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .attr("fill", d => d.colour ? d.colour : data.colour)
-          .attr("stroke-width", () => {
-            if (symbolOutline) {
-              return '1'
-            } else {
-              return '0'
-            }
-          })
+          .attr("stroke", 'black')
+          // .attr("stroke-width", () => {
+          //   if (symbolOutline) {
+          //     return '1'
+          //   } else {
+          //     return '0'
+          //   }
+          // })
           .end()
       } else {
         pRedrawPath = Promise.resolve()
@@ -474,15 +475,16 @@ export function leafletMap({
             return map.latLngToLayerPoint(new L.LatLng(d.lat, d.lng)).y
           })
           .attr("r", d => rad * d.size)
-          .attr("opacity", d => d.opacity ? d.opacity : data.opacity)
+          .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .attr("fill", d => d.colour ? d.colour : data.colour)
-          .attr("stroke-width", () => {
-            if (symbolOutline) {
-              return '1'
-            } else {
-              return '0'
-            }
-          })
+          .attr("stroke", 'black')
+          // .attr("stroke-width", () => {
+          //   if (symbolOutline) {
+          //     return '1'
+          //   } else {
+          //     return '0'
+          //   }
+          // })
           .end()
       } else {
         pRedrawCircle = Promise.resolve()

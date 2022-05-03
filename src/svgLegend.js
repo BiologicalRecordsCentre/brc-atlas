@@ -169,6 +169,7 @@ export function svgLegend(svg, legendOpts) {
               //.attr("cx", swatchPixels * 1)
               .attr("cx", offsets[i] + swatchPixels)
               .attr("cy", lineHeight * (y + 2.5) - swatchPixels + iUnderlinePad)
+              .attr('clip-path', 'circle()')
           } else if (shape === 'bullseye') {
             dot = gLegend.append('circle')
               .attr("r", swatchPixels * size)
