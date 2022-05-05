@@ -502,7 +502,7 @@
   };
 
   var name = "brcatlas";
-  var version = "0.20.1";
+  var version = "0.20.2";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
@@ -1174,9 +1174,12 @@
               // serialised when using the saveMap method.
 
 
+              console.log('using xlink:href');
+
               var _img = gBasemaps.select("#basemap-".concat(mapId, "-").concat(transId)).append('image') //.attr('xmlns:xlink', "http://www.w3.org/1999/xlink")
-              //.attr('xlink:href', imageFile)
-              .attr('href', getDataUrl(_this)).attr('x', topLeft[0] + xShift).attr('y', topLeft[1] + yShift).attr('width', topRight[0] - topLeft[0]).attr('height', bottomLeft[1] - topLeft[1]);
+              .attr('xlink:href', getDataUrl(_this)) // xlink:href required to properly use image data URLs in SVG file
+              //.attr('href', getDataUrl(this))
+              .attr('x', topLeft[0] + xShift).attr('y', topLeft[1] + yShift).attr('width', topRight[0] - topLeft[0]).attr('height', bottomLeft[1] - topLeft[1]);
 
               if (i > 0) {
                 _img.attr('clip-path', "url(#clippath-".concat(mapId, "-").concat(transId, "-").concat(i, ")"));
