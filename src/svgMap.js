@@ -571,7 +571,7 @@ function setCountryColour(c){
 
 /** @function saveMap
   * @param {boolean} asSvg - a boolean value that indicates whether to generate an SVG (if false, generates PNG image). 
-  * @param {Object} svgInfo - Initialisation options.
+  * @param {Object} svgInfo - Initialisation options. Whole arg can be set to null if no info options.
   * @param {string} svgInfo.text - A text string to be displayed at the foot of the map. 
   * This will be word-wrapped to the width of the image.
   * Some HTML tags, e.g. <i> are recognised, but in order to facilitate word wrapping, each word must be marked up
@@ -581,10 +581,12 @@ function setCountryColour(c){
   * @param {number} svgInfo.fontSize - The size of the font to be used for the text string (defaults to 12)
   * @param {number} svgInfo.margin - The size of a margin, in pixels, to be placed around the text and/or image.
   * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+  * @param {string} filename - Name of the file (without extension) to generate and download.
   * Creates an image from the displayed map and downloads to user's computer.
+  * 
   */
-  function saveMap(asSvg, svgInfo) {
-    saveMapImage(svg, trans, expand, asSvg, svgInfo)
+  function saveMap(asSvg, svgInfo, filename) {
+    saveMapImage(svg, trans, expand, asSvg, svgInfo, filename)
   }
 
 /** @function downloadData

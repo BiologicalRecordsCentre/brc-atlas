@@ -5,25 +5,30 @@ import { getGjson, getCentroid } from 'brc-atlas-bigr'
 
 let infoHeight=0
 
-export function saveMapImage(svg, trans, expand, asSvg, svgInfo) {
+export function saveMapImage(svg, trans, expand, asSvg, svgInfo, filename) {
 
   const pInfoAdded = addInfo(svg, trans, expand, svgInfo)
+ 
+  return new Promise((resolve, reject) => {
 
-  pInfoAdded.then(() => {
-    if (asSvg) {
-      download(serialize(svg))
-      removeInfo(svg, trans, expand)
-    } else {
-      rasterize(svg).then(blob => {
-        download(blob)
+    pInfoAdded.then(() => {
+      if (asSvg) {
+        download(serialize(svg), filename)
         removeInfo(svg, trans, expand)
-      })
-    }
+        resolve(true)
+      } else {
+        rasterize(svg).then(blob => {
+          download(blob, filename)
+          removeInfo(svg, trans, expand)
+          resolve(true)
+        })
+      }
+    })
   })
 
-  function download(data) {
+  function download(data, filename) {
     const dataUrl = URL.createObjectURL(data)
-    const file = asSvg ? 'map.svg' : 'map.png'
+    const file = asSvg ? `${filename}.svg` : `${filename}.png`
     downloadLink(dataUrl, file)
   }
 

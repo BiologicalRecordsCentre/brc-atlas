@@ -10018,26 +10018,31 @@
 
     gLegend.selectAll('text').style('font-family', 'Arial, Helvetica, sans-serif');
     gLegend.selectAll('text').style('font-size', '14px');
+    console.log('Legend redrawn');
   }
 
   var infoHeight = 0;
-  function saveMapImage(svg, trans, expand, asSvg, svgInfo) {
+  function saveMapImage(svg, trans, expand, asSvg, svgInfo, filename) {
     var pInfoAdded = addInfo(svg, trans, expand, svgInfo);
-    pInfoAdded.then(function () {
-      if (asSvg) {
-        download(serialize(svg));
-        removeInfo(svg, trans, expand);
-      } else {
-        rasterize(svg).then(function (blob) {
-          download(blob);
+    return new Promise(function (resolve, reject) {
+      pInfoAdded.then(function () {
+        if (asSvg) {
+          download(serialize(svg), filename);
           removeInfo(svg, trans, expand);
-        });
-      }
+          resolve(true);
+        } else {
+          rasterize(svg).then(function (blob) {
+            download(blob, filename);
+            removeInfo(svg, trans, expand);
+            resolve(true);
+          });
+        }
+      });
     });
 
-    function download(data) {
+    function download(data, filename) {
       var dataUrl = URL.createObjectURL(data);
-      var file = asSvg ? 'map.svg' : 'map.png';
+      var file = asSvg ? "".concat(filename, ".svg") : "".concat(filename, ".png");
       downloadLink(dataUrl, file);
     }
 
@@ -10862,7 +10867,7 @@
     }
     /** @function saveMap
       * @param {boolean} asSvg - a boolean value that indicates whether to generate an SVG (if false, generates PNG image). 
-      * @param {Object} svgInfo - Initialisation options.
+      * @param {Object} svgInfo - Initialisation options. Whole arg can be set to null if no info options.
       * @param {string} svgInfo.text - A text string to be displayed at the foot of the map. 
       * This will be word-wrapped to the width of the image.
       * Some HTML tags, e.g. <i> are recognised, but in order to facilitate word wrapping, each word must be marked up
@@ -10872,12 +10877,14 @@
       * @param {number} svgInfo.fontSize - The size of the font to be used for the text string (defaults to 12)
       * @param {number} svgInfo.margin - The size of a margin, in pixels, to be placed around the text and/or image.
       * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+      * @param {string} filename - Name of the file (without extension) to generate and download.
       * Creates an image from the displayed map and downloads to user's computer.
+      * 
       */
 
 
-    function saveMap(asSvg, svgInfo) {
-      saveMapImage(svg, trans, expand, asSvg, svgInfo);
+    function saveMap(asSvg, svgInfo, filename) {
+      saveMapImage(svg, trans, expand, asSvg, svgInfo, filename);
     }
     /** @function downloadData
       * @param {boolean} asGeojson - a boolean value that indicates whether to generate GeoJson (if false, generates CSV). 
