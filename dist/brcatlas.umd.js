@@ -1174,8 +1174,6 @@
               // serialised when using the saveMap method.
 
 
-              console.log('using xlink:href');
-
               var _img = gBasemaps.select("#basemap-".concat(mapId, "-").concat(transId)).append('image') //.attr('xmlns:xlink', "http://www.w3.org/1999/xlink")
               .attr('xlink:href', getDataUrl(_this)) // xlink:href required to properly use image data URLs in SVG file
               //.attr('href', getDataUrl(this))
@@ -9521,6 +9519,21 @@
       }
     }
 
+    var pTrans = [];
+
+    function addPromise(transition) {
+      // If the transition has any elements in selection, then
+      // create a promise that resolves when the transition of
+      // the last element completes. We do the check becaus it
+      // seems that with zero elements, the promise does not resolve
+      // (remains pending).
+      // The promise is created by
+      // using the 'end' method on the transition.
+      if (transition.size()) {
+        pTrans.push(transition.end());
+      }
+    }
+
     return new Promise(function (resolve, reject) {
       if (typeof accessFunction === 'function') {
         accessFunction(taxonIdentifier).then(function (data) {
@@ -9540,7 +9553,7 @@
           var circles = svg.selectAll('.dotCircle').data(recCircles, function (d) {
             return d.gr;
           });
-          circles.enter().append("circle").classed('dotCircle dot', true).attr("cx", function (d) {
+          var circlesMerge = circles.enter().append("circle").classed('dotCircle dot', true).attr("cx", function (d) {
             return transform(getCentroid(d.gr, proj).centroid)[0];
           }).attr("cy", function (d) {
             return transform(getCentroid(d.gr, proj).centroid)[1];
@@ -9560,7 +9573,9 @@
           }).attr('clip-path', 'circle()').attr("data-caption", function (d) {
             return getCaption(d);
           });
-          circles.exit().transition().ease(d3.easeCubic).duration(500).attr("r", 0).remove(); // bullseye
+          addPromise(circlesMerge);
+          var circlesExit = circles.exit().transition().ease(d3.easeCubic).duration(500).attr("r", 0).remove();
+          addPromise(circlesExit); // bullseye
 
           var recBullseyes;
 
@@ -9575,7 +9590,7 @@
           var bullseyes = svg.selectAll('.dotBullseye').data(recBullseyes, function (d) {
             return d.gr;
           });
-          bullseyes.enter().append("circle").classed('dotBullseye dot', true) // .attr('clip-path', 'circle()')
+          var bullseyesMerge = bullseyes.enter().append("circle").classed('dotBullseye dot', true) // .attr('clip-path', 'circle()')
           .attr("cx", function (d) {
             return transform(getCentroid(d.gr, proj).centroid)[0];
           }).attr("cy", function (d) {
@@ -9594,7 +9609,9 @@
           }).attr("data-caption", function (d) {
             return getCaption(d);
           });
-          bullseyes.exit().transition().ease(d3.easeCubic).duration(500).attr("r", 0).remove(); // squares
+          addPromise(bullseyesMerge);
+          var bullseyesExit = bullseyes.exit().transition().ease(d3.easeCubic).duration(500).attr("r", 0).remove();
+          addPromise(bullseyesExit); // squares
 
           var recSquares;
 
@@ -9609,7 +9626,7 @@
           var squares = svg.selectAll('.dotSquare').data(recSquares, function (d) {
             return d.gr;
           });
-          squares.enter().append("rect").classed('dotSquare dot', true).attr("x", function (d) {
+          var squaresMerge = squares.enter().append("rect").classed('dotSquare dot', true).attr("x", function (d) {
             return transform(getCentroid(d.gr, proj).centroid)[0];
           }).attr("y", function (d) {
             return transform(getCentroid(d.gr, proj).centroid)[1];
@@ -9642,7 +9659,9 @@
           }).attr("data-caption", function (d) {
             return getCaption(d);
           });
-          squares.exit().transition().ease(d3.easeCubic).duration(500).attr("width", 0).attr("height", 0).attr("transform", "translate(0,0)").remove(); // diamonds
+          addPromise(squaresMerge);
+          var squaresExit = squares.exit().transition().ease(d3.easeCubic).duration(500).attr("width", 0).attr("height", 0).attr("transform", "translate(0,0)").remove();
+          addPromise(squaresExit); // diamonds
 
           var recDiamonds;
 
@@ -9657,7 +9676,7 @@
           var diamonds = svg.selectAll('.dotDiamond').data(recDiamonds, function (d) {
             return d.gr;
           });
-          diamonds.enter().append("path").classed('dotDiamond dot', true).attr("d", d3.symbol().type(d3.symbolSquare).size(0)).attr("fill-opacity", function (d) {
+          var diamondsEnter = diamonds.enter().append("path").classed('dotDiamond dot', true).attr("d", d3.symbol().type(d3.symbolSquare).size(0)).attr("fill-opacity", function (d) {
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
@@ -9689,7 +9708,9 @@
           }).attr("data-caption", function (d) {
             return getCaption(d);
           });
-          diamonds.exit().transition().ease(d3.easeCubic).duration(500).attr("d", d3.symbol().type(d3.symbolSquare).size(0)).remove(); // triangles
+          addPromise(diamondsEnter);
+          var diamondsExit = diamonds.exit().transition().ease(d3.easeCubic).duration(500).attr("d", d3.symbol().type(d3.symbolSquare).size(0)).remove();
+          addPromise(diamondsExit); // triangles
 
           var recTriangles;
 
@@ -9704,7 +9725,7 @@
           var triangle = svg.selectAll('.dotTriangle').data(recTriangles, function (d) {
             return d.gr;
           });
-          triangle.enter().append("path").classed('dotTriangle dot', true).attr("d", d3.symbol().type(d3.symbolTriangle).size(0)).attr("fill-opacity", function (d) {
+          var triangleEnter = triangle.enter().append("path").classed('dotTriangle dot', true).attr("d", d3.symbol().type(d3.symbolTriangle).size(0)).attr("fill-opacity", function (d) {
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
@@ -9757,7 +9778,9 @@
           }).attr("data-caption", function (d) {
             return getCaption(d);
           });
-          triangle.exit().transition().ease(d3.easeCubic).duration(500).attr("d", d3.symbol().type(d3.symbolTriangle).size(0)).remove(); // Dot caption display
+          addPromise(triangleEnter);
+          var triangleExit = triangle.exit().transition().ease(d3.easeCubic).duration(500).attr("d", d3.symbol().type(d3.symbolTriangle).size(0)).remove();
+          addPromise(triangleExit); // Dot caption display
 
           svg.selectAll('.dot').on('mouseover', function (d) {
             if (captionId) {
@@ -9771,10 +9794,15 @@
             if (onclick) {
               onclick(d.gr, d.id ? d.id : null, d.caption ? d.caption : null);
             }
-          });
-          return data;
-        }).then(function (data) {
-          resolve(data);
+          }); // Use Promise.all on pTrans to trigger code after
+          // all transitions complete.
+
+          Promise.all(pTrans).then(function (ret) {
+            console.log('redraw done');
+            resolve(data);
+          }); //   return data
+          // }).then (data => {
+          //   resolve(data)
         })["catch"](function () {
           reject("Failed to read data", taxonIdentifier);
         });
@@ -10517,19 +10545,26 @@
     }
 
     function drawMapDots() {
-      svg.select('#legend').remove(); // Remove here to avoid legend resizing if inset options changed.
+      // Returns a promise so that caller knows when data is loaded and transitions complete
+      // (drawDots returns a promise which resolves when transitions complete)
+      var pRet = new Promise(function (resolve, reject) {
+        svg.select('#legend').remove(); // Remove here to avoid legend resizing if inset options changed.
 
-      drawDots(svg, captionId, onclick, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj).then(function (data) {
-        if (data) {
-          svg.select('#legend').remove(); // Also must remove here to avoid some bad effects. 
+        drawDots(svg, captionId, onclick, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj).then(function (data) {
+          if (data) {
+            svg.select('#legend').remove(); // Also must remove here to avoid some bad effects. 
 
-          legendOpts.accessorData = data.legend;
+            legendOpts.accessorData = data.legend;
 
-          if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
-            svgLegend(svg, legendOpts);
+            if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
+              svgLegend(svg, legendOpts);
+            }
           }
-        }
+
+          resolve(true);
+        });
       });
+      return pRet;
     }
 
     function refreshMapDots() {
@@ -10803,7 +10838,7 @@
 
 
     function redrawMap() {
-      drawMapDots();
+      return drawMapDots();
     }
     /** @function clearMap
       * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.

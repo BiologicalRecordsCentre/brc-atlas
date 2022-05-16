@@ -282,17 +282,23 @@ export function svgMap({
   }
 
   function drawMapDots() {
-    svg.select('#legend').remove() // Remove here to avoid legend resizing if inset options changed.
-    drawDots(svg, captionId, onclick, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj)
-      .then (data => {
-        if (data) {
-          svg.select('#legend').remove() // Also must remove here to avoid some bad effects. 
-          legendOpts.accessorData = data.legend
-          if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
-            svgLegend(svg, legendOpts)
-          }  
-        }
+    // Returns a promise so that caller knows when data is loaded and transitions complete
+    // (drawDots returns a promise which resolves when transitions complete)
+    const pRet = new Promise((resolve, reject) => {
+      svg.select('#legend').remove() // Remove here to avoid legend resizing if inset options changed.
+      drawDots(svg, captionId, onclick, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj)
+        .then (data => {
+          if (data) {
+            svg.select('#legend').remove() // Also must remove here to avoid some bad effects. 
+            legendOpts.accessorData = data.legend
+            if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
+              svgLegend(svg, legendOpts)
+            }  
+          }
+          resolve(true)
+      })
     })
+    return pRet
   }
 
   function refreshMapDots() {
@@ -542,7 +548,7 @@ function setCountryColour(c){
   * Redraw the map, e.g. after changing map accessor function or map identifier.
   */
   function redrawMap(){
-    drawMapDots()
+    return drawMapDots()
   }
 
 /** @function clearMap

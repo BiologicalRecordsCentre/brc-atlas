@@ -91,7 +91,6 @@ export function showImage(mapId, show, gBasemaps, imageFile, worldFile, trans) {
 
               // Changed to use dataURL rather than file path URL so that image can be 
               // serialised when using the saveMap method.
-              console.log('using xlink:href')
               const img = gBasemaps.select(`#basemap-${mapId}-${transId}`).append('image')
                 //.attr('xmlns:xlink', "http://www.w3.org/1999/xlink")
                 .attr('xlink:href', getDataUrl(this)) // xlink:href required to properly use image data URLs in SVG file

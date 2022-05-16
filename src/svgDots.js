@@ -18,12 +18,26 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
     }
   }
 
+  const pTrans = []
+  function addPromise(transition) {
+    // If the transition has any elements in selection, then
+    // create a promise that resolves when the transition of
+    // the last element completes. We do the check becaus it
+    // seems that with zero elements, the promise does not resolve
+    // (remains pending).
+    // The promise is created by
+    // using the 'end' method on the transition.
+    if (transition.size()) {
+      pTrans.push(transition.end())
+    }
+  }
+
   return new Promise((resolve, reject) => {
     if(typeof accessFunction === 'function') {
       accessFunction(taxonIdentifier).then(data => {
 
         if (!data) return
-        
+
         const radiusPixels = getRadiusPixels(transform, data.precision)
         // circles
         let recCircles
@@ -34,7 +48,7 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
         }
         const circles = svg.selectAll('.dotCircle')
           .data(recCircles, d => d.gr)
-        circles.enter()
+        const circlesMerge = circles.enter()
           .append("circle")
           .classed('dotCircle dot', true)
           .attr("cx", d => transform(getCentroid(d.gr, proj).centroid)[0])
@@ -55,12 +69,18 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           .attr("stroke", d => d.stroke ? d.stroke : data.stroke ? data.stroke : null )
           .attr('clip-path', 'circle()')
           .attr("data-caption", d => getCaption(d))
-        circles.exit()
+
+        addPromise(circlesMerge)
+          
+        const circlesExit = circles.exit()
           .transition()
             .ease(d3.easeCubic)
             .duration(500)
           .attr("r", 0)
           .remove()
+
+        addPromise(circlesExit)
+
 
         // bullseye
         let recBullseyes
@@ -71,7 +91,8 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
         }
         const bullseyes = svg.selectAll('.dotBullseye')
           .data(recBullseyes, d => d.gr)
-          bullseyes.enter()
+        
+        const bullseyesMerge =  bullseyes.enter()
           .append("circle")
           .classed('dotBullseye dot', true)
           // .attr('clip-path', 'circle()')
@@ -91,12 +112,17 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour2 ? d.colour2 : data.colour2)
           .attr("data-caption", d => getCaption(d))
-          bullseyes.exit()
+
+        addPromise(bullseyesMerge)
+
+        const bullseyesExit =  bullseyes.exit()
           .transition()
             .ease(d3.easeCubic)
             .duration(500)
           .attr("r", 0)
           .remove()
+
+        addPromise(bullseyesExit)
 
         // squares
         let recSquares
@@ -107,7 +133,7 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
         }
         const squares = svg.selectAll('.dotSquare')
           .data(recSquares, d => d.gr)
-        squares.enter()
+        const squaresMerge = squares.enter()
           .append("rect")
           .classed('dotSquare dot', true)
           .attr("x", d => transform(getCentroid(d.gr, proj).centroid)[0])
@@ -142,7 +168,10 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           .style("fill", d => d.colour ? d.colour : data.colour)
           .attr("stroke", d => d.stroke ? d.stroke : data.stroke ? data.stroke : null )
           .attr("data-caption", d => getCaption(d))
-        squares.exit()
+
+        addPromise(squaresMerge)
+
+        const squaresExit = squares.exit()
           .transition()
             .ease(d3.easeCubic)
             .duration(500)
@@ -150,6 +179,8 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           .attr("height", 0)
           .attr("transform", `translate(0,0)`)
           .remove()
+
+        addPromise(squaresExit)
 
         // diamonds
         let recDiamonds
@@ -160,7 +191,8 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
         }
         const diamonds = svg.selectAll('.dotDiamond')
           .data(recDiamonds, d => d.gr)
-        diamonds.enter()
+        
+        const diamondsEnter =  diamonds.enter()
           .append("path")
           .classed('dotDiamond dot', true)
           .attr("d", d3.symbol().type(d3.symbolSquare).size(0))
@@ -194,12 +226,17 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           .style("fill", d => d.colour ? d.colour : data.colour)
           .attr("stroke", d => d.stroke ? d.stroke : data.stroke ? data.stroke : null )
           .attr("data-caption", d => getCaption(d))
-        diamonds.exit()
+
+        addPromise(diamondsEnter)
+
+        const diamondsExit = diamonds.exit()
           .transition()
             .ease(d3.easeCubic)
             .duration(500)
           .attr("d", d3.symbol().type(d3.symbolSquare).size(0))
           .remove()
+
+        addPromise(diamondsExit)
 
         // triangles
         let recTriangles
@@ -210,7 +247,7 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
         }
         const triangle = svg.selectAll('.dotTriangle')
           .data(recTriangles, d => d.gr)
-        triangle.enter()
+        const triangleEnter = triangle.enter()
           .append("path")
           .classed('dotTriangle dot', true)
           .attr("d", d3.symbol().type(d3.symbolTriangle).size(0))
@@ -262,12 +299,17 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           .style("fill", d => d.colour ? d.colour : data.colour)
           .attr("stroke", d => d.stroke ? d.stroke : data.stroke ? data.stroke : null )
           .attr("data-caption", d => getCaption(d))
-        triangle.exit()
+
+        addPromise(triangleEnter)
+
+        const triangleExit = triangle.exit()
           .transition()
             .ease(d3.easeCubic)
             .duration(500)
           .attr("d", d3.symbol().type(d3.symbolTriangle).size(0))
           .remove()
+
+        addPromise(triangleExit)
 
         // Dot caption display
         svg.selectAll('.dot')
@@ -285,10 +327,16 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
               onclick(d.gr, d.id ? d.id : null, d.caption ? d.caption : null)
             }
           })
-          
-        return data
-      }).then (data => {
-        resolve(data)
+
+        // Use Promise.all on pTrans to trigger code after
+        // all transitions complete.
+        Promise.all(pTrans).then(ret => {
+          console.log('redraw done')
+          resolve(data)
+        })
+      //   return data
+      // }).then (data => {
+      //   resolve(data)
       }).catch(() => {
         reject("Failed to read data", taxonIdentifier)
       })
