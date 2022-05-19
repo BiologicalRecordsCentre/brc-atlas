@@ -233,6 +233,4 @@ export function svgLegend(svg, legendOpts) {
   // Set the font attribues for all text in legend
   gLegend.selectAll('text').style('font-family','Arial, Helvetica, sans-serif')
   gLegend.selectAll('text').style('font-size','14px')
-
-  console.log('Legend redrawn')
 }

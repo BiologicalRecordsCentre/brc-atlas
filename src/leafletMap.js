@@ -304,7 +304,6 @@ export function leafletMap({
       map.removeLayer(markers)
     }
 
-    const symbolOutline = true
     const view = map.getBounds()
 
     const filteredData = data.records.filter(function(d){
@@ -409,13 +408,6 @@ export function leafletMap({
           .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .attr("fill", d => d.colour ? d.colour : data.colour)
           .attr("stroke", 'black')
-          // .attr("stroke-width", () => {
-          //   if (symbolOutline) {
-          //     return '1'
-          //   } else {
-          //     return '0'
-          //   }
-          // })
           .end()
       } else {
         pRedrawPath = Promise.resolve()
@@ -478,13 +470,6 @@ export function leafletMap({
           .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .attr("fill", d => d.colour ? d.colour : data.colour)
           .attr("stroke", 'black')
-          // .attr("stroke-width", () => {
-          //   if (symbolOutline) {
-          //     return '1'
-          //   } else {
-          //     return '0'
-          //   }
-          // })
           .end()
       } else {
         pRedrawCircle = Promise.resolve()

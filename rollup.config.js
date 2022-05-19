@@ -27,15 +27,15 @@ export default [
   // Avoid bundling d3 or leaflet
   {
     external: ['d3', 'leaflet'],
-    globals: {
-      'd3': 'd3',
-      'leaflet': 'L'
-    },
 		input: 'index.js',
 		output: {
 			name: 'brcatlas',
 			file: pkg.browser,
-			format: 'umd'
+			format: 'umd',
+      globals: {
+        'd3': 'd3',
+        'leaflet': 'L'
+      },
 		},
 		plugins: [
       //eslint(),
@@ -47,15 +47,15 @@ export default [
   },
   {
     external: ['d3', 'leaflet'],
-    globals: {
-      'd3': 'd3',
-      'leaflet': 'L'
-    },
 		input: 'index.js',
 		output: {
 			name: 'brcatlas',
 			file: pkg.browsermin,
-			format: 'umd'
+			format: 'umd',
+      globals: {
+        'd3': 'd3',
+        'leaflet': 'L'
+      },
 		},
 		plugins: [
       //eslint(),

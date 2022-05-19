@@ -9797,8 +9797,7 @@
           }); // Use Promise.all on pTrans to trigger code after
           // all transitions complete.
 
-          Promise.all(pTrans).then(function (ret) {
-            console.log('redraw done');
+          Promise.all(pTrans).then(function () {
             resolve(data);
           }); //   return data
           // }).then (data => {
@@ -10018,23 +10017,30 @@
 
     gLegend.selectAll('text').style('font-family', 'Arial, Helvetica, sans-serif');
     gLegend.selectAll('text').style('font-size', '14px');
-    console.log('Legend redrawn');
   }
 
   var infoHeight = 0;
   function saveMapImage(svg, trans, expand, asSvg, svgInfo, filename) {
     var pInfoAdded = addInfo(svg, trans, expand, svgInfo);
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve) {
       pInfoAdded.then(function () {
         if (asSvg) {
-          download(serialize(svg), filename);
+          var blob1 = serialize(svg);
+
+          if (filename) {
+            download(blob1, filename);
+          }
+
           removeInfo(svg, trans, expand);
-          resolve(true);
+          resolve(blob1);
         } else {
-          rasterize(svg).then(function (blob) {
-            download(blob, filename);
+          rasterize(svg).then(function (blob2) {
+            if (filename) {
+              download(blob2, filename);
+            }
+
             removeInfo(svg, trans, expand);
-            resolve(true);
+            resolve(blob2);
           });
         }
       });
@@ -10137,7 +10143,6 @@
         downloadLink(dataStr, "data.geojson");
       } else {
         // CSV
-        console.log('data.records[0]', data.records[0]);
         var attrs = '';
         Object.keys(data.records[0]).forEach(function (k) {
           if (k !== 'gr') {
@@ -10552,7 +10557,7 @@
     function drawMapDots() {
       // Returns a promise so that caller knows when data is loaded and transitions complete
       // (drawDots returns a promise which resolves when transitions complete)
-      var pRet = new Promise(function (resolve, reject) {
+      var pRet = new Promise(function (resolve) {
         svg.select('#legend').remove(); // Remove here to avoid legend resizing if inset options changed.
 
         drawDots(svg, captionId, onclick, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj).then(function (data) {
@@ -10876,15 +10881,19 @@
       * than the SVG, it is rescaled to the size of the SVG.
       * @param {number} svgInfo.fontSize - The size of the font to be used for the text string (defaults to 12)
       * @param {number} svgInfo.margin - The size of a margin, in pixels, to be placed around the text and/or image.
-      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
       * @param {string} filename - Name of the file (without extension) to generate and download.
-      * Creates an image from the displayed map and downloads to user's computer.
+      * Creates an image from the displayed map and downloads to user's computer. If
+      * the filename is falsey (e.g. blank), it will not automatically download the
+      * file. (Allows caller to do something else with the data URL which is returned
+      * as the promises resolved value.)
+      * @returns {Promise} promise object represents the data URL of the image.
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
       * 
       */
 
 
     function saveMap(asSvg, svgInfo, filename) {
-      saveMapImage(svg, trans, expand, asSvg, svgInfo, filename);
+      return saveMapImage(svg, trans, expand, asSvg, svgInfo, filename);
     }
     /** @function downloadData
       * @param {boolean} asGeojson - a boolean value that indicates whether to generate GeoJson (if false, generates CSV). 
@@ -11329,6 +11338,7 @@
       if (markers && precision !== 0) {
         map.removeLayer(markers);
       }
+
       var view = map.getBounds();
       var filteredData = data.records.filter(function (d) {
         if (d.lng < view._southWest.lng - buffer || d.lng > view._northEast.lng + buffer || d.lat < view._southWest.lat - buffer || d.lat > view._northEast.lat + buffer) {
@@ -11408,14 +11418,7 @@
             return d.opacity ? d.opacity : data.opacity;
           }).attr("fill", function (d) {
             return d.colour ? d.colour : data.colour;
-          }).attr("stroke", 'black') // .attr("stroke-width", () => {
-          //   if (symbolOutline) {
-          //     return '1'
-          //   } else {
-          //     return '0'
-          //   }
-          // })
-          .end();
+          }).attr("stroke", 'black').end();
         } else {
           pRedrawPath = Promise.resolve();
         }
@@ -11466,14 +11469,7 @@
             return d.opacity ? d.opacity : data.opacity;
           }).attr("fill", function (d) {
             return d.colour ? d.colour : data.colour;
-          }).attr("stroke", 'black') // .attr("stroke-width", () => {
-          //   if (symbolOutline) {
-          //     return '1'
-          //   } else {
-          //     return '0'
-          //   }
-          // })
-          .end();
+          }).attr("stroke", 'black').end();
         } else {
           pRedrawCircle = Promise.resolve();
         }

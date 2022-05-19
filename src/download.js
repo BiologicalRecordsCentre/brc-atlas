@@ -9,18 +9,23 @@ export function saveMapImage(svg, trans, expand, asSvg, svgInfo, filename) {
 
   const pInfoAdded = addInfo(svg, trans, expand, svgInfo)
  
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
 
     pInfoAdded.then(() => {
       if (asSvg) {
-        download(serialize(svg), filename)
+        const blob1 =  serialize(svg)
+        if(filename) {
+          download(blob1, filename)
+        }
         removeInfo(svg, trans, expand)
-        resolve(true)
+        resolve(blob1)
       } else {
-        rasterize(svg).then(blob => {
-          download(blob, filename)
+        rasterize(svg).then(blob2 => {
+          if(filename) {
+            download(blob2, filename)
+          }
           removeInfo(svg, trans, expand)
-          resolve(true)
+          resolve(blob2)
         })
       }
     })
@@ -124,7 +129,6 @@ export function downloadCurrentData(pData, precision, asGeojson){
       downloadLink(dataStr, "data.geojson")
     } else {
       // CSV
-      console.log('data.records[0]', data.records[0])
       let attrs = ''
       Object.keys(data.records[0]).forEach(k => {
         if (k !== 'gr') {

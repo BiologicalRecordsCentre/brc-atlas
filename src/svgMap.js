@@ -284,7 +284,7 @@ export function svgMap({
   function drawMapDots() {
     // Returns a promise so that caller knows when data is loaded and transitions complete
     // (drawDots returns a promise which resolves when transitions complete)
-    const pRet = new Promise((resolve, reject) => {
+    const pRet = new Promise((resolve) => {
       svg.select('#legend').remove() // Remove here to avoid legend resizing if inset options changed.
       drawDots(svg, captionId, onclick, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj)
         .then (data => {
@@ -580,13 +580,17 @@ function setCountryColour(c){
   * than the SVG, it is rescaled to the size of the SVG.
   * @param {number} svgInfo.fontSize - The size of the font to be used for the text string (defaults to 12)
   * @param {number} svgInfo.margin - The size of a margin, in pixels, to be placed around the text and/or image.
-  * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
   * @param {string} filename - Name of the file (without extension) to generate and download.
-  * Creates an image from the displayed map and downloads to user's computer.
+  * Creates an image from the displayed map and downloads to user's computer. If
+  * the filename is falsey (e.g. blank), it will not automatically download the
+  * file. (Allows caller to do something else with the data URL which is returned
+  * as the promises resolved value.)
+  * @returns {Promise} promise object represents the data URL of the image.
+  * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
   * 
   */
   function saveMap(asSvg, svgInfo, filename) {
-    saveMapImage(svg, trans, expand, asSvg, svgInfo, filename)
+    return saveMapImage(svg, trans, expand, asSvg, svgInfo, filename)
   }
 
 /** @function downloadData

@@ -330,8 +330,7 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
 
         // Use Promise.all on pTrans to trigger code after
         // all transitions complete.
-        Promise.all(pTrans).then(ret => {
-          console.log('redraw done')
+        Promise.all(pTrans).then(() => {
           resolve(data)
         })
       //   return data
