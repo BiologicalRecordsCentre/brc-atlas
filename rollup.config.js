@@ -52,6 +52,7 @@ export default [
 			name: 'brcatlas',
 			file: pkg.browsermin,
 			format: 'umd',
+      sourcemap: true,
       globals: {
         'd3': 'd3',
         'leaflet': 'L'
