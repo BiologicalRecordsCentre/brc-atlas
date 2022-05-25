@@ -326,6 +326,11 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
               }
             }
           })
+          .on('mouseout', d => {
+            if (captionId) {
+              d3.select(`#${captionId}`).html('')
+            }
+          })
           .on('click', d => {
             if (onclick) {
               onclick(d.gr, d.id ? d.id : null, d.caption ? d.caption : null)

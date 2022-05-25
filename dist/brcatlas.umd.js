@@ -9796,6 +9796,10 @@
                 d3.select("#".concat(captionId)).html('');
               }
             }
+          }).on('mouseout', function (d) {
+            if (captionId) {
+              d3.select("#".concat(captionId)).html('');
+            }
           }).on('click', function (d) {
             if (onclick) {
               onclick(d.gr, d.id ? d.id : null, d.caption ? d.caption : null);
@@ -11416,6 +11420,10 @@
               } else {
                 d3.select("#".concat(captionId)).html('');
               }
+            }
+          }).on('mouseout', function (d) {
+            if (captionId) {
+              d3.select("#".concat(captionId)).html('');
             }
           }).merge(up).transition().duration(0) // Required in order to use .end promise
           .attr("d", function (d) {

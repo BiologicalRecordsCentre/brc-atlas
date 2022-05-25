@@ -400,6 +400,11 @@ export function leafletMap({
               }
             }
           })
+          .on('mouseout', d => {
+            if (captionId) {
+              d3.select(`#${captionId}`).html('')
+            }
+          })
         .merge(up)
           .transition().duration(0) // Required in order to use .end promise
           .attr("d", d => {
