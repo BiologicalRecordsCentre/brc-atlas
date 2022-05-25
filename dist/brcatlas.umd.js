@@ -10556,7 +10556,7 @@
       svg.selectAll('.inset').remove();
       trans.insetDims.forEach(function (i) {
         var margin = 10;
-        svg.append('rect').classed('inset', true).attr('x', i.x - margin).attr('y', i.y - margin).attr('width', i.width + 2 * margin).attr('height', i.height + 2 * margin).style('fill', 'transparent').style('stroke', insetColour);
+        svg.append('rect').classed('inset', true).attr('x', i.x - margin).attr('y', i.y - margin).attr('width', i.width + 2 * margin).attr('height', i.height + 2 * margin).style('fill', 'none').style('stroke', insetColour);
       });
     }
 

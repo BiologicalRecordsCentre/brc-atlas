@@ -276,7 +276,7 @@ export function svgMap({
         .attr('y', i.y - margin)
         .attr('width', i.width + 2 * margin)
         .attr('height', i.height + 2 * margin)
-        .style('fill', 'transparent')
+        .style('fill', 'none')
         .style('stroke', insetColour)
     })
   }
