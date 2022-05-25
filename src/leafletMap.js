@@ -408,7 +408,7 @@ export function leafletMap({
           .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .attr("fill", d => d.colour ? d.colour : data.colour)
           .attr("stroke", 'black')
-          .end()
+          .end().catch(() => null) // Catch error which comes from interrupted transition
       } else {
         pRedrawPath = Promise.resolve()
       }
@@ -470,7 +470,7 @@ export function leafletMap({
           .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .attr("fill", d => d.colour ? d.colour : data.colour)
           .attr("stroke", 'black')
-          .end()
+          .end().catch(() => null) // Catch error which comes from interrupted transition
       } else {
         pRedrawCircle = Promise.resolve()
       }
@@ -483,7 +483,7 @@ export function leafletMap({
         //console.log("Circles complete")
       })
 
-      Promise.all([pRedrawPath, pRedrawCircle]).then(() => {
+      Promise.allSettled([pRedrawPath, pRedrawCircle]).then(() => {
         //console.log("Paths and circles complete")
         // callback[1] is fired at the end of data display
         // can be used to hide a busy indicator.

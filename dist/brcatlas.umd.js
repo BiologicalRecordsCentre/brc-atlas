@@ -9524,13 +9524,19 @@
     function addPromise(transition) {
       // If the transition has any elements in selection, then
       // create a promise that resolves when the transition of
-      // the last element completes. We do the check becaus it
+      // the last element completes. We do the check because it
       // seems that with zero elements, the promise does not resolve
       // (remains pending).
       // The promise is created by
       // using the 'end' method on the transition.
+      // The promise rejects if a transition is interrupted
+      // so need to handle that. (https://www.npmjs.com/package/d3-transition)
       if (transition.size()) {
-        pTrans.push(transition.end());
+        var p = transition.end();
+        p["catch"](function () {
+          return null;
+        });
+        pTrans.push(p);
       }
     }
 
@@ -9797,7 +9803,7 @@
           }); // Use Promise.all on pTrans to trigger code after
           // all transitions complete.
 
-          Promise.all(pTrans).then(function () {
+          Promise.allSettled(pTrans).then(function () {
             resolve(data);
           }); //   return data
           // }).then (data => {
@@ -11418,7 +11424,9 @@
             return d.opacity ? d.opacity : data.opacity;
           }).attr("fill", function (d) {
             return d.colour ? d.colour : data.colour;
-          }).attr("stroke", 'black').end();
+          }).attr("stroke", 'black').end()["catch"](function () {
+            return null;
+          }); // Catch error which comes from interrupted transition
         } else {
           pRedrawPath = Promise.resolve();
         }
@@ -11469,7 +11477,9 @@
             return d.opacity ? d.opacity : data.opacity;
           }).attr("fill", function (d) {
             return d.colour ? d.colour : data.colour;
-          }).attr("stroke", 'black').end();
+          }).attr("stroke", 'black').end()["catch"](function () {
+            return null;
+          }); // Catch error which comes from interrupted transition
         } else {
           pRedrawCircle = Promise.resolve();
         }
@@ -11478,7 +11488,7 @@
         });
         pRedrawCircle.then(function () {//console.log("Circles complete")
         });
-        Promise.all([pRedrawPath, pRedrawCircle]).then(function () {
+        Promise.allSettled([pRedrawPath, pRedrawCircle]).then(function () {
           //console.log("Paths and circles complete")
           // callback[1] is fired at the end of data display
           // can be used to hide a busy indicator.

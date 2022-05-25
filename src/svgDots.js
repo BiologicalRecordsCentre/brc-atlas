@@ -22,13 +22,17 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
   function addPromise(transition) {
     // If the transition has any elements in selection, then
     // create a promise that resolves when the transition of
-    // the last element completes. We do the check becaus it
+    // the last element completes. We do the check because it
     // seems that with zero elements, the promise does not resolve
     // (remains pending).
     // The promise is created by
     // using the 'end' method on the transition.
+    // The promise rejects if a transition is interrupted
+    // so need to handle that. (https://www.npmjs.com/package/d3-transition)
     if (transition.size()) {
-      pTrans.push(transition.end())
+      const p = transition.end()
+      p.catch(() => null)
+      pTrans.push(p)
     }
   }
 
@@ -330,7 +334,7 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
 
         // Use Promise.all on pTrans to trigger code after
         // all transitions complete.
-        Promise.all(pTrans).then(() => {
+        Promise.allSettled(pTrans).then(() => {
           resolve(data)
         })
       //   return data
