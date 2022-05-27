@@ -10567,24 +10567,22 @@
     function drawMapDots() {
       // Returns a promise so that caller knows when data is loaded and transitions complete
       // (drawDots returns a promise which resolves when transitions complete)
-      var pRet = new Promise(function (resolve) {
-        svg.select('#legend').remove(); // Remove here to avoid legend resizing if inset options changed.
+      //const pRet = new Promise((resolve) => {
+      svg.select('#legend').remove(); // Remove here to avoid legend resizing if inset options changed.
 
-        drawDots(svg, captionId, onclick, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj).then(function (data) {
-          if (data) {
-            svg.select('#legend').remove(); // Also must remove here to avoid some bad effects. 
+      return drawDots(svg, captionId, onclick, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj).then(function (data) {
+        if (data) {
+          svg.select('#legend').remove(); // Also must remove here to avoid some bad effects. 
 
-            legendOpts.accessorData = data.legend;
+          legendOpts.accessorData = data.legend;
 
-            if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
-              svgLegend(svg, legendOpts);
-            }
+          if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
+            svgLegend(svg, legendOpts);
           }
+        } //resolve(true)
 
-          resolve(true);
-        });
-      });
-      return pRet;
+      }); // })
+      // return pRet
     }
 
     function refreshMapDots() {
@@ -11861,7 +11859,7 @@
       // loaded asychronously, the gui should be updated okay.
       if (callbacks[2]) callbacks[2]();
       var accessFunction = mapTypesSel[mapTypesKey];
-      accessFunction(taxonIdentifier).then(function (data) {
+      return accessFunction(taxonIdentifier).then(function (data) {
         if (data && data.records) {
           data.records = data.records.map(function (d) {
             var ll = getCentroid(d.gr, 'wg').centroid;

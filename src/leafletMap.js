@@ -870,7 +870,7 @@ export function leafletMap({
     if (callbacks[2]) callbacks[2]()
 
     const accessFunction = mapTypesSel[mapTypesKey]
-    accessFunction(taxonIdentifier).then(data => {
+    return accessFunction(taxonIdentifier).then(data => {
       if (data && data.records) {
         data.records = data.records.map(d => {
           const ll = getCentroid(d.gr, 'wg').centroid
