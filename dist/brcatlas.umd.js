@@ -10567,22 +10567,26 @@
     function drawMapDots() {
       // Returns a promise so that caller knows when data is loaded and transitions complete
       // (drawDots returns a promise which resolves when transitions complete)
-      //const pRet = new Promise((resolve) => {
-      svg.select('#legend').remove(); // Remove here to avoid legend resizing if inset options changed.
+      var pRet = new Promise(function (resolve, reject) {
+        svg.select('#legend').remove(); // Remove here to avoid legend resizing if inset options changed.
 
-      return drawDots(svg, captionId, onclick, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj).then(function (data) {
-        if (data) {
-          svg.select('#legend').remove(); // Also must remove here to avoid some bad effects. 
+        drawDots(svg, captionId, onclick, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj).then(function (data) {
+          if (data) {
+            svg.select('#legend').remove(); // Also must remove here to avoid some bad effects. 
 
-          legendOpts.accessorData = data.legend;
+            legendOpts.accessorData = data.legend;
 
-          if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
-            svgLegend(svg, legendOpts);
+            if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
+              svgLegend(svg, legendOpts);
+            }
           }
-        } //resolve(true)
 
-      }); // })
-      // return pRet
+          resolve(true);
+        })["catch"](function (e) {
+          reject(e);
+        });
+      });
+      return pRet;
     }
 
     function refreshMapDots() {

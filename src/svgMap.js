@@ -281,13 +281,13 @@ export function svgMap({
     })
   }
 
+
   function drawMapDots() {
     // Returns a promise so that caller knows when data is loaded and transitions complete
     // (drawDots returns a promise which resolves when transitions complete)
-
-    //const pRet = new Promise((resolve) => {
+    const pRet = new Promise((resolve, reject) => {
       svg.select('#legend').remove() // Remove here to avoid legend resizing if inset options changed.
-      return drawDots(svg, captionId, onclick, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj)
+      drawDots(svg, captionId, onclick, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj)
         .then (data => {
           if (data) {
             svg.select('#legend').remove() // Also must remove here to avoid some bad effects. 
@@ -296,10 +296,13 @@ export function svgMap({
               svgLegend(svg, legendOpts)
             }  
           }
-          //resolve(true)
-      })
-    // })
-    // return pRet
+          resolve(true)
+        })
+        .catch(e => {
+          reject(e)
+        })
+    })
+    return pRet
   }
 
   function refreshMapDots() {
