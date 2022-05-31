@@ -285,29 +285,26 @@ export function svgMap({
   function drawMapDots() {
     // Returns a promise so that caller knows when data is loaded and transitions complete
     // (drawDots returns a promise which resolves when transitions complete)
-    const pRet = new Promise((resolve, reject) => {
-      svg.select('#legend').remove() // Remove here to avoid legend resizing if inset options changed.
-      drawDots(svg, captionId, onclick, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj)
-        .then (data => {
-          if (data) {
-            svg.select('#legend').remove() // Also must remove here to avoid some bad effects. 
-            legendOpts.accessorData = data.legend
-            if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
-              svgLegend(svg, legendOpts)
-            }  
-          }
-          resolve(true)
-        })
-        .catch(e => {
-          reject(e)
-        })
-    })
-    return pRet
+    svg.select('#legend').remove() // Remove here to avoid legend resizing if inset options changed.
+    return drawDots(svg, captionId, onclick, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj)
+      .then (data => {
+        if (data) {
+          svg.select('#legend').remove() // Also must remove here to avoid some bad effects. 
+          legendOpts.accessorData = data.legend
+          if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
+            svgLegend(svg, legendOpts)
+          }  
+        }
+      })    
   }
 
   function refreshMapDots() {
     removeDots(svg)
-    drawMapDots()
+    drawMapDots().catch(e => {
+      //if (e !== "Data accessor not a function") {
+        console.warn (e)
+      //}
+    })
   }
 
 /** @function setTransform

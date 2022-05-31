@@ -440,6 +440,7 @@
             return {
               gr: r.gr,
               caption: "<strong>Grid ref: </strong>".concat(r.gr),
+              noCaption: "<strong>Grid ref: </strong>",
               colour: r.colour,
               shape: r.shape,
               opacity: r.opacity,
@@ -9789,6 +9790,8 @@
           addPromise(triangleExit); // Dot caption display
 
           svg.selectAll('.dot').on('mouseover', function (d) {
+            console.log('d', d);
+
             if (captionId) {
               if (d.caption) {
                 d3.select("#".concat(captionId)).html(d.caption);
@@ -9798,7 +9801,7 @@
             }
           }).on('mouseout', function (d) {
             if (captionId) {
-              d3.select("#".concat(captionId)).html('');
+              d3.select("#".concat(captionId)).html(d.noCaption ? d.noCaption : '');
             }
           }).on('click', function (d) {
             if (onclick) {
@@ -10567,31 +10570,27 @@
     function drawMapDots() {
       // Returns a promise so that caller knows when data is loaded and transitions complete
       // (drawDots returns a promise which resolves when transitions complete)
-      var pRet = new Promise(function (resolve, reject) {
-        svg.select('#legend').remove(); // Remove here to avoid legend resizing if inset options changed.
+      svg.select('#legend').remove(); // Remove here to avoid legend resizing if inset options changed.
 
-        drawDots(svg, captionId, onclick, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj).then(function (data) {
-          if (data) {
-            svg.select('#legend').remove(); // Also must remove here to avoid some bad effects. 
+      return drawDots(svg, captionId, onclick, trans.point, mapTypesSel[mapTypesKey], taxonIdentifier, proj).then(function (data) {
+        if (data) {
+          svg.select('#legend').remove(); // Also must remove here to avoid some bad effects. 
 
-            legendOpts.accessorData = data.legend;
+          legendOpts.accessorData = data.legend;
 
-            if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
-              svgLegend(svg, legendOpts);
-            }
+          if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
+            svgLegend(svg, legendOpts);
           }
-
-          resolve(true);
-        })["catch"](function (e) {
-          reject(e);
-        });
+        }
       });
-      return pRet;
     }
 
     function refreshMapDots() {
       removeDots(svg);
-      drawMapDots();
+      drawMapDots()["catch"](function (e) {
+        //if (e !== "Data accessor not a function") {
+        console.warn(e); //}
+      });
     }
     /** @function setTransform
       * @param {string} newTransOptsKey - specifies the key of the transformation object in the parent object.
@@ -11425,7 +11424,7 @@
             }
           }).on('mouseout', function (d) {
             if (captionId) {
-              d3.select("#".concat(captionId)).html('');
+              d3.select("#".concat(captionId)).html(d.noCaption ? d.noCaption : '');
             }
           }).merge(up).transition().duration(0) // Required in order to use .end promise
           .attr("d", function (d) {

@@ -22,6 +22,7 @@ function csvGr(file, precision) {
           return({
             gr: r.gr,
             caption: `<strong>Grid ref: </strong>${r.gr}`,
+            noCaption: `<strong>Grid ref: </strong>`,
             colour: r.colour,
             shape: r.shape,
             opacity: r.opacity,
@@ -67,8 +68,11 @@ function csvGr(file, precision) {
 * <li> <b>opacity</b> - a number between 0 and 1 used to set the opacity of the symbol
 * (0 is fully transparent and 1 fully opaque).
 * <li> <b>caption</b> - an html string that will be used to update an element identified
-* by the <i>captionId</i> option of an svg or leaflet map when the mouse cursor moves over the
+* by the <i>captionId</i> option of an svg or leaflet map when the mouse cursor moves <i>over</i> the
 * element representing this gr on the map.
+* <li> <b>noCaption</b> - an html string that will be used to update an element identified
+* by the <i>captionId</i> option of an svg or leaflet map when the mouse cursor moves <i>out</i>
+* of the element representing this gr on the map.
 * </ul>
 * The following columns are optional:
 * <li> <b>stroke<b> a colour specifying an outline for the symbol which can be hex format, e.g. #FFA500, 

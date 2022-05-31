@@ -328,7 +328,7 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           })
           .on('mouseout', d => {
             if (captionId) {
-              d3.select(`#${captionId}`).html('')
+              d3.select(`#${captionId}`).html(d.noCaption ? d.noCaption : '')
             }
           })
           .on('click', d => {

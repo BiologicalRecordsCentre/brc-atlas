@@ -402,7 +402,7 @@ export function leafletMap({
           })
           .on('mouseout', d => {
             if (captionId) {
-              d3.select(`#${captionId}`).html('')
+              d3.select(`#${captionId}`).html(d.noCaption ? d.noCaption : '')
             }
           })
         .merge(up)
