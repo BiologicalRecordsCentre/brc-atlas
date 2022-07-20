@@ -97,6 +97,7 @@ export function svgMap({
     .style("display", "inline")
 
   // Map loading spinner
+  let mapLoaderShowExplicit = false
   const mapLoader = mainDiv.append("div")
     .classed('map-loader', true)
   const mapLoaderInner = mapLoader.append("div")
@@ -189,7 +190,9 @@ export function svgMap({
   // Once loaded, draw boundary and grid
   Promise.allSettled([pBoundary, pGrid, pVc, pCountry]).then(() => {
     drawBoundaryAndGrid()
-    mapLoader.classed('map-loader-hidden', true)
+    if (!mapLoaderShowExplicit) {
+      mapLoader.classed('map-loader-hidden', true)
+    }
   })
 
   // End of initialisation
@@ -634,7 +637,8 @@ function setCountryColour(c){
   * Allows calling application to display/hide an indicator showing the map data is loading.
   */
   function showBusy(show) {
-    mapLoader.classed('map-loader-hidden', !show)
+    mapLoaderShowExplicit = show
+    mapLoader.classed('map-loader-hidden', !mapLoaderShowExplicit)
   }
 
   /**

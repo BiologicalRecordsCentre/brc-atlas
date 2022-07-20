@@ -506,7 +506,7 @@
   };
 
   var name = "brcatlas";
-  var version = "0.22.0";
+  var version = "0.23.0";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
@@ -10423,6 +10423,7 @@
 
     var mainDiv = d3.select("".concat(selector)).append("div").attr('id', mapid).style("position", "relative").style("display", "inline"); // Map loading spinner
 
+    var mapLoaderShowExplicit = false;
     var mapLoader = mainDiv.append("div").classed('map-loader', true);
     var mapLoaderInner = mapLoader.append("div").classed('map-loader-inner', true);
     mapLoaderInner.append("div").classed('map-loader-spinner', true);
@@ -10496,7 +10497,10 @@
 
     Promise.allSettled([pBoundary, pGrid, pVc, pCountry]).then(function () {
       drawBoundaryAndGrid();
-      mapLoader.classed('map-loader-hidden', true);
+
+      if (!mapLoaderShowExplicit) {
+        mapLoader.classed('map-loader-hidden', true);
+      }
     }); // End of initialisation
 
     function userChangedOptions(opts) {
@@ -10945,7 +10949,8 @@
 
 
     function showBusy(show) {
-      mapLoader.classed('map-loader-hidden', !show);
+      mapLoaderShowExplicit = show;
+      mapLoader.classed('map-loader-hidden', !mapLoaderShowExplicit);
     }
     /**
      * @typedef {Object} api
