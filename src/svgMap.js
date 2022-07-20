@@ -186,7 +186,7 @@ export function svgMap({
     pVc = Promise.resolve()
   }
 
-  // Once loaded, draw booundary and grid
+  // Once loaded, draw boundary and grid
   Promise.allSettled([pBoundary, pGrid, pVc, pCountry]).then(() => {
     drawBoundaryAndGrid()
     mapLoader.classed('map-loader-hidden', true)
@@ -596,7 +596,7 @@ function setCountryColour(c){
 
 /** @function downloadData
   * @param {boolean} asGeojson - a boolean value that indicates whether to generate GeoJson (if false, generates CSV). 
-  * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+  * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
   */
   function downloadData(asGeojson){
     const accessFunction = mapTypesSel[mapTypesKey]
@@ -608,7 +608,7 @@ function setCountryColour(c){
   * @param {number} fontSize - A number indicating font size in pixels.
   * @param {number} x - a number indicating origin x position of text in map svg.
   * @param {number} y - a number indicating origin y position of text in map svg.
-  * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+  * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
   * Creates a title which can be positioned independently of the legend. This is useful when the legend needs
   * to be moved, but the title does not.
   */
@@ -626,6 +626,15 @@ function setCountryColour(c){
       .attr('y', y)
       .attr('font-size', fontSize + 'px')
       .style('font-family','Arial, Helvetica, sans-serif')
+  }
+
+ /** @function showBusy
+  * @param {boolean} show - A boolean value to indicate whether or not to show map data loading. 
+  * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+  * Allows calling application to display/hide an indicator showing the map data is loading.
+  */
+  function showBusy(show) {
+    mapLoader.classed('map-loader-hidden', !show)
   }
 
   /**
@@ -692,6 +701,7 @@ function setCountryColour(c){
     downloadData: downloadData,
     setProj: setProj,
     setHeight: setHeight,
-    setMapTitle: setMapTitle
+    setMapTitle: setMapTitle,
+    showBusy: showBusy
   }
 }

@@ -51,6 +51,7 @@
     <button onclick="downloadMapImage()">Download png image</button>
     <button onclick="downloadMapSvg()">Download svg</button>
     <button onclick="changeView()">Change view</button>
+    <button onclick="showBusy()">Show busy</button>
 
     <!--JS and CSS required for highlighting inline example code-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
@@ -246,6 +247,12 @@
         map.basemapImage(vckey, true, backImg, backWld)
         map.setGrid(grid)
         map.setBoundary(boundary)
+      }
+
+      var busyShown = false
+      function showBusy() {
+        busyShown = !busyShown
+        map.showBusy(busyShown)
       }
     </script>
   </div>

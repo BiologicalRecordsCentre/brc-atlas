@@ -485,8 +485,11 @@
   * <li> <b>opacity</b> - a number between 0 and 1 used to set the opacity of the symbol
   * (0 is fully transparent and 1 fully opaque).
   * <li> <b>caption</b> - an html string that will be used to update an element identified
-  * by the <i>captionId</i> option of an svg or leaflet map when the mouse cursor moves over the
+  * by the <i>captionId</i> option of an svg or leaflet map when the mouse cursor moves <i>over</i> the
   * element representing this gr on the map.
+  * <li> <b>noCaption</b> - an html string that will be used to update an element identified
+  * by the <i>captionId</i> option of an svg or leaflet map when the mouse cursor moves <i>out</i>
+  * of the element representing this gr on the map.
   * </ul>
   * The following columns are optional:
   * <li> <b>stroke<b> a colour specifying an outline for the symbol which can be hex format, e.g. #FFA500, 
@@ -503,7 +506,7 @@
   };
 
   var name = "brcatlas";
-  var version = "0.21.0";
+  var version = "0.22.0";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
@@ -9790,8 +9793,6 @@
           addPromise(triangleExit); // Dot caption display
 
           svg.selectAll('.dot').on('mouseover', function (d) {
-            console.log('d', d);
-
             if (captionId) {
               if (d.caption) {
                 d3.select("#".concat(captionId)).html(d.caption);
@@ -10490,7 +10491,7 @@
       });
     } else {
       pVc = Promise.resolve();
-    } // Once loaded, draw booundary and grid
+    } // Once loaded, draw boundary and grid
 
 
     Promise.allSettled([pBoundary, pGrid, pVc, pCountry]).then(function () {
@@ -10908,7 +10909,7 @@
     }
     /** @function downloadData
       * @param {boolean} asGeojson - a boolean value that indicates whether to generate GeoJson (if false, generates CSV). 
-      * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
       */
 
 
@@ -10921,7 +10922,7 @@
       * @param {number} fontSize - A number indicating font size in pixels.
       * @param {number} x - a number indicating origin x position of text in map svg.
       * @param {number} y - a number indicating origin y position of text in map svg.
-      * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
       * Creates a title which can be positioned independently of the legend. This is useful when the legend needs
       * to be moved, but the title does not.
       */
@@ -10935,6 +10936,16 @@
       tText = tText.replaceAll('</b>', '</tspan>');
       title.selectAll('*').remove();
       title.append('text').html(tText).attr('x', x).attr('y', y).attr('font-size', fontSize + 'px').style('font-family', 'Arial, Helvetica, sans-serif');
+    }
+    /** @function showBusy
+     * @param {boolean} show - A boolean value to indicate whether or not to show map data loading. 
+     * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+     * Allows calling application to display/hide an indicator showing the map data is loading.
+     */
+
+
+    function showBusy(show) {
+      mapLoader.classed('map-loader-hidden', !show);
     }
     /**
      * @typedef {Object} api
@@ -11002,7 +11013,8 @@
       downloadData: downloadData,
       setProj: setProj,
       setHeight: setHeight,
-      setMapTitle: setMapTitle
+      setMapTitle: setMapTitle,
+      showBusy: showBusy
     };
   }
 
