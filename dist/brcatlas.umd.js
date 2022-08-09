@@ -10604,7 +10604,6 @@
           legendOpts.accessorData = data.legend;
 
           if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
-            console.log('set legend', legendFont);
             svgLegend(svg, legendOpts, legendFontSize, legendFont);
           }
         }

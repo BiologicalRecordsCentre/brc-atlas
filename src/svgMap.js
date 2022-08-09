@@ -317,7 +317,6 @@ export function svgMap({
           svg.select('#legend').remove() // Also must remove here to avoid some bad effects. 
           legendOpts.accessorData = data.legend
           if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
-            console.log('set legend', legendFont)
             svgLegend(svg, legendOpts, legendFontSize, legendFont)
           }  
         }
