@@ -506,7 +506,7 @@
   };
 
   var name = "brcatlas";
-  var version = "0.23.0";
+  var version = "0.24.0";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
@@ -9885,7 +9885,7 @@
    * in the legend lines.
    */
 
-  function svgLegend(svg, legendOpts) {
+  function svgLegend(svg, legendOpts, legendFontSize, legendFont) {
     var legendData = legendOpts.data ? legendOpts.data : legendOpts.accessorData;
     var legendX = legendOpts.x ? legendOpts.x : 0;
     var legendY = legendOpts.y ? legendOpts.y : 0;
@@ -9912,7 +9912,7 @@
     var iOffset;
 
     if (legendData.title) {
-      gLegend.append('text').attr('x', 0).attr('y', lineHeight).attr('font-weight', 'bold').text(legendData.title);
+      gLegend.append('text').classed('svg-map-legend-title', true).attr('x', 0).attr('y', lineHeight).attr('font-weight', 'bold').style('font-size', legendFontSize).style('font-family', legendFont).text(legendData.title);
       iOffset = 0;
     } else {
       iOffset = 1;
@@ -9949,7 +9949,7 @@
             iLength = swatchPixels * 2;
           } else {
             // Generate a temporary SVG text object in order to get width
-            var t = gLegend.append('text').html(parseText(l.text[i]));
+            var t = gLegend.append('text').classed('svg-map-legend-text', true).style('font-size', legendFontSize).style('font-family', legendFont).html(parseText(l.text[i]));
             iLength = t.node().getBBox().width;
             t.remove();
             l.textWidth[i] = iLength;
@@ -10015,9 +10015,10 @@
             dot.style('fill', colour).style('fill-opacity', opacity).style('stroke', stroke);
           } else {
             //const y = iLine - iOffset
-            var alignOffset = legendData.raligned[_i2] ? maxWidths[_i2] - l.textWidth[_i2] : 0;
+            //const alignOffset = legendData.raligned[i] ? maxWidths[i] - l.textWidth[i] : 0
+            var alignOffset = legendData.raligned[_i2] ? maxWidths[_i2] : 0;
             gLegend.append('text') //.attr('x', swatchPixels * 2.7)
-            .attr('x', offsets[_i2] + alignOffset).attr('y', lineHeight * (y + 2.5) - lineHeight / 20 + iUnderlinePad).html(parseText(l.text[_i2]));
+            .classed('svg-map-legend-text', true).style('text-anchor', legendData.raligned[_i2] ? 'end' : 'start').style('font-size', legendFontSize).style('font-family', legendFont).attr('x', offsets[_i2] + alignOffset).attr('y', lineHeight * (y + 2.5) - lineHeight / 20 + iUnderlinePad).html(parseText(l.text[_i2]));
           }
         }
       }
@@ -10028,9 +10029,8 @@
       }
     });
     gLegend.attr("transform", "translate(".concat(legendX, ",").concat(legendY, ") scale(").concat(legendScale, ", ").concat(legendScale, ")")); // Set the font attribues for all text in legend
-
-    gLegend.selectAll('text').style('font-family', 'Arial, Helvetica, sans-serif');
-    gLegend.selectAll('text').style('font-size', '14px');
+    //gLegend.selectAll('text').style('font-family', 'Arial, Helvetica, sans-serif')
+    //gLegend.selectAll('text').style('font-family', legendFont)
   }
 
   var infoHeight = 0;
@@ -10340,17 +10340,23 @@
    * @param {string} opts.boundaryGjson - The URL of a boundary geoJson file to display.
    * @param {string} opts.boundaryColour - Specifies the line colour of the boundary geoJson.
    * @param {string} opts.boundaryFill - Specifies the fill colour of the boundary geoJson.
+   * @param {string | number} opts.boundaryLineWidth - Specifies the width of the line to use for boundary geoJson lines. Can use any valid units for SVG stroke-width. (Default - 1.)
    * @param {string} opts.seaFill - Specifies the fill colour of the area outside the boundary geoJson.
    * @param {string} opts.insetColour - Specifies the line colour of map inset boxes.
    * @param {string} opts.gridGjson - The URL of a grid geoJson file to display.
    * @param {string} opts.gridLineColour - Specifies the line colour of grid line geoJson.
    * @param {string} opts.gridLineStyle - Specifies the line style of the grid line geoJson. Can be solid, dashed or none. (Default solid.)
+   * @param {string | number} opts.gridLineWidth - Specifies the width of the line to use for grid lines geoJson. Can use any valid units for SVG stroke-width. (Default - 1.)
    * @param {string} opts.vcGjson - The URL of a vice county geoJson file to display.
    * @param {string} opts.vcColour - Specifies the line colour of the vice county geoJson.
    * @param {string} opts.vcLineStyle - Specifies the line style of the vice county line geoJson. Can none or something else (which gives solid line). (Default none.)
+   * @param {string | number} opts.vcLineWidth - Specifies the width of the line to use for vice counties geoJson. Can use any valid units for SVG stroke-width. (Default - 1.)
    * @param {string} opts.countryGjson - The URL of a country geoJson file to display.
    * @param {string} opts.countryColour - Specifies the line colour of the country geoJson.
    * @param {string} opts.countryLineStyle - Specifies the line style of the country geoJson. Can none or something else (which gives solid line). (Default none.)
+   * @param {string | number} opts.countryLineWidth - Specifies the width of the line to use for country lines geoJson. Can use any valid units for SVG stroke-width. (Default - 1.)
+   * @param {string} opts.legendFont - Specifies the font to use for the legend. (Default - 'sans-serif'.)
+   * @param {string} opts.legendFontSize - Specifies the font size to use for the legend. (Default - 14px.)
    * @param {function} opts.callbackOptions - Specifies a callback function to be executed if user options dialog used.
    * @returns {module:svgMap~api} api - Returns an API for the map.
    */
@@ -10375,6 +10381,10 @@
         legendOpts = _ref$legendOpts === void 0 ? {
       display: false
     } : _ref$legendOpts,
+        _ref$legendFontSize = _ref.legendFontSize,
+        legendFontSize = _ref$legendFontSize === void 0 ? '14px' : _ref$legendFontSize,
+        _ref$legendFont = _ref.legendFont,
+        legendFont = _ref$legendFont === void 0 ? 'sans-serif' : _ref$legendFont,
         _ref$transOptsKey = _ref.transOptsKey,
         transOptsKey = _ref$transOptsKey === void 0 ? 'BI1' : _ref$transOptsKey,
         _ref$transOptsSel = _ref.transOptsSel,
@@ -10399,22 +10409,32 @@
         gridLineColour = _ref$gridLineColour === void 0 ? '#7C7CD3' : _ref$gridLineColour,
         _ref$gridLineStyle = _ref.gridLineStyle,
         gridLineStyle = _ref$gridLineStyle === void 0 ? 'solid' : _ref$gridLineStyle,
+        _ref$gridLineWidth = _ref.gridLineWidth,
+        gridLineWidth = _ref$gridLineWidth === void 0 ? 1 : _ref$gridLineWidth,
         _ref$vcLineStyle = _ref.vcLineStyle,
         vcLineStyle = _ref$vcLineStyle === void 0 ? 'none' : _ref$vcLineStyle,
         _ref$vcColour = _ref.vcColour,
         vcColour = _ref$vcColour === void 0 ? '#7C7CD3' : _ref$vcColour,
+        _ref$vcLineWidth = _ref.vcLineWidth,
+        vcLineWidth = _ref$vcLineWidth === void 0 ? 1 : _ref$vcLineWidth,
         _ref$countryLineStyle = _ref.countryLineStyle,
         countryLineStyle = _ref$countryLineStyle === void 0 ? 'none' : _ref$countryLineStyle,
         _ref$countryColour = _ref.countryColour,
         countryColour = _ref$countryColour === void 0 ? '#7C7CD3' : _ref$countryColour,
+        _ref$countryLineWidth = _ref.countryLineWidth,
+        countryLineWidth = _ref$countryLineWidth === void 0 ? 1 : _ref$countryLineWidth,
         _ref$boundaryColour = _ref.boundaryColour,
         boundaryColour = _ref$boundaryColour === void 0 ? '#7C7CD3' : _ref$boundaryColour,
         _ref$boundaryFill = _ref.boundaryFill,
         boundaryFill = _ref$boundaryFill === void 0 ? 'white' : _ref$boundaryFill,
+        _ref$boundaryLineWidt = _ref.boundaryLineWidth,
+        boundaryLineWidth = _ref$boundaryLineWidt === void 0 ? 1 : _ref$boundaryLineWidt,
         _ref$seaFill = _ref.seaFill,
         seaFill = _ref$seaFill === void 0 ? '#E6EFFF' : _ref$seaFill,
         _ref$insetColour = _ref.insetColour,
         insetColour = _ref$insetColour === void 0 ? '#7C7CD3' : _ref$insetColour,
+        _ref$insetLineWidth = _ref.insetLineWidth,
+        insetLineWidth = _ref$insetLineWidth === void 0 ? 1 : _ref$insetLineWidth,
         _ref$callbackOptions = _ref.callbackOptions,
         callbackOptions = _ref$callbackOptions === void 0 ? null : _ref$callbackOptions;
 
@@ -10542,33 +10562,33 @@
 
       if (dataBoundary) {
         boundaryf.append("path").datum(dataBoundary).attr("d", trans.d3Path).style("stroke-opacity", 0).style("fill", boundaryFill);
-        boundary.append("path").datum(dataBoundary).attr("d", trans.d3Path).style("fill-opacity", 0).style("stroke", boundaryColour);
+        boundary.append("path").datum(dataBoundary).classed('svg-map-boundary', true).attr("d", trans.d3Path).style("fill-opacity", 0).style("stroke", boundaryColour).style('stroke-width', boundaryLineWidth);
       }
 
       grid.selectAll("path").remove();
 
       if (dataGrid) {
-        grid.append("path").datum(dataGrid).attr("d", trans.d3Path).style("fill-opacity", 0).style("stroke", gridLineColour);
+        grid.append("path").datum(dataGrid).classed('svg-map-grid', true).attr("d", trans.d3Path).style("fill-opacity", 0).style("stroke", gridLineColour).style('stroke-width', gridLineWidth);
       }
 
       vc.selectAll("path").remove();
 
       if (dataVc) {
-        vc.append("path").datum(dataVc).attr("d", trans.d3Path).style("fill-opacity", 0).style("stroke", vcColour);
+        vc.append("path").datum(dataVc).classed('svg-map-vcs', true).attr("d", trans.d3Path).style("fill-opacity", 0).style("stroke", vcColour).style('stroke-width', vcLineWidth);
       }
 
       country.selectAll("path").remove();
 
       if (dataCountry) {
-        country.append("path").datum(dataCountry).attr("d", trans.d3Path).style("fill-opacity", 0).style("stroke", countryColour);
+        country.append("path").datum(dataCountry).classed('svg-map-countries', true).attr("d", trans.d3Path).style("fill-opacity", 0).style("stroke", countryColour).style('stroke-width', countryLineWidth);
       }
     }
 
     function drawInsetBoxes() {
-      svg.selectAll('.inset').remove();
+      svg.selectAll('.svg-map-inset').remove();
       trans.insetDims.forEach(function (i) {
         var margin = 10;
-        svg.append('rect').classed('inset', true).attr('x', i.x - margin).attr('y', i.y - margin).attr('width', i.width + 2 * margin).attr('height', i.height + 2 * margin).style('fill', 'none').style('stroke', insetColour);
+        svg.append('rect').classed('svg-map-inset', true).attr('x', i.x - margin).attr('y', i.y - margin).attr('width', i.width + 2 * margin).attr('height', i.height + 2 * margin).style('fill', 'none').style('stroke', insetColour).style('stroke-width', insetLineWidth);
       });
     }
 
@@ -10584,7 +10604,8 @@
           legendOpts.accessorData = data.legend;
 
           if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
-            svgLegend(svg, legendOpts);
+            console.log('set legend', legendFont);
+            svgLegend(svg, legendOpts, legendFontSize, legendFont);
           }
         }
       });
@@ -10694,7 +10715,7 @@
 
     function animateTransChange(newTransOptsKey) {
       var lastTransOptsKey = transOptsKey;
-      svg.selectAll('.inset').remove(); // remove inset boxes
+      svg.selectAll('.svg-map-inset').remove(); // remove inset boxes
 
       removeDots(svg); // remove dots
 
@@ -10991,6 +11012,7 @@
      * @property {module:svgMap~downloadData} downloadData - Download a the map data as a CSV or GeoJson file.
      * @property {module:svgMap~setProj} setProj - Change the map projection. The argument is a string of the form 'gb', 'ir' or 'ci'.
      * @property {module:svgMap~setProj} setHeight - Reset the height of the main map SVG object.
+     * @property {module:svgMap~showBusy} showBusy - Set a boolean value to indicate whether or not to show map data loading.
      */
 
 

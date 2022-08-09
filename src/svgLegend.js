@@ -61,7 +61,7 @@ import * as d3 from 'd3'
  * in the legend lines.
  */
 
-export function svgLegend(svg, legendOpts) {
+export function svgLegend(svg, legendOpts, legendFontSize, legendFont) {
 
   const legendData = legendOpts.data ? legendOpts.data : legendOpts.accessorData
   const legendX = legendOpts.x ? legendOpts.x : 0
@@ -91,9 +91,12 @@ export function svgLegend(svg, legendOpts) {
   let iOffset
   if (legendData.title) {
     gLegend.append('text')
+      .classed('svg-map-legend-title', true)
       .attr('x', 0)
       .attr('y', lineHeight)
       .attr('font-weight', 'bold')
+      .style('font-size', legendFontSize)
+      .style('font-family', legendFont)
       .text(legendData.title)
     iOffset = 0
   } else {
@@ -127,7 +130,12 @@ export function svgLegend(svg, legendOpts) {
           iLength = swatchPixels * 2
         } else {
           // Generate a temporary SVG text object in order to get width
-          const t = gLegend.append('text').html(parseText(l.text[i]))
+          const t = gLegend
+            .append('text')
+            .classed('svg-map-legend-text', true)
+            .style('font-size', legendFontSize)
+            .style('font-family', legendFont)
+            .html(parseText(l.text[i]))
           iLength = t.node().getBBox().width
           t.remove()
           l.textWidth[i] = iLength
@@ -209,9 +217,15 @@ export function svgLegend(svg, legendOpts) {
           dot.style('fill', colour).style('fill-opacity', opacity).style('stroke', stroke)
         } else {
           //const y = iLine - iOffset
-          const alignOffset = legendData.raligned[i] ? maxWidths[i] - l.textWidth[i] : 0
+          //const alignOffset = legendData.raligned[i] ? maxWidths[i] - l.textWidth[i] : 0
+          const alignOffset = legendData.raligned[i] ? maxWidths[i] : 0
+          
           gLegend.append('text')
             //.attr('x', swatchPixels * 2.7)
+            .classed('svg-map-legend-text', true)
+            .style('text-anchor', legendData.raligned[i] ? 'end' : 'start')
+            .style('font-size', legendFontSize)
+            .style('font-family', legendFont)
             .attr('x', offsets[i] + alignOffset)
             .attr('y', lineHeight * (y + 2.5) - lineHeight/20 + iUnderlinePad)
             .html(parseText(l.text[i]))
@@ -231,6 +245,6 @@ export function svgLegend(svg, legendOpts) {
   gLegend.attr("transform", `translate(${legendX},${legendY}) scale(${legendScale}, ${legendScale})`)
 
   // Set the font attribues for all text in legend
-  gLegend.selectAll('text').style('font-family','Arial, Helvetica, sans-serif')
-  gLegend.selectAll('text').style('font-size','14px')
+  //gLegend.selectAll('text').style('font-family', 'Arial, Helvetica, sans-serif')
+  //gLegend.selectAll('text').style('font-family', legendFont)
 }

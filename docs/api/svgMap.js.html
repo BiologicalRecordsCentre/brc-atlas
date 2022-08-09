@@ -67,17 +67,23 @@ import { saveMapImage, downloadCurrentData } from './download.js'
  * @param {string} opts.boundaryGjson - The URL of a boundary geoJson file to display.
  * @param {string} opts.boundaryColour - Specifies the line colour of the boundary geoJson.
  * @param {string} opts.boundaryFill - Specifies the fill colour of the boundary geoJson.
+ * @param {string | number} opts.boundaryLineWidth - Specifies the width of the line to use for boundary geoJson lines. Can use any valid units for SVG stroke-width. (Default - 1.)
  * @param {string} opts.seaFill - Specifies the fill colour of the area outside the boundary geoJson.
  * @param {string} opts.insetColour - Specifies the line colour of map inset boxes.
  * @param {string} opts.gridGjson - The URL of a grid geoJson file to display.
  * @param {string} opts.gridLineColour - Specifies the line colour of grid line geoJson.
  * @param {string} opts.gridLineStyle - Specifies the line style of the grid line geoJson. Can be solid, dashed or none. (Default solid.)
+ * @param {string | number} opts.gridLineWidth - Specifies the width of the line to use for grid lines geoJson. Can use any valid units for SVG stroke-width. (Default - 1.)
  * @param {string} opts.vcGjson - The URL of a vice county geoJson file to display.
  * @param {string} opts.vcColour - Specifies the line colour of the vice county geoJson.
  * @param {string} opts.vcLineStyle - Specifies the line style of the vice county line geoJson. Can none or something else (which gives solid line). (Default none.)
+ * @param {string | number} opts.vcLineWidth - Specifies the width of the line to use for vice counties geoJson. Can use any valid units for SVG stroke-width. (Default - 1.)
  * @param {string} opts.countryGjson - The URL of a country geoJson file to display.
  * @param {string} opts.countryColour - Specifies the line colour of the country geoJson.
  * @param {string} opts.countryLineStyle - Specifies the line style of the country geoJson. Can none or something else (which gives solid line). (Default none.)
+ * @param {string | number} opts.countryLineWidth - Specifies the width of the line to use for country lines geoJson. Can use any valid units for SVG stroke-width. (Default - 1.)
+ * @param {string} opts.legendFont - Specifies the font to use for the legend. (Default - 'sans-serif'.)
+ * @param {string} opts.legendFontSize - Specifies the font size to use for the legend. (Default - 14px.)
  * @param {function} opts.callbackOptions - Specifies a callback function to be executed if user options dialog used.
  * @returns {module:svgMap~api} api - Returns an API for the map.
  */
@@ -91,6 +97,8 @@ export function svgMap({
   height = 500,
   expand = false,
   legendOpts = {display: false},
+  legendFontSize = '14px',
+  legendFont = 'sans-serif',
   transOptsKey = 'BI1',
   transOptsSel = namedTransOpts,
   transOptsControl = true,
@@ -103,14 +111,19 @@ export function svgMap({
   countryGjson = `${constants.thisCdn}/assets/GB-I-countries-27700-reduced.geojson`,
   gridLineColour = '#7C7CD3',
   gridLineStyle = 'solid',
+  gridLineWidth = 1,
   vcLineStyle = 'none',
   vcColour = '#7C7CD3',
+  vcLineWidth = 1,
   countryLineStyle = 'none',
   countryColour = '#7C7CD3',
+  countryLineWidth = 1,
   boundaryColour = '#7C7CD3',
   boundaryFill = 'white',
+  boundaryLineWidth = 1,
   seaFill = '#E6EFFF',
   insetColour = '#7C7CD3',
+  insetLineWidth = 1,
   callbackOptions=null
 } = {}) {
 
@@ -125,6 +138,7 @@ export function svgMap({
     .style("display", "inline")
 
   // Map loading spinner
+  let mapLoaderShowExplicit = false
   const mapLoader = mainDiv.append("div")
     .classed('map-loader', true)
   const mapLoaderInner = mapLoader.append("div")
@@ -217,7 +231,9 @@ export function svgMap({
   // Once loaded, draw boundary and grid
   Promise.allSettled([pBoundary, pGrid, pVc, pCountry]).then(() => {
     drawBoundaryAndGrid()
-    mapLoader.classed('map-loader-hidden', true)
+    if (!mapLoaderShowExplicit) {
+      mapLoader.classed('map-loader-hidden', true)
+    }
   })
 
   // End of initialisation
@@ -264,48 +280,57 @@ export function svgMap({
         .style("fill", boundaryFill)
       boundary.append("path")
         .datum(dataBoundary)
+        .classed('svg-map-boundary', true)
         .attr("d", trans.d3Path)
         .style("fill-opacity", 0)
         .style("stroke", boundaryColour)
+        .style('stroke-width', boundaryLineWidth)
     }
     grid.selectAll("path").remove()
     if (dataGrid) {
       grid.append("path")
         .datum(dataGrid)
+        .classed('svg-map-grid', true)
         .attr("d", trans.d3Path)
         .style("fill-opacity", 0)
         .style("stroke", gridLineColour)
+        .style('stroke-width', gridLineWidth)
     }
     vc.selectAll("path").remove()
     if (dataVc) {
       vc.append("path")
         .datum(dataVc)
+        .classed('svg-map-vcs', true)
         .attr("d", trans.d3Path)
         .style("fill-opacity", 0)
         .style("stroke", vcColour)
+        .style('stroke-width', vcLineWidth)
     }
     country.selectAll("path").remove()
     if (dataCountry) {
       country.append("path")
         .datum(dataCountry)
+        .classed('svg-map-countries', true)
         .attr("d", trans.d3Path)
         .style("fill-opacity", 0)
         .style("stroke", countryColour)
+        .style('stroke-width', countryLineWidth)
     }
   }
 
   function drawInsetBoxes() {
-    svg.selectAll('.inset').remove()
+    svg.selectAll('.svg-map-inset').remove()
     trans.insetDims.forEach(function(i){
       const margin = 10 
       svg.append('rect')
-        .classed('inset', true)
+        .classed('svg-map-inset', true)
         .attr('x', i.x - margin)
         .attr('y', i.y - margin)
         .attr('width', i.width + 2 * margin)
         .attr('height', i.height + 2 * margin)
         .style('fill', 'none')
         .style('stroke', insetColour)
+        .style('stroke-width', insetLineWidth)
     })
   }
 
@@ -320,7 +345,8 @@ export function svgMap({
           svg.select('#legend').remove() // Also must remove here to avoid some bad effects. 
           legendOpts.accessorData = data.legend
           if (legendOpts.display &amp;&amp; (legendOpts.data || legendOpts.accessorData)) {
-            svgLegend(svg, legendOpts)
+            console.log('set legend', legendFont)
+            svgLegend(svg, legendOpts, legendFontSize, legendFont)
           }  
         }
       })    
@@ -428,7 +454,7 @@ export function svgMap({
   */
   function animateTransChange(newTransOptsKey) {
     const lastTransOptsKey = transOptsKey
-    svg.selectAll('.inset').remove() // remove inset boxes
+    svg.selectAll('.svg-map-inset').remove() // remove inset boxes
     removeDots(svg)  // remove dots
     const incr = 10
     for (let i=1; i&lt;=incr + 1; i++){
@@ -662,7 +688,8 @@ function setCountryColour(c){
   * Allows calling application to display/hide an indicator showing the map data is loading.
   */
   function showBusy(show) {
-    mapLoader.classed('map-loader-hidden', !show)
+    mapLoaderShowExplicit = show
+    mapLoader.classed('map-loader-hidden', !mapLoaderShowExplicit)
   }
 
   /**
@@ -704,6 +731,7 @@ function setCountryColour(c){
    * @property {module:svgMap~downloadData} downloadData - Download a the map data as a CSV or GeoJson file.
    * @property {module:svgMap~setProj} setProj - Change the map projection. The argument is a string of the form 'gb', 'ir' or 'ci'.
    * @property {module:svgMap~setProj} setHeight - Reset the height of the main map SVG object.
+   * @property {module:svgMap~showBusy} showBusy - Set a boolean value to indicate whether or not to show map data loading.
    */
   return {
     setBoundary: setBoundary,
@@ -748,7 +776,7 @@ function setCountryColour(c){
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Jul 20 2022 03:11:15 GMT-0700 (Pacific Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Tue Aug 09 2022 10:07:30 GMT+0100 (British Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -127,7 +127,7 @@ WV27,circle,black,0.8,1</code>
       map.redrawMap()
 
       function downloadMap(asSvg) {
-        map.saveMap(asSvg)
+        map.saveMap(asSvg, null, 'map')
       }
       function downloadData(asGeojson) {
         map.downloadData(asGeojson)
@@ -139,7 +139,7 @@ WV27,circle,black,0.8,1</code>
           margin: 5,
           img: '../work/logos.png'
         }
-        map.saveMap(asSvg, info)
+        map.saveMap(asSvg, info, 'map')
       }
     </script>
   </div>
