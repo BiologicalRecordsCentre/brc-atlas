@@ -506,7 +506,7 @@
   };
 
   var name = "brcatlas";
-  var version = "0.25.0";
+  var version = "0.25.1";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
@@ -9564,6 +9564,15 @@
             return d.gr;
           });
           var circlesMerge = circles.enter().append("circle") //.classed('dotCircle dot', true)
+          .attr("cx", function (d) {
+            return transform(getCentroid(d.gr, proj).centroid)[0];
+          }).attr("cy", function (d) {
+            return transform(getCentroid(d.gr, proj).centroid)[1];
+          }).attr("r", 0).attr("fill-opacity", function (d) {
+            return d.opacity ? d.opacity : data.opacity;
+          }).style("fill", function (d) {
+            return d.colour ? d.colour : data.colour;
+          }).merge(circles) // legendKey can change so this needs to be in merge
           .attr('class', function (d) {
             var c = 'dotCircle dot';
 
@@ -9572,15 +9581,7 @@
             }
 
             return c;
-          }).attr("cx", function (d) {
-            return transform(getCentroid(d.gr, proj).centroid)[0];
-          }).attr("cy", function (d) {
-            return transform(getCentroid(d.gr, proj).centroid)[1];
-          }).attr("r", 0).attr("fill-opacity", function (d) {
-            return d.opacity ? d.opacity : data.opacity;
-          }).style("fill", function (d) {
-            return d.colour ? d.colour : data.colour;
-          }).merge(circles).transition().ease(d3.easeCubic).duration(500).attr("r", function (d) {
+          }).transition().ease(d3.easeCubic).duration(500).attr("r", function (d) {
             var size = d.size ? d.size : data.size;
             return size ? radiusPixels * size : radiusPixels;
           }).attr("fill-opacity", function (d) {
@@ -9610,15 +9611,7 @@
             return d.gr;
           });
           var bullseyesMerge = bullseyes.enter().append("circle") //.classed('dotBullseye dot', true)
-          .attr('class', function (d) {
-            var c = 'dotBullseye dot';
-
-            if (d.legendKey) {
-              c = "".concat(c, " legend-key-").concat(d.legendKey);
-            }
-
-            return c;
-          }) // .attr('clip-path', 'circle()')
+          // .attr('clip-path', 'circle()')
           .attr("cx", function (d) {
             return transform(getCentroid(d.gr, proj).centroid)[0];
           }).attr("cy", function (d) {
@@ -9627,7 +9620,16 @@
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour2 ? d.colour2 : data.colour2;
-          }).merge(bullseyes).transition().ease(d3.easeCubic).duration(500).attr("r", function (d) {
+          }).merge(bullseyes) // legendKey can change so this needs to be in merge
+          .attr('class', function (d) {
+            var c = 'dotBullseye dot';
+
+            if (d.legendKey) {
+              c = "".concat(c, " legend-key-").concat(d.legendKey);
+            }
+
+            return c;
+          }).transition().ease(d3.easeCubic).duration(500).attr("r", function (d) {
             var size = d.size ? d.size : data.size;
             return radiusPixels * size * 0.5;
           }).attr("fill-opacity", function (d) {
@@ -9655,6 +9657,15 @@
             return d.gr;
           });
           var squaresMerge = squares.enter().append("rect") //.classed('dotSquare dot', true)
+          .attr("x", function (d) {
+            return transform(getCentroid(d.gr, proj).centroid)[0];
+          }).attr("y", function (d) {
+            return transform(getCentroid(d.gr, proj).centroid)[1];
+          }).attr("width", 0).attr("height", 0).attr("fill-opacity", function (d) {
+            return d.opacity ? d.opacity : data.opacity;
+          }).style("fill", function (d) {
+            return d.colour ? d.colour : data.colour;
+          }).merge(squares) // legendKey can change so this needs to be in merge
           .attr('class', function (d) {
             var c = 'dotSquare dot';
 
@@ -9663,15 +9674,7 @@
             }
 
             return c;
-          }).attr("x", function (d) {
-            return transform(getCentroid(d.gr, proj).centroid)[0];
-          }).attr("y", function (d) {
-            return transform(getCentroid(d.gr, proj).centroid)[1];
-          }).attr("width", 0).attr("height", 0).attr("fill-opacity", function (d) {
-            return d.opacity ? d.opacity : data.opacity;
-          }).style("fill", function (d) {
-            return d.colour ? d.colour : data.colour;
-          }).merge(squares).transition().ease(d3.easeCubic).duration(500).attr("width", function (d) {
+          }).transition().ease(d3.easeCubic).duration(500).attr("width", function (d) {
             var size = d.size ? d.size : data.size;
             return 2 * radiusPixels * size;
           }).attr("height", function (d) {
@@ -9714,15 +9717,7 @@
             return d.gr;
           });
           var diamondsEnter = diamonds.enter().append("path") //.classed('dotDiamond dot', true)
-          .attr('class', function (d) {
-            var c = 'dotDiamond dot';
-
-            if (d.legendKey) {
-              c = "".concat(c, " legend-key-").concat(d.legendKey);
-            }
-
-            return c;
-          }).attr("d", d3.symbol().type(d3.symbolSquare).size(0)).attr("fill-opacity", function (d) {
+          .attr("d", d3.symbol().type(d3.symbolSquare).size(0)).attr("fill-opacity", function (d) {
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
@@ -9735,7 +9730,16 @@
             } else {
               return "translate(".concat(x, ",").concat(y, ") rotate(45)");
             }
-          }).merge(diamonds).transition().ease(d3.easeCubic).duration(500).attr("d", d3.symbol().type(d3.symbolSquare).size(radiusPixels * radiusPixels * 2)).attr("transform", function (d) {
+          }).merge(diamonds) // legendKey can change so this needs to be in merge
+          .attr('class', function (d) {
+            var c = 'dotDiamond dot';
+
+            if (d.legendKey) {
+              c = "".concat(c, " legend-key-").concat(d.legendKey);
+            }
+
+            return c;
+          }).transition().ease(d3.easeCubic).duration(500).attr("d", d3.symbol().type(d3.symbolSquare).size(radiusPixels * radiusPixels * 2)).attr("transform", function (d) {
             var x = transform(getCentroid(d.gr, proj).centroid)[0];
             var y = transform(getCentroid(d.gr, proj).centroid)[1];
             var size = d.size ? d.size : data.size;
@@ -9772,15 +9776,7 @@
             return d.gr;
           });
           var triangleEnter = triangle.enter().append("path") //.classed('dotTriangle dot', true)
-          .attr('class', function (d) {
-            var c = 'dotTriangle dot';
-
-            if (d.legendKey) {
-              c = "".concat(c, " legend-key-").concat(d.legendKey);
-            }
-
-            return c;
-          }).attr("d", d3.symbol().type(d3.symbolTriangle).size(0)).attr("fill-opacity", function (d) {
+          .attr("d", d3.symbol().type(d3.symbolTriangle).size(0)).attr("fill-opacity", function (d) {
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
@@ -9803,7 +9799,16 @@
             } else {
               return "translate(".concat(x, ",").concat(y + yOffset, ") rotate(").concat(extraRotate, ")");
             }
-          }).merge(triangle).transition().ease(d3.easeCubic).duration(500).attr("d", d3.symbol().type(d3.symbolTriangle).size(radiusPixels * radiusPixels * 1.7)).attr("transform", function (d) {
+          }).merge(triangle) // legendKey can change so this needs to be in merge
+          .attr('class', function (d) {
+            var c = 'dotTriangle dot';
+
+            if (d.legendKey) {
+              c = "".concat(c, " legend-key-").concat(d.legendKey);
+            }
+
+            return c;
+          }).transition().ease(d3.easeCubic).duration(500).attr("d", d3.symbol().type(d3.symbolTriangle).size(radiusPixels * radiusPixels * 1.7)).attr("transform", function (d) {
             var x = transform(getCentroid(d.gr, proj).centroid)[0];
             var y = transform(getCentroid(d.gr, proj).centroid)[1];
             var extraRotate, yOffset;

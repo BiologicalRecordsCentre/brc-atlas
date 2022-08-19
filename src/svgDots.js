@@ -55,13 +55,6 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
         const circlesMerge = circles.enter()
           .append("circle")
           //.classed('dotCircle dot', true)
-          .attr('class', d => {
-            let c = 'dotCircle dot'
-            if (d.legendKey) {
-              c = `${c} legend-key-${d.legendKey}`
-            }
-            return c
-          })
           .attr("cx", d => transform(getCentroid(d.gr, proj).centroid)[0])
           .attr("cy", d => transform(getCentroid(d.gr, proj).centroid)[1]) 
           .attr("r", 0)
@@ -69,6 +62,14 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           .style("fill", d => d.colour ? d.colour : data.colour)
 
         .merge(circles)
+          // legendKey can change so this needs to be in merge
+          .attr('class', d => {
+            let c = 'dotCircle dot'
+            if (d.legendKey) {
+              c = `${c} legend-key-${d.legendKey}`
+            }
+            return c
+          })
           .transition()  
             .ease(d3.easeCubic)   
             .duration(500)
@@ -107,13 +108,6 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
         const bullseyesMerge =  bullseyes.enter()
           .append("circle")
           //.classed('dotBullseye dot', true)
-          .attr('class', d => {
-            let c = 'dotBullseye dot'
-            if (d.legendKey) {
-              c = `${c} legend-key-${d.legendKey}`
-            }
-            return c
-          })
           // .attr('clip-path', 'circle()')
           .attr("cx", d => transform(getCentroid(d.gr, proj).centroid)[0])
           .attr("cy", d => transform(getCentroid(d.gr, proj).centroid)[1]) 
@@ -121,6 +115,14 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour2 ? d.colour2 : data.colour2)
         .merge(bullseyes)
+          // legendKey can change so this needs to be in merge
+          .attr('class', d => {
+            let c = 'dotBullseye dot'
+            if (d.legendKey) {
+              c = `${c} legend-key-${d.legendKey}`
+            }
+            return c
+          })
           .transition()  
             .ease(d3.easeCubic)   
             .duration(500)
@@ -155,13 +157,6 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
         const squaresMerge = squares.enter()
           .append("rect")
           //.classed('dotSquare dot', true)
-          .attr('class', d => {
-            let c = 'dotSquare dot'
-            if (d.legendKey) {
-              c = `${c} legend-key-${d.legendKey}`
-            }
-            return c
-          })
           .attr("x", d => transform(getCentroid(d.gr, proj).centroid)[0])
           .attr("y", d => transform(getCentroid(d.gr, proj).centroid)[1])
           .attr("width", 0)
@@ -169,6 +164,14 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
         .merge(squares)
+          // legendKey can change so this needs to be in merge
+          .attr('class', d => {
+            let c = 'dotSquare dot'
+            if (d.legendKey) {
+              c = `${c} legend-key-${d.legendKey}`
+            }
+            return c
+          })
           .transition()  
             .ease(d3.easeCubic)   
             .duration(500)
@@ -221,13 +224,6 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
         const diamondsEnter =  diamonds.enter()
           .append("path")
           //.classed('dotDiamond dot', true)
-          .attr('class', d => {
-            let c = 'dotDiamond dot'
-            if (d.legendKey) {
-              c = `${c} legend-key-${d.legendKey}`
-            }
-            return c
-          })
           .attr("d", d3.symbol().type(d3.symbolSquare).size(0))
           .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
@@ -241,6 +237,14 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
             }
           })
         .merge(diamonds)
+          // legendKey can change so this needs to be in merge
+          .attr('class', d => {
+            let c = 'dotDiamond dot'
+            if (d.legendKey) {
+              c = `${c} legend-key-${d.legendKey}`
+            }
+            return c
+          })
           .transition()  
             .ease(d3.easeCubic)   
             .duration(500)
@@ -283,13 +287,6 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
         const triangleEnter = triangle.enter()
           .append("path")
           //.classed('dotTriangle dot', true)
-          .attr('class', d => {
-            let c = 'dotTriangle dot'
-            if (d.legendKey) {
-              c = `${c} legend-key-${d.legendKey}`
-            }
-            return c
-          })
           .attr("d", d3.symbol().type(d3.symbolTriangle).size(0))
           .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
@@ -312,6 +309,14 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
             }
           })
         .merge(triangle)
+          // legendKey can change so this needs to be in merge
+          .attr('class', d => {
+            let c = 'dotTriangle dot'
+            if (d.legendKey) {
+              c = `${c} legend-key-${d.legendKey}`
+            }
+            return c
+          })
           .transition()  
             .ease(d3.easeCubic)   
             .duration(500)
