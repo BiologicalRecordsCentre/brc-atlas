@@ -87,9 +87,11 @@ import * as d3 from 'd3'
  * tabualted layout. In a tabulated legend layout, the various array elements in each line are aligned with those
  * in the other lines to form columns. You can use the HTML tags '&lt;i>&lt;/i>' and &lt;b>&lt;/b>' to italicise and bolden text
  * in the legend lines.
+ * @property {string} key - a string key to match legend items to map dots. Only required if legend interactivity is required. If used
+ * then each element in the data for the map must have a property called 'legend-key' which is used to match against this value.
  */
 
-export function svgLegend(svg, legendOpts, legendFontSize, legendFont) {
+export function svgLegend(svg, legendOpts, legendFontSize, legendFont, legendInteractivity, highlightClass) {
 
   const legendData = legendOpts.data ? legendOpts.data : legendOpts.accessorData
   const legendX = legendOpts.x ? legendOpts.x : 0
@@ -243,19 +245,24 @@ export function svgLegend(svg, legendOpts, legendFontSize, legendFont) {
               .attr("transform", `translate(${offsets[i] + swatchPixels},${lineHeight * (y + 2.5) - swatchPixels}) rotate(180)`)
           }
           dot.style('fill', colour).style('fill-opacity', opacity).style('stroke', stroke)
+          dot.attr('data-fill', colour).attr('data-fill-opacity', opacity).attr('data-stroke', stroke)
+          dot.attr('class', l.key ? `legend-swatch legend-swatch-${l.key}` : 'legend-swatch')
+          dot.attr('data-key', l.key ? l.key : '')
+          dot.attr('cursor', l.key ? 'pointer' : '')
         } else {
           //const y = iLine - iOffset
           //const alignOffset = legendData.raligned[i] ? maxWidths[i] - l.textWidth[i] : 0
           const alignOffset = legendData.raligned[i] ? maxWidths[i] : 0
           
           gLegend.append('text')
-            //.attr('x', swatchPixels * 2.7)
-            .classed('svg-map-legend-text', true)
+            .attr('class', l.key ? `svg-map-legend-text svg-map-legend-text-${l.key}` : 'svg-map-legend-text')
             .style('text-anchor', legendData.raligned[i] ? 'end' : 'start')
             .style('font-size', legendFontSize)
             .style('font-family', legendFont)
             .attr('x', offsets[i] + alignOffset)
             .attr('y', lineHeight * (y + 2.5) - lineHeight/20 + iUnderlinePad)
+            .attr('data-key', l.key ? l.key : '')
+            .attr('cursor', l.key ? 'pointer' : '')
             .html(parseText(l.text[i]))
         }
       }
@@ -272,9 +279,57 @@ export function svgLegend(svg, legendOpts, legendFontSize, legendFont) {
   })
   gLegend.attr("transform", `translate(${legendX},${legendY}) scale(${legendScale}, ${legendScale})`)
 
-  // Set the font attribues for all text in legend
-  //gLegend.selectAll('text').style('font-family', 'Arial, Helvetica, sans-serif')
-  //gLegend.selectAll('text').style('font-family', legendFont)
+  // Sort out the legend interactivity
+  gLegend.selectAll('.legend-swatch, .svg-map-legend-text')
+    .on("mouseover", function() {
+      if (legendInteractivity === 'mousemove') {
+        legendHighlight(d3.select(this).attr('data-key'))
+      }
+    })
+    .on("mouseout", function() {
+      if (legendInteractivity === 'mousemove') {
+        legendHighlight()
+      }
+    })
+    .on("click", function() {
+      if (legendInteractivity === 'mouseclick') {
+        legendHighlight(d3.select(this).attr('data-key'))
+        d3.event.stopPropagation()
+      }
+    })
+  svg.on("click", function() {
+    legendHighlight()
+  })
+  function legendHighlight(key) {
+    if (key) {
+      gLegend.selectAll('.legend-swatch').classed(highlightClass, false)
+      gLegend.selectAll('.legend-swatch').classed(`${highlightClass}-low`, true)
+
+      gLegend.selectAll(`.legend-swatch-${key}`).classed(`${highlightClass}-low`, false)
+      gLegend.selectAll(`.legend-swatch-${key}`).classed(highlightClass, true)
+
+      gLegend.selectAll('.svg-map-legend-text').classed(`${highlightClass}-text`, false)
+      gLegend.selectAll('.svg-map-legend-text').classed(`${highlightClass}-text-low`, true)
+
+      gLegend.selectAll(`.svg-map-legend-text-${key}`).classed(`${highlightClass}-text-low`, false)
+      gLegend.selectAll(`.svg-map-legend-text-${key}`).classed(`${highlightClass}-text`, true)
+
+      svg.selectAll('.dot').classed(highlightClass, false)
+      svg.selectAll('.dot').classed(`${highlightClass}-low`, true)
+
+      svg.selectAll(`.legend-key-${key}`).classed(`${highlightClass}-low`, false)
+      svg.selectAll(`.legend-key-${key}`).classed(highlightClass, true)
+    } else {
+      gLegend.selectAll('.legend-swatch').classed(highlightClass, false)
+      gLegend.selectAll('.legend-swatch').classed(`${highlightClass}-low`, false)
+
+      gLegend.selectAll('.svg-map-legend-text').classed(`${highlightClass}-text`, false)
+      gLegend.selectAll('.svg-map-legend-text').classed(`${highlightClass}-text-low`, false)
+
+      svg.selectAll(`.dot`).classed(`${highlightClass}-low`, false)
+      svg.selectAll(`.dot`).classed(highlightClass, false)
+    }
+  }
 }</code></pre>
         </article>
     </section>
@@ -291,7 +346,7 @@ export function svgLegend(svg, legendOpts, legendFontSize, legendFont) {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Tue Aug 09 2022 10:07:30 GMT+0100 (British Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Fri Aug 19 2022 13:02:13 GMT+0100 (British Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

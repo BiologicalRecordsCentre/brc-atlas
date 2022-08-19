@@ -506,7 +506,7 @@
   };
 
   var name = "brcatlas";
-  var version = "0.24.0";
+  var version = "0.25.0";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
@@ -9563,7 +9563,16 @@
           var circles = svg.selectAll('.dotCircle').data(recCircles, function (d) {
             return d.gr;
           });
-          var circlesMerge = circles.enter().append("circle").classed('dotCircle dot', true).attr("cx", function (d) {
+          var circlesMerge = circles.enter().append("circle") //.classed('dotCircle dot', true)
+          .attr('class', function (d) {
+            var c = 'dotCircle dot';
+
+            if (d.legendKey) {
+              c = "".concat(c, " legend-key-").concat(d.legendKey);
+            }
+
+            return c;
+          }).attr("cx", function (d) {
             return transform(getCentroid(d.gr, proj).centroid)[0];
           }).attr("cy", function (d) {
             return transform(getCentroid(d.gr, proj).centroid)[1];
@@ -9600,7 +9609,16 @@
           var bullseyes = svg.selectAll('.dotBullseye').data(recBullseyes, function (d) {
             return d.gr;
           });
-          var bullseyesMerge = bullseyes.enter().append("circle").classed('dotBullseye dot', true) // .attr('clip-path', 'circle()')
+          var bullseyesMerge = bullseyes.enter().append("circle") //.classed('dotBullseye dot', true)
+          .attr('class', function (d) {
+            var c = 'dotBullseye dot';
+
+            if (d.legendKey) {
+              c = "".concat(c, " legend-key-").concat(d.legendKey);
+            }
+
+            return c;
+          }) // .attr('clip-path', 'circle()')
           .attr("cx", function (d) {
             return transform(getCentroid(d.gr, proj).centroid)[0];
           }).attr("cy", function (d) {
@@ -9636,7 +9654,16 @@
           var squares = svg.selectAll('.dotSquare').data(recSquares, function (d) {
             return d.gr;
           });
-          var squaresMerge = squares.enter().append("rect").classed('dotSquare dot', true).attr("x", function (d) {
+          var squaresMerge = squares.enter().append("rect") //.classed('dotSquare dot', true)
+          .attr('class', function (d) {
+            var c = 'dotSquare dot';
+
+            if (d.legendKey) {
+              c = "".concat(c, " legend-key-").concat(d.legendKey);
+            }
+
+            return c;
+          }).attr("x", function (d) {
             return transform(getCentroid(d.gr, proj).centroid)[0];
           }).attr("y", function (d) {
             return transform(getCentroid(d.gr, proj).centroid)[1];
@@ -9686,7 +9713,16 @@
           var diamonds = svg.selectAll('.dotDiamond').data(recDiamonds, function (d) {
             return d.gr;
           });
-          var diamondsEnter = diamonds.enter().append("path").classed('dotDiamond dot', true).attr("d", d3.symbol().type(d3.symbolSquare).size(0)).attr("fill-opacity", function (d) {
+          var diamondsEnter = diamonds.enter().append("path") //.classed('dotDiamond dot', true)
+          .attr('class', function (d) {
+            var c = 'dotDiamond dot';
+
+            if (d.legendKey) {
+              c = "".concat(c, " legend-key-").concat(d.legendKey);
+            }
+
+            return c;
+          }).attr("d", d3.symbol().type(d3.symbolSquare).size(0)).attr("fill-opacity", function (d) {
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
@@ -9735,7 +9771,16 @@
           var triangle = svg.selectAll('.dotTriangle').data(recTriangles, function (d) {
             return d.gr;
           });
-          var triangleEnter = triangle.enter().append("path").classed('dotTriangle dot', true).attr("d", d3.symbol().type(d3.symbolTriangle).size(0)).attr("fill-opacity", function (d) {
+          var triangleEnter = triangle.enter().append("path") //.classed('dotTriangle dot', true)
+          .attr('class', function (d) {
+            var c = 'dotTriangle dot';
+
+            if (d.legendKey) {
+              c = "".concat(c, " legend-key-").concat(d.legendKey);
+            }
+
+            return c;
+          }).attr("d", d3.symbol().type(d3.symbolTriangle).size(0)).attr("fill-opacity", function (d) {
             return d.opacity ? d.opacity : data.opacity;
           }).style("fill", function (d) {
             return d.colour ? d.colour : data.colour;
@@ -9883,9 +9928,11 @@
    * tabualted layout. In a tabulated legend layout, the various array elements in each line are aligned with those
    * in the other lines to form columns. You can use the HTML tags '<i></i>' and <b></b>' to italicise and bolden text
    * in the legend lines.
+   * @property {string} key - a string key to match legend items to map dots. Only required if legend interactivity is required. If used
+   * then each element in the data for the map must have a property called 'legend-key' which is used to match against this value.
    */
 
-  function svgLegend(svg, legendOpts, legendFontSize, legendFont) {
+  function svgLegend(svg, legendOpts, legendFontSize, legendFont, legendInteractivity, highlightClass) {
     var legendData = legendOpts.data ? legendOpts.data : legendOpts.accessorData;
     var legendX = legendOpts.x ? legendOpts.x : 0;
     var legendY = legendOpts.y ? legendOpts.y : 0;
@@ -10013,12 +10060,15 @@
             }
 
             dot.style('fill', colour).style('fill-opacity', opacity).style('stroke', stroke);
+            dot.attr('data-fill', colour).attr('data-fill-opacity', opacity).attr('data-stroke', stroke);
+            dot.attr('class', l.key ? "legend-swatch legend-swatch-".concat(l.key) : 'legend-swatch');
+            dot.attr('data-key', l.key ? l.key : '');
+            dot.attr('cursor', l.key ? 'pointer' : '');
           } else {
             //const y = iLine - iOffset
             //const alignOffset = legendData.raligned[i] ? maxWidths[i] - l.textWidth[i] : 0
             var alignOffset = legendData.raligned[_i2] ? maxWidths[_i2] : 0;
-            gLegend.append('text') //.attr('x', swatchPixels * 2.7)
-            .classed('svg-map-legend-text', true).style('text-anchor', legendData.raligned[_i2] ? 'end' : 'start').style('font-size', legendFontSize).style('font-family', legendFont).attr('x', offsets[_i2] + alignOffset).attr('y', lineHeight * (y + 2.5) - lineHeight / 20 + iUnderlinePad).html(parseText(l.text[_i2]));
+            gLegend.append('text').attr('class', l.key ? "svg-map-legend-text svg-map-legend-text-".concat(l.key) : 'svg-map-legend-text').style('text-anchor', legendData.raligned[_i2] ? 'end' : 'start').style('font-size', legendFontSize).style('font-family', legendFont).attr('x', offsets[_i2] + alignOffset).attr('y', lineHeight * (y + 2.5) - lineHeight / 20 + iUnderlinePad).attr('data-key', l.key ? l.key : '').attr('cursor', l.key ? 'pointer' : '').html(parseText(l.text[_i2]));
           }
         }
       }
@@ -10028,9 +10078,49 @@
         gLegend.append('rect').attr("x", 0).attr("y", lineHeight * (y + 2.5) + iUnderlinePad).attr("width", offsets[nCells - 1] + maxWidths[nCells - 1]).attr("height", 1).attr("style", "fill:black");
       }
     });
-    gLegend.attr("transform", "translate(".concat(legendX, ",").concat(legendY, ") scale(").concat(legendScale, ", ").concat(legendScale, ")")); // Set the font attribues for all text in legend
-    //gLegend.selectAll('text').style('font-family', 'Arial, Helvetica, sans-serif')
-    //gLegend.selectAll('text').style('font-family', legendFont)
+    gLegend.attr("transform", "translate(".concat(legendX, ",").concat(legendY, ") scale(").concat(legendScale, ", ").concat(legendScale, ")")); // Sort out the legend interactivity
+
+    gLegend.selectAll('.legend-swatch, .svg-map-legend-text').on("mouseover", function () {
+      if (legendInteractivity === 'mousemove') {
+        legendHighlight(d3.select(this).attr('data-key'));
+      }
+    }).on("mouseout", function () {
+      if (legendInteractivity === 'mousemove') {
+        legendHighlight();
+      }
+    }).on("click", function () {
+      if (legendInteractivity === 'mouseclick') {
+        legendHighlight(d3.select(this).attr('data-key'));
+        d3.event.stopPropagation();
+      }
+    });
+    svg.on("click", function () {
+      legendHighlight();
+    });
+
+    function legendHighlight(key) {
+      if (key) {
+        gLegend.selectAll('.legend-swatch').classed(highlightClass, false);
+        gLegend.selectAll('.legend-swatch').classed("".concat(highlightClass, "-low"), true);
+        gLegend.selectAll(".legend-swatch-".concat(key)).classed("".concat(highlightClass, "-low"), false);
+        gLegend.selectAll(".legend-swatch-".concat(key)).classed(highlightClass, true);
+        gLegend.selectAll('.svg-map-legend-text').classed("".concat(highlightClass, "-text"), false);
+        gLegend.selectAll('.svg-map-legend-text').classed("".concat(highlightClass, "-text-low"), true);
+        gLegend.selectAll(".svg-map-legend-text-".concat(key)).classed("".concat(highlightClass, "-text-low"), false);
+        gLegend.selectAll(".svg-map-legend-text-".concat(key)).classed("".concat(highlightClass, "-text"), true);
+        svg.selectAll('.dot').classed(highlightClass, false);
+        svg.selectAll('.dot').classed("".concat(highlightClass, "-low"), true);
+        svg.selectAll(".legend-key-".concat(key)).classed("".concat(highlightClass, "-low"), false);
+        svg.selectAll(".legend-key-".concat(key)).classed(highlightClass, true);
+      } else {
+        gLegend.selectAll('.legend-swatch').classed(highlightClass, false);
+        gLegend.selectAll('.legend-swatch').classed("".concat(highlightClass, "-low"), false);
+        gLegend.selectAll('.svg-map-legend-text').classed("".concat(highlightClass, "-text"), false);
+        gLegend.selectAll('.svg-map-legend-text').classed("".concat(highlightClass, "-text-low"), false);
+        svg.selectAll(".dot").classed("".concat(highlightClass, "-low"), false);
+        svg.selectAll(".dot").classed(highlightClass, false);
+      }
+    }
   }
 
   var infoHeight = 0;
@@ -10357,6 +10447,10 @@
    * @param {string | number} opts.countryLineWidth - Specifies the width of the line to use for country lines geoJson. Can use any valid units for SVG stroke-width. (Default - 1.)
    * @param {string} opts.legendFont - Specifies the font to use for the legend. (Default - 'sans-serif'.)
    * @param {string} opts.legendFontSize - Specifies the font size to use for the legend. (Default - 14px.)
+   * @param {string} opts.legendInteractivity - Indicates the behaviour of legend interactivity, can be 'mousemove', 'mouseclick' or 'none'. (Default - 'none'.)
+   * @param {string} opts.highlightClass - For legend interactivity, specify a unique name to use for the highlight class. (Default - ''.)
+   * @param {string} opts.highlightStyle - For legend interactivity, specify a string of css property and value pairs for highlight style. Separate pairs with semi-colon and property from value with colon. (Default - ''.)
+   * @param {string} opts.lowlightStyle - For legend interactivity, specify a string of css property and value pairs for lowlight style. Separate pairs with semi-colon and property from value with colon. (Default - ''.)
    * @param {function} opts.callbackOptions - Specifies a callback function to be executed if user options dialog used.
    * @returns {module:svgMap~api} api - Returns an API for the map.
    */
@@ -10436,7 +10530,40 @@
         _ref$insetLineWidth = _ref.insetLineWidth,
         insetLineWidth = _ref$insetLineWidth === void 0 ? 1 : _ref$insetLineWidth,
         _ref$callbackOptions = _ref.callbackOptions,
-        callbackOptions = _ref$callbackOptions === void 0 ? null : _ref$callbackOptions;
+        callbackOptions = _ref$callbackOptions === void 0 ? null : _ref$callbackOptions,
+        _ref$legendInteractiv = _ref.legendInteractivity,
+        legendInteractivity = _ref$legendInteractiv === void 0 ? 'none' : _ref$legendInteractiv,
+        _ref$highlightClass = _ref.highlightClass,
+        highlightClass = _ref$highlightClass === void 0 ? '' : _ref$highlightClass,
+        _ref$highlightStyle = _ref.highlightStyle,
+        highlightStyle = _ref$highlightStyle === void 0 ? '' : _ref$highlightStyle,
+        _ref$lowlightStyle = _ref.lowlightStyle,
+        lowlightStyle = _ref$lowlightStyle === void 0 ? '' : _ref$lowlightStyle;
+
+    // Make a new style sheet from highlight/lowlight styles
+    // Make separate ones for text with fill style removed
+    // so that colour of legend text is not affected. 
+    // Add !important to all styles in order to override
+    // values set on elements.
+    if (highlightClass) {
+      var sheet = document.createElement('style');
+      document.body.appendChild(sheet);
+      sheet.innerHTML = "\n      .".concat(highlightClass, " {").concat(createStyle(highlightStyle), "}\n      .").concat(highlightClass, "-low {").concat(createStyle(lowlightStyle), "}\n      .").concat(highlightClass, "-text {").concat(createStyle(highlightStyle, true), "}\n      .").concat(highlightClass, "-text-low {").concat(createStyle(lowlightStyle, true), "}\n    ");
+    }
+
+    function createStyle(str, forText) {
+      var styles = str.split(';');
+      var styleStr = styles.reduce(function (a, s) {
+        var els = s.split(':');
+
+        if (forText && els[0].trim() === 'fill') {
+          return a;
+        } else {
+          return "".concat(a, " ").concat(els[0], ": ").concat(els[1], " !important;");
+        }
+      }, '');
+      return styleStr;
+    }
 
     var trans, basemaps, boundary, boundaryf, dataBoundary, grid, dataGrid, vc, dataVc, country, dataCountry, taxonIdentifier, title; // Create a parent div for the SVG within the parent element passed
     // as an argument. Allows us to style correctly for positioning etc.
@@ -10604,7 +10731,7 @@
           legendOpts.accessorData = data.legend;
 
           if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
-            svgLegend(svg, legendOpts, legendFontSize, legendFont);
+            svgLegend(svg, legendOpts, legendFontSize, legendFont, legendInteractivity, highlightClass);
           }
         }
       });

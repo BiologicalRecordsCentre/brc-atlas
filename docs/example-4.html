@@ -99,18 +99,22 @@
               .range(['green', 'magenta'])
             data.forEach(function(d){
               d.colour = colours(Number(d.richness)),
-              d.caption = `Richness: <strong>${d.richness}</strong> species`
+              d.caption = `Richness: <strong>${d.richness}</strong> species`,
+              // testing interactivity 
+              d.legendKey = Number(d.richness) <=97 ? 'low' : 'high'
             })
 
             let legendLines = [{
               colour: 'green',
-              text: '1 species'
+              text: '1 species',
+              key: 'low'
             }]
             for (let i=1; i<5; i++){
               const n = maxRichness / 4 * i
               legendLines.push({
                 colour: colours(n),
-                text: Math.floor(n) + ' species'
+                text: Math.floor(n) + ' species',
+                key: Math.floor(n) <= 97 ? 'low' : 'high'
               })
             }
             resolve({
@@ -183,7 +187,11 @@
         gridLineColour: 'grey',
         boundaryColour: 'black',
         legendFontSize: '13pt',
-        legendFont: 'Minion Pro'
+        legendFont: 'Minion Pro',
+        legendInteractivity: 'mouseclick',
+        highlightClass: 'brc-atlas-highlight-example4',
+        highlightStyle: 'fill-opacity: 1; fill: black',
+        lowlightStyle: 'fill-opacity: 0.2 ',
       })
       map.basemapImage('background', true, './chesh-lancs-background.png', './chesh-lancs-background.pgw')
 
