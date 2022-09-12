@@ -132,12 +132,17 @@ export function downloadCurrentData(pData, precision, asGeojson){
       let attrs = ''
       Object.keys(data.records[0]).forEach(k => {
         if (k !== 'gr') {
-          attrs = `${attrs},"${k}"`
+          attrs = `${attrs},"${cleanColumn(k)}"`
         }
       })
 
       const dataStr = `data:text/csv;charset=utf-8,gr,gr-projection,lat,lon${attrs}\r\n${ftrs.join("\r\n")}`
-      downloadLink(dataStr, "data.csv")
+      // Hash characters are not allowed in body of dataURL and must be replaced with special character.
+      downloadLink(dataStr.replace(/#/g, '%23'), "data.csv")
+    }
+
+    function cleanColumn(name) {
+      return name.replace(/[^\x00-\x7F]/g, "_")
     }
   })
 }

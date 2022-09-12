@@ -10255,13 +10255,18 @@
         var attrs = '';
         Object.keys(data.records[0]).forEach(function (k) {
           if (k !== 'gr') {
-            attrs = "".concat(attrs, ",\"").concat(k, "\"");
+            attrs = "".concat(attrs, ",\"").concat(cleanColumn(k), "\"");
           }
         });
 
-        var _dataStr = "data:text/csv;charset=utf-8,gr,gr-projection,lat,lon".concat(attrs, "\r\n").concat(ftrs.join("\r\n"));
+        var _dataStr = "data:text/csv;charset=utf-8,gr,gr-projection,lat,lon".concat(attrs, "\r\n").concat(ftrs.join("\r\n")); // Hash characters are not allowed in body of dataURL and must be replaced with special character.
 
-        downloadLink(_dataStr, "data.csv");
+
+        downloadLink(_dataStr.replace(/#/g, '%23'), "data.csv");
+      }
+
+      function cleanColumn(name) {
+        return name.replace(/[^\x00-\x7F]/g, "_");
       }
     });
   }
