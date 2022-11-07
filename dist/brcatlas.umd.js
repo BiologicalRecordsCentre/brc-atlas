@@ -506,7 +506,7 @@
   };
 
   var name = "brcatlas";
-  var version = "0.25.1";
+  var version = "0.25.2";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
@@ -1096,7 +1096,7 @@
   }
 
   var basemaps = {};
-  function showImage(mapId, show, gBasemaps, imageFile, worldFile, trans) {
+  function showImage(mapId, show, gBasemaps, imageFile, worldFile, trans, seaFill) {
     // Save the map source details for use with transformImages
     if (!basemaps[mapId] && show) {
       basemaps[mapId] = {
@@ -1170,10 +1170,12 @@
                 var xyWithInset = trans.point([xmid, ymid]);
                 var xyWithNoInset = trans.point([xmid, ymid], true);
                 xShift = xyWithInset[0] - xyWithNoInset[0];
-                yShift = xyWithInset[1] - xyWithNoInset[1]; //console.log(dims)
-
+                yShift = xyWithInset[1] - xyWithNoInset[1];
                 var clippath = d3.select('svg defs').append('clipPath').attr('id', "clippath-".concat(mapId, "-").concat(transId, "-").concat(i));
-                clippath.append('rect').attr('x', dims.x).attr('y', dims.y).attr('width', dims.width).attr('height', dims.height);
+                clippath.append('rect').attr('x', dims.x).attr('y', dims.y).attr('width', dims.width).attr('height', dims.height); // Add g element to mask out original area of clipPath
+
+                var maskTopLeft = trans.point([bounds.xmin, bounds.ymax], true);
+                gBasemaps.select("#basemap-".concat(mapId)).append('rect').attr('x', maskTopLeft[0]).attr('y', maskTopLeft[1]).attr('width', dims.width).attr('height', dims.height).attr('fill', seaFill);
               } // Changed to use dataURL rather than file path URL so that image can be 
               // serialised when using the saveMap method.
 
@@ -1211,14 +1213,14 @@
     return canvas.toDataURL('image/png');
   }
 
-  function transformImages(gBasemaps, trans) {
+  function transformImages(gBasemaps, trans, seaFill) {
     Object.keys(basemaps).forEach(function (k) {
       var b = basemaps[k];
 
       if (b.imageFile) {
         var hidden = gBasemaps.select("#basemap-".concat(b.mapId)).classed('hidden'); //console.log(b.mapId, !hidden)
 
-        showImage(b.mapId, !hidden, gBasemaps, b.imageFile, b.worldFile, trans);
+        showImage(b.mapId, !hidden, gBasemaps, b.imageFile, b.worldFile, trans, seaFill);
       }
     });
   }
@@ -10668,7 +10670,7 @@
         setSvgSize();
         drawInsetBoxes();
         refreshMapDots();
-        transformImages(basemaps, trans);
+        transformImages(basemaps, trans, seaFill);
       }
 
       if (opts.mapTypesKey && mapTypesKey !== opts.mapTypesKey) {
@@ -10769,7 +10771,7 @@
       setSvgSize();
       drawInsetBoxes();
       refreshMapDots();
-      transformImages(basemaps, trans);
+      transformImages(basemaps, trans, seaFill);
     }
     /** @function setHeight
       * @param {string} newHeight - specifies the height of the SVG object.
@@ -10789,7 +10791,7 @@
       // setSvgSize()
       // drawInsetBoxes()
       // refreshMapDots()
-      // transformImages(basemaps, trans)
+      // transformImages(basemaps, trans, seaFill)
     }
     /** @function setBoundary
       * @param {string} newGeojson - specifies the path of a geojson object.
@@ -10863,7 +10865,7 @@
           trans = createTrans(tto, height);
           drawBoundaryAndGrid();
           setSvgSize();
-          transformImages(basemaps, trans);
+          transformImages(basemaps, trans, seaFill);
 
           if (i > incr) {
             setTransform(newTransOptsKey);
@@ -10943,11 +10945,11 @@
       country.style("display", c === "none" ? "none" : "");
     }
     /** @function setCountryColour
-    * @param {string} c - a string specifying the colour which can be hex format, e.g. #FFA500, 
-    * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
-    * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
-    * Sets the line colour of the countries to the specified colour.
-    */
+      * @param {string} c - a string specifying the colour which can be hex format, e.g. #FFA500, 
+      * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
+      * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+      * Sets the line colour of the countries to the specified colour.
+      */
 
 
     function setCountryColour(c) {
@@ -10990,7 +10992,7 @@
 
 
     function basemapImage(mapId, show, imageFile, worldFile) {
-      showImage(mapId, show, basemaps, imageFile, worldFile, trans);
+      showImage(mapId, show, basemaps, imageFile, worldFile, trans, seaFill);
     }
     /** @function baseMapPriorities
       * @param {Array.<string>} mapIds - an array of strings which identify keys of basemap iamges.

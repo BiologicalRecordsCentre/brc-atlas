@@ -2,7 +2,7 @@ import * as d3 from 'd3'
 
 const basemaps = {}
 
-export function showImage(mapId, show, gBasemaps, imageFile, worldFile, trans) {
+export function showImage(mapId, show, gBasemaps, imageFile, worldFile, trans, seaFill) {
 
   // Save the map source details for use with transformImages
   if (!basemaps[mapId] && show) {
@@ -79,7 +79,6 @@ export function showImage(mapId, show, gBasemaps, imageFile, worldFile, trans) {
                 xShift = xyWithInset[0] - xyWithNoInset[0] 
                 yShift = xyWithInset[1] - xyWithNoInset[1]
 
-                //console.log(dims)
                 const clippath = d3.select('svg defs')
                   .append('clipPath').attr('id', `clippath-${mapId}-${transId}-${i}`)
                 clippath.append('rect')
@@ -87,6 +86,15 @@ export function showImage(mapId, show, gBasemaps, imageFile, worldFile, trans) {
                     .attr('y', dims.y)
                     .attr('width', dims.width)
                     .attr('height', dims.height)
+
+                // Add g element to mask out original area of clipPath
+                const maskTopLeft = trans.point([bounds.xmin, bounds.ymax], true)
+                gBasemaps.select(`#basemap-${mapId}`).append('rect')
+                  .attr('x', maskTopLeft[0])
+                  .attr('y', maskTopLeft[1])
+                  .attr('width', dims.width)
+                  .attr('height', dims.height)
+                  .attr('fill', seaFill)
               }
 
               // Changed to use dataURL rather than file path URL so that image can be 
@@ -128,14 +136,14 @@ function getDataUrl(img) {
   return canvas.toDataURL('image/png')
 }
 
-export function transformImages(gBasemaps, trans) {
+export function transformImages(gBasemaps, trans, seaFill) {
 
   Object.keys(basemaps).forEach(k => {
     const b = basemaps[k]
     if (b.imageFile) {
       const hidden = gBasemaps.select(`#basemap-${b.mapId}`).classed('hidden')
       //console.log(b.mapId, !hidden)
-      showImage(b.mapId, !hidden, gBasemaps, b.imageFile, b.worldFile, trans)
+      showImage(b.mapId, !hidden, gBasemaps, b.imageFile, b.worldFile, trans, seaFill)
     }
   })
 }

@@ -254,7 +254,7 @@ export function svgMap({
       setSvgSize()
       drawInsetBoxes()
       refreshMapDots()
-      transformImages(basemaps, trans)
+      transformImages(basemaps, trans, seaFill)
     }
     if (opts.mapTypesKey && mapTypesKey !== opts.mapTypesKey){
       mapTypesKey = opts.mapTypesKey
@@ -381,7 +381,7 @@ export function svgMap({
     setSvgSize()
     drawInsetBoxes()
     refreshMapDots()
-    transformImages(basemaps, trans)
+    transformImages(basemaps, trans, seaFill)
   }
 
 /** @function setHeight
@@ -402,7 +402,7 @@ export function svgMap({
     // setSvgSize()
     // drawInsetBoxes()
     // refreshMapDots()
-    // transformImages(basemaps, trans)
+    // transformImages(basemaps, trans, seaFill)
   }
 
 /** @function setBoundary
@@ -430,17 +430,17 @@ export function svgMap({
   * The method replaces any existing grid geojson with the geojson in the file passed. It also
   * redisplays the map.
   */
- function setGrid(newGeojson) {
-  if (newGeojson) {
-    pBoundary = d3.json(newGeojson).then(data => {
-      dataGrid = data
+  function setGrid(newGeojson) {
+    if (newGeojson) {
+      pBoundary = d3.json(newGeojson).then(data => {
+        dataGrid = data
+        drawBoundaryAndGrid()
+      })
+    } else {
+      dataGrid = null
       drawBoundaryAndGrid()
-    })
-  } else {
-    dataGrid = null
-    drawBoundaryAndGrid()
+    }
   }
-}
 
 /** @function setProj
   * @param {string} newProj - specifies a new projection for the map.
@@ -448,9 +448,9 @@ export function svgMap({
   * The method replaces any existing map projection so that, for example, a map can be switched between
   * British and Irish grid projections.
   */
- function setProj(newProj) {
-  proj = newProj
-}
+  function setProj(newProj) {
+    proj = newProj
+  }
 
 /** @function animateTransChange
   * @param {string} newTransOptsKey - specifies the key of the transformation object in the parent object.
@@ -470,7 +470,7 @@ export function svgMap({
         trans = createTrans(tto, height)
         drawBoundaryAndGrid()
         setSvgSize()
-        transformImages(basemaps, trans)
+        transformImages(basemaps, trans, seaFill)
         if (i > incr) {
           setTransform(newTransOptsKey)
         }
@@ -535,20 +535,20 @@ export function svgMap({
   * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
   * Sets the line style of the countries to the specified value.
   */
- function setCountryLineStyle(c){
-  country.style("display", c === "none" ? "none" : "")
-}
+  function setCountryLineStyle(c){
+    country.style("display", c === "none" ? "none" : "")
+  }
 
 /** @function setCountryColour
-* @param {string} c - a string specifying the colour which can be hex format, e.g. #FFA500, 
-* RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
-* @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
-* Sets the line colour of the countries to the specified colour.
-*/
-function setCountryColour(c){
-  country.style("stroke", c)
-  country.selectAll('path').style("stroke", c)
-}
+  * @param {string} c - a string specifying the colour which can be hex format, e.g. #FFA500, 
+  * RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.
+  * @description <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+  * Sets the line colour of the countries to the specified colour.
+  */
+  function setCountryColour(c){
+    country.style("stroke", c)
+    country.selectAll('path').style("stroke", c)
+  }
   
 /** @function setIdentfier
   * @param {string} identifier - a string which identifies some data to 
@@ -582,7 +582,7 @@ function setCountryColour(c){
   * data for boundary and/or grid files.
   */
   function basemapImage(mapId, show, imageFile, worldFile) {
-    showImage(mapId, show, basemaps, imageFile, worldFile, trans)
+    showImage(mapId, show, basemaps, imageFile, worldFile, trans, seaFill)
   }
   
 /** @function baseMapPriorities
