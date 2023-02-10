@@ -208,7 +208,9 @@
 
             
 
-            <td class="description last">The projection of the map, should be 'gb', 'ir' or 'ci'. It should reflect the projection of boundary and grid data displayed on the map. It is used to generate the 'dots'in the correct location.</td>
+            <td class="description last">The projection of the map, should be 'gb', 'ir' or 'ci'. It should 
+reflect the projection of boundary and grid data displayed on the map. It is used to generate the 'dots'
+in the correct location.</td>
         </tr>
 
     
@@ -231,7 +233,9 @@
 
             
 
-            <td class="description last">The id of a DOM element into which feature-specific HTML will be displayedas the mouse moves over a dot on the map. The HTML markup must be stored in an attribute called 'caption'in the input data.</td>
+            <td class="description last">The id of a DOM element into which feature-specific HTML will be displayed
+as the mouse moves over a dot on the map. The HTML markup must be stored in an attribute called 'caption'
+in the input data.boundaryFill</td>
         </tr>
 
     
@@ -254,7 +258,9 @@
 
             
 
-            <td class="description last">A function that will be called if user clicks on a mapelement. The function will be passed these attributes, in this order, if they exist on theelement: gr, id, caption. (Default - null.)</td>
+            <td class="description last">A function that will be called if user clicks on a map
+element. The function will be passed these attributes, in this order, if they exist on the
+element: gr, id, caption. (Default - null.)</td>
         </tr>
 
     
@@ -369,7 +375,8 @@
 
             
 
-            <td class="description last">Sets the key of the selected map transformation options. Must bepresent in as a key in the opts.transOptsSel object.</td>
+            <td class="description last">Sets the key of the selected map transformation options. Must be
+present in as a key in the opts.transOptsSel object.</td>
         </tr>
 
     
@@ -392,7 +399,8 @@
 
             
 
-            <td class="description last">Indicates whether or not a control should be shown in thebottom-right of the map that can be used display a dialog to change the transformation options.</td>
+            <td class="description last">Indicates whether or not a control should be shown in the
+bottom-right of the map that can be used display a dialog to change the transformation options.</td>
         </tr>
 
     
@@ -415,7 +423,8 @@
 
             
 
-            <td class="description last">Sets an object whose properties are data access functions. The propertynames are the 'keys' which should be human readable descriptiosn of the map types.</td>
+            <td class="description last">Sets an object whose properties are data access functions. The property
+names are the 'keys' which should be human readable descriptiosn of the map types.</td>
         </tr>
 
     
@@ -461,7 +470,8 @@
 
             
 
-            <td class="description last">Indicates whether or not a control should be shown in thebottom-right of the map that can be used display a dialog to change the data accessor (map type) options.</td>
+            <td class="description last">Indicates whether or not a control should be shown in the
+bottom-right of the map that can be used display a dialog to change the data accessor (map type) options.</td>
         </tr>
 
     
@@ -531,6 +541,52 @@
             
 
             <td class="description last">Specifies the fill colour of the boundary geoJson.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>boundaryShadowColour</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Specifies the colour of a 'glowing' border.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>boundaryShadowWidth</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Species the width of the glowing border in pixels.</td>
         </tr>
 
     
@@ -1096,7 +1152,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line66">line 66</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line68">line 68</a>
     </li></ul></dd>
     
 
@@ -1162,7 +1218,10 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the svgMap function</b>.The method sets a map transformation by selecting the one with the passed in key. It alsoredisplays the map but animates the transition between the new transformation object and theprevious.
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+The method sets a map transformation by selecting the one with the passed in key. It also
+redisplays the map but animates the transition between the new transformation object and the
+previous.
 </div>
 
 
@@ -1255,7 +1314,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line455">line 455</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line463">line 463</a>
     </li></ul></dd>
     
 
@@ -1299,7 +1358,11 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the svgMap function</b>.The image and world files together make a raster file that can be displayed in GIS. GIS, such asQGIS can be used to create the image and world file. If you do this, make sure that the imageis created with the same projection as used for the SVG map - i.e. same projection as the vectordata for boundary and/or grid files.
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+The image and world files together make a raster file that can be displayed in GIS. GIS, such as
+QGIS can be used to create the image and world file. If you do this, make sure that the image
+is created with the same projection as used for the SVG map - i.e. same projection as the vector
+data for boundary and/or grid files.
 </div>
 
 
@@ -1461,7 +1524,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line573">line 573</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line581">line 581</a>
     </li></ul></dd>
     
 
@@ -1505,7 +1568,9 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the svgMap function</b>.The order the keys appear in the array specifies their priority when more than one is displayedat the same time. Those at the start of the array have higher priority than those and the end.
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+The order the keys appear in the array specifies their priority when more than one is displayed
+at the same time. Those at the start of the array have higher priority than those and the end.
 </div>
 
 
@@ -1598,7 +1663,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line588">line 588</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line596">line 596</a>
     </li></ul></dd>
     
 
@@ -1642,7 +1707,8 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the svgMap function</b>.Clear the map of dots and legend.
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+Clear the map of dots and legend.
 </div>
 
 
@@ -1686,7 +1752,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line616">line 616</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line624">line 624</a>
     </li></ul></dd>
     
 
@@ -1823,7 +1889,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line658">line 658</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line666">line 666</a>
     </li></ul></dd>
     
 
@@ -1867,7 +1933,8 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the svgMap function</b>.Return the width of the map.
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+Return the width of the map.
 </div>
 
 
@@ -1911,7 +1978,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line626">line 626</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line634">line 634</a>
     </li></ul></dd>
     
 
@@ -1955,7 +2022,8 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the svgMap function</b>.Redraw the map, e.g. after changing map accessor function or map identifier.
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+Redraw the map, e.g. after changing map accessor function or map identifier.
 </div>
 
 
@@ -1999,7 +2067,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line608">line 608</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line616">line 616</a>
     </li></ul></dd>
     
 
@@ -2160,7 +2228,10 @@
 
             
 
-            <td class="description last">A text string to be displayed at the foot of the map. This will be word-wrapped to the width of the image.Some HTML tags, e.g. <i> are recognised, but in order to facilitate word wrapping, each word must be marked upseparately - there should be no white space within the tag.</td>
+            <td class="description last">A text string to be displayed at the foot of the map. 
+This will be word-wrapped to the width of the image.
+Some HTML tags, e.g. <i> are recognised, but in order to facilitate word wrapping, each word must be marked up
+separately - there should be no white space within the tag.</td>
         </tr>
 
     
@@ -2183,7 +2254,8 @@
 
             
 
-            <td class="description last">The path of an image to be displayed at the foot of the map. If the image is widerthan the SVG, it is rescaled to the size of the SVG.</td>
+            <td class="description last">The path of an image to be displayed at the foot of the map. If the image is wider
+than the SVG, it is rescaled to the size of the SVG.</td>
         </tr>
 
     
@@ -2259,7 +2331,11 @@
 
             
 
-            <td class="description last">Name of the file (without extension) to generate and download.Creates an image from the displayed map and downloads to user's computer. Ifthe filename is falsey (e.g. blank), it will not automatically download thefile. (Allows caller to do something else with the data URL which is returnedas the promises resolved value.)</td>
+            <td class="description last">Name of the file (without extension) to generate and download.
+Creates an image from the displayed map and downloads to user's computer. If
+the filename is falsey (e.g. blank), it will not automatically download the
+file. (Allows caller to do something else with the data URL which is returned
+as the promises resolved value.)</td>
         </tr>
 
     
@@ -2300,7 +2376,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line634">line 634</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line642">line 642</a>
     </li></ul></dd>
     
 
@@ -2366,7 +2442,9 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the svgMap function</b>.The method replaces any existing map boundary geojson with the geojson in the file passed. It alsoredisplays the map.
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+The method replaces any existing map boundary geojson with the geojson in the file passed. It also
+redisplays the map.
 </div>
 
 
@@ -2459,7 +2537,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line408">line 408</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line416">line 416</a>
     </li></ul></dd>
     
 
@@ -2503,7 +2581,8 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the svgMap function</b>.Sets the boundary colour to the specified colour.
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+Sets the boundary colour to the specified colour.
 </div>
 
 
@@ -2555,7 +2634,8 @@
 
             
 
-            <td class="description last">a string specifying the colour which can be hex format, e.g. #FFA500, RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.</td>
+            <td class="description last">a string specifying the colour which can be hex format, e.g. #FFA500, 
+RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.</td>
         </tr>
 
     
@@ -2596,7 +2676,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line481">line 481</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line489">line 489</a>
     </li></ul></dd>
     
 
@@ -2640,7 +2720,8 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the svgMap function</b>.Sets the line colour of the countries to the specified colour.
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+Sets the line colour of the countries to the specified colour.
 </div>
 
 
@@ -2692,7 +2773,8 @@
 
             
 
-            <td class="description last">a string specifying the colour which can be hex format, e.g. #FFA500, RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.</td>
+            <td class="description last">a string specifying the colour which can be hex format, e.g. #FFA500, 
+RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.</td>
         </tr>
 
     
@@ -2733,7 +2815,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line542">line 542</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line550">line 550</a>
     </li></ul></dd>
     
 
@@ -2777,7 +2859,8 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the svgMap function</b>.Sets the line style of the countries to the specified value.
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+Sets the line style of the countries to the specified value.
 </div>
 
 
@@ -2870,7 +2953,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line533">line 533</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line541">line 541</a>
     </li></ul></dd>
     
 
@@ -2914,7 +2997,9 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the svgMap function</b>.The method replaces any existing grid geojson with the geojson in the file passed. It alsoredisplays the map.
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+The method replaces any existing grid geojson with the geojson in the file passed. It also
+redisplays the map.
 </div>
 
 
@@ -3007,7 +3092,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line427">line 427</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line435">line 435</a>
     </li></ul></dd>
     
 
@@ -3051,7 +3136,8 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the svgMap function</b>.Sets the grid colour to the specified colour.
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+Sets the grid colour to the specified colour.
 </div>
 
 
@@ -3103,7 +3189,8 @@
 
             
 
-            <td class="description last">a string specifying the colour which can be hex format, e.g. #FFA500, RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.</td>
+            <td class="description last">a string specifying the colour which can be hex format, e.g. #FFA500, 
+RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.</td>
         </tr>
 
     
@@ -3144,7 +3231,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line492">line 492</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line500">line 500</a>
     </li></ul></dd>
     
 
@@ -3188,7 +3275,8 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the svgMap function</b>.Sets the grid style to the specified value.
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+Sets the grid style to the specified value.
 </div>
 
 
@@ -3281,7 +3369,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line503">line 503</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line511">line 511</a>
     </li></ul></dd>
     
 
@@ -3325,7 +3413,8 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the svgMap function</b>.The method resets the height of the main map SVG.
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+The method resets the height of the main map SVG.
 </div>
 
 
@@ -3418,7 +3507,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line387">line 387</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line395">line 395</a>
     </li></ul></dd>
     
 
@@ -3462,7 +3551,9 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the svgMap function</b>.The data accessor function, specified elsewhere, will use this identifier to accessthe correct data.
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+The data accessor function, specified elsewhere, will use this identifier to access
+the correct data.
 </div>
 
 
@@ -3514,7 +3605,8 @@
 
             
 
-            <td class="description last">a string which identifies some data to a data accessor function.</td>
+            <td class="description last">a string which identifies some data to 
+a data accessor function.</td>
         </tr>
 
     
@@ -3555,7 +3647,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line553">line 553</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line561">line 561</a>
     </li></ul></dd>
     
 
@@ -3599,7 +3691,9 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the svgMap function</b>.The legend options object can be used to specify properties of a legend and even the contentof the legend itself.
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+The legend options object can be used to specify properties of a legend and even the content
+of the legend itself.
 </div>
 
 
@@ -3692,7 +3786,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line598">line 598</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line606">line 606</a>
     </li></ul></dd>
     
 
@@ -3736,7 +3830,9 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the svgMap function</b>.Creates a title which can be positioned independently of the legend. This is useful when the legend needsto be moved, but the title does not.
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+Creates a title which can be positioned independently of the legend. This is useful when the legend needs
+to be moved, but the title does not.
 </div>
 
 
@@ -3898,7 +3994,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line667">line 667</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line675">line 675</a>
     </li></ul></dd>
     
 
@@ -3942,7 +4038,8 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the svgMap function</b>.The data accessor is stored in the mapTypesSel object and referenced by this key.
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+The data accessor is stored in the mapTypesSel object and referenced by this key.
 </div>
 
 
@@ -4035,7 +4132,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line564">line 564</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line572">line 572</a>
     </li></ul></dd>
     
 
@@ -4079,7 +4176,9 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the svgMap function</b>.The method replaces any existing map projection so that, for example, a map can be switched betweenBritish and Irish grid projections.
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+The method replaces any existing map projection so that, for example, a map can be switched between
+British and Irish grid projections.
 </div>
 
 
@@ -4172,7 +4271,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line445">line 445</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line453">line 453</a>
     </li></ul></dd>
     
 
@@ -4216,7 +4315,9 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the svgMap function</b>.The method sets a map transformation by selecting the one with the passed in key. It alsoredisplays the map
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+The method sets a map transformation by selecting the one with the passed in key. It also
+redisplays the map
 </div>
 
 
@@ -4309,7 +4410,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line371">line 371</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line379">line 379</a>
     </li></ul></dd>
     
 
@@ -4353,7 +4454,8 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the svgMap function</b>.Sets the colour ov the vice count lines to the specified colour.
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+Sets the colour ov the vice count lines to the specified colour.
 </div>
 
 
@@ -4405,7 +4507,8 @@
 
             
 
-            <td class="description last">a string specifying the colour which can be hex format, e.g. #FFA500, RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.</td>
+            <td class="description last">a string specifying the colour which can be hex format, e.g. #FFA500, 
+RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.</td>
         </tr>
 
     
@@ -4446,7 +4549,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line522">line 522</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line530">line 530</a>
     </li></ul></dd>
     
 
@@ -4490,7 +4593,8 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the svgMap function</b>.Sets the line style of the Vice County lines to the specified value.
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+Sets the line style of the Vice County lines to the specified value.
 </div>
 
 
@@ -4583,7 +4687,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line513">line 513</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line521">line 521</a>
     </li></ul></dd>
     
 
@@ -4627,7 +4731,8 @@
 
 
 <div class="description">
-    <b>This function is exposed as a method on the API returned from the svgMap function</b>.Allows calling application to display/hide an indicator showing the map data is loading.
+    <b>This function is exposed as a method on the API returned from the svgMap function</b>.
+Allows calling application to display/hide an indicator showing the map data is loading.
 </div>
 
 
@@ -4720,7 +4825,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line692">line 692</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line700">line 700</a>
     </li></ul></dd>
     
 
@@ -4821,7 +4926,8 @@
 
             
 
-            <td class="description last">Change the map boundary. Pass a single argumentwhich is the path of a geojson file.</td>
+            <td class="description last">Change the map boundary. Pass a single argument
+which is the path of a geojson file.</td>
         </tr>
 
     
@@ -4844,7 +4950,8 @@
 
             
 
-            <td class="description last">Change the grid lines for the map. Pass a single argumentwhich is the path of a geojson file.</td>
+            <td class="description last">Change the grid lines for the map. Pass a single argument
+which is the path of a geojson file.</td>
         </tr>
 
     
@@ -4867,7 +4974,9 @@
 
             
 
-            <td class="description last">Change the colour of the boundary. Pass a single argumentwhich is a string specifying the colour which can be hex format, e.g. #FFA500, RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.</td>
+            <td class="description last">Change the colour of the boundary. Pass a single argument
+which is a string specifying the colour which can be hex format, e.g. #FFA500, 
+RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.</td>
         </tr>
 
     
@@ -4890,7 +4999,9 @@
 
             
 
-            <td class="description last">Change the colour of the grid. Pass a single argumentwhich is a string specifying the colour which can be hex format, e.g. #FFA500, RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.</td>
+            <td class="description last">Change the colour of the grid. Pass a single argument
+which is a string specifying the colour which can be hex format, e.g. #FFA500, 
+RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.</td>
         </tr>
 
     
@@ -4913,7 +5024,9 @@
 
             
 
-            <td class="description last">Change the colour of the country boundaries. Pass a single argumentwhich is a string specifying the colour which can be hex format, e.g. #FFA500, RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.</td>
+            <td class="description last">Change the colour of the country boundaries. Pass a single argument
+which is a string specifying the colour which can be hex format, e.g. #FFA500, 
+RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.</td>
         </tr>
 
     
@@ -4936,7 +5049,9 @@
 
             
 
-            <td class="description last">Change the colour of the vice county lines. Pass a single argumentwhich is a string specifying the colour which can be hex format, e.g. #FFA500, RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.</td>
+            <td class="description last">Change the colour of the vice county lines. Pass a single argument
+which is a string specifying the colour which can be hex format, e.g. #FFA500, 
+RGB format, e.g. rgb(100, 255, 0) or a named colour, e.g. red.</td>
         </tr>
 
     
@@ -4959,7 +5074,8 @@
 
             
 
-            <td class="description last">Set the line style of the grid line geoJson. Can be solid, dashed or none.</td>
+            <td class="description last">Set the line style of the grid line geoJson. 
+Can be solid, dashed or none.</td>
         </tr>
 
     
@@ -4982,7 +5098,8 @@
 
             
 
-            <td class="description last">Set the line style of the country boundaries geoJson. Can be none or something else (which will give solid line).</td>
+            <td class="description last">Set the line style of the country boundaries geoJson. 
+Can be none or something else (which will give solid line).</td>
         </tr>
 
     
@@ -5005,7 +5122,8 @@
 
             
 
-            <td class="description last">Set the line style of the Vice County line geoJson. Can be none or something else (which will give solid line).</td>
+            <td class="description last">Set the line style of the Vice County line geoJson. 
+Can be none or something else (which will give solid line).</td>
         </tr>
 
     
@@ -5028,7 +5146,8 @@
 
             
 
-            <td class="description last">Set the transformation options object by passing a single argumentwhich is a string indicating the key of the transformation in the parent object.</td>
+            <td class="description last">Set the transformation options object by passing a single argument
+which is a string indicating the key of the transformation in the parent object.</td>
         </tr>
 
     
@@ -5389,7 +5508,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line702">line 702</a>
+        <a href="svgMap.js.html">svgMap.js</a>, <a href="svgMap.js.html#line710">line 710</a>
     </li></ul></dd>
     
 
@@ -5425,7 +5544,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Mon Nov 07 2022 10:51:42 GMT+0000 (Greenwich Mean Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Fri Feb 10 2023 07:19:30 GMT-0800 (Pacific Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

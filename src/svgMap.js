@@ -19,7 +19,7 @@ import { saveMapImage, downloadCurrentData } from './download.js'
  * in the correct location.
  * @param {string} opts.captionId - The id of a DOM element into which feature-specific HTML will be displayed
  * as the mouse moves over a dot on the map. The HTML markup must be stored in an attribute called 'caption'
- * in the input data.
+ * in the input data.boundaryFill
  * @param {function} opts.onclick - A function that will be called if user clicks on a map
  * element. The function will be passed these attributes, in this order, if they exist on the
  * element: gr, id, caption. (Default - null.)
@@ -39,6 +39,8 @@ import { saveMapImage, downloadCurrentData } from './download.js'
  * @param {string} opts.boundaryGjson - The URL of a boundary geoJson file to display.
  * @param {string} opts.boundaryColour - Specifies the line colour of the boundary geoJson.
  * @param {string} opts.boundaryFill - Specifies the fill colour of the boundary geoJson.
+ * @param {string} opts.boundaryShadowColour - Specifies the colour of a 'glowing' border.
+ * @param {string} opts.boundaryShadowWidth - Species the width of the glowing border in pixels.
  * @param {string | number} opts.boundaryLineWidth - Specifies the width of the line to use for boundary geoJson lines. Can use any valid units for SVG stroke-width. (Default - 1.)
  * @param {string} opts.seaFill - Specifies the fill colour of the area outside the boundary geoJson.
  * @param {string} opts.insetColour - Specifies the line colour of map inset boxes.
@@ -97,6 +99,8 @@ export function svgMap({
   boundaryColour = '#7C7CD3',
   boundaryFill = 'white',
   boundaryLineWidth = 1,
+  boundaryShadowColour = '#E6EFFF',
+  boundaryShadowWidth = 0,
   seaFill = '#E6EFFF',
   insetColour = '#7C7CD3',
   insetLineWidth = 1,
@@ -159,7 +163,10 @@ export function svgMap({
   // Create the SVG.
   const svg = mainDiv.append("svg")
     .style("background-color", seaFill)
-  svg.append('defs')
+   //svg.append('defs')
+   const defs = svg.append('defs')
+   const shadow = defs.append('filter').attr('id', 'shadow')
+   shadow.append('feDropShadow').attr('dx', 0).attr('dy', 0).attr('stdDeviation', boundaryShadowWidth).attr('flood-color', boundaryShadowColour)
 
   // Create the SVG graphic objects that store the major map elements.
   // The order these is created is important since it affects the order
@@ -286,6 +293,7 @@ export function svgMap({
         .attr("d", trans.d3Path)
         .style("stroke-opacity", 0)
         .style("fill", boundaryFill)
+        .style("filter", "url(#shadow)")
       boundary.append("path")
         .datum(dataBoundary)
         .classed('svg-map-boundary', true)

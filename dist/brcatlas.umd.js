@@ -506,7 +506,7 @@
   };
 
   var name = "brcatlas";
-  var version = "0.25.2";
+  var version = "1.0.1";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
@@ -10422,7 +10422,7 @@
    * in the correct location.
    * @param {string} opts.captionId - The id of a DOM element into which feature-specific HTML will be displayed
    * as the mouse moves over a dot on the map. The HTML markup must be stored in an attribute called 'caption'
-   * in the input data.
+   * in the input data.boundaryFill
    * @param {function} opts.onclick - A function that will be called if user clicks on a map
    * element. The function will be passed these attributes, in this order, if they exist on the
    * element: gr, id, caption. (Default - null.)
@@ -10442,6 +10442,8 @@
    * @param {string} opts.boundaryGjson - The URL of a boundary geoJson file to display.
    * @param {string} opts.boundaryColour - Specifies the line colour of the boundary geoJson.
    * @param {string} opts.boundaryFill - Specifies the fill colour of the boundary geoJson.
+   * @param {string} opts.boundaryShadowColour - Specifies the colour of a 'glowing' border.
+   * @param {string} opts.boundaryShadowWidth - Species the width of the glowing border in pixels.
    * @param {string | number} opts.boundaryLineWidth - Specifies the width of the line to use for boundary geoJson lines. Can use any valid units for SVG stroke-width. (Default - 1.)
    * @param {string} opts.seaFill - Specifies the fill colour of the area outside the boundary geoJson.
    * @param {string} opts.insetColour - Specifies the line colour of map inset boxes.
@@ -10535,6 +10537,10 @@
         boundaryFill = _ref$boundaryFill === void 0 ? 'white' : _ref$boundaryFill,
         _ref$boundaryLineWidt = _ref.boundaryLineWidth,
         boundaryLineWidth = _ref$boundaryLineWidt === void 0 ? 1 : _ref$boundaryLineWidt,
+        _ref$boundaryShadowCo = _ref.boundaryShadowColour,
+        boundaryShadowColour = _ref$boundaryShadowCo === void 0 ? '#E6EFFF' : _ref$boundaryShadowCo,
+        _ref$boundaryShadowWi = _ref.boundaryShadowWidth,
+        boundaryShadowWidth = _ref$boundaryShadowWi === void 0 ? 0 : _ref$boundaryShadowWi,
         _ref$seaFill = _ref.seaFill,
         seaFill = _ref$seaFill === void 0 ? '#E6EFFF' : _ref$seaFill,
         _ref$insetColour = _ref.insetColour,
@@ -10588,8 +10594,11 @@
     mapLoaderInner.append("div").classed('map-loader-spinner', true);
     mapLoaderInner.append("div").text("Loading map data...").classed('map-loader-text', true); // Create the SVG.
 
-    var svg = mainDiv.append("svg").style("background-color", seaFill);
-    svg.append('defs'); // Create the SVG graphic objects that store the major map elements.
+    var svg = mainDiv.append("svg").style("background-color", seaFill); //svg.append('defs')
+
+    var defs = svg.append('defs');
+    var shadow = defs.append('filter').attr('id', 'shadow');
+    shadow.append('feDropShadow').attr('dx', 0).attr('dy', 0).attr('stdDeviation', boundaryShadowWidth).attr('flood-color', boundaryShadowColour); // Create the SVG graphic objects that store the major map elements.
     // The order these is created is important since it affects the order
     // in which they are rendered (i.e. what is drawn over what).
 
@@ -10700,7 +10709,7 @@
       boundary.selectAll("path").remove();
 
       if (dataBoundary) {
-        boundaryf.append("path").datum(dataBoundary).attr("d", trans.d3Path).style("stroke-opacity", 0).style("fill", boundaryFill);
+        boundaryf.append("path").datum(dataBoundary).attr("d", trans.d3Path).style("stroke-opacity", 0).style("fill", boundaryFill).style("filter", "url(#shadow)");
         boundary.append("path").datum(dataBoundary).classed('svg-map-boundary', true).attr("d", trans.d3Path).style("fill-opacity", 0).style("stroke", boundaryColour).style('stroke-width', boundaryLineWidth);
       }
 
