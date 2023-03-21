@@ -11512,22 +11512,18 @@
         }
       }
 
-      if (!data || !data.records || !data.records.length) {
-        // d3.select(`#${mapid}`).select('.legendDiv').style('display', 'none')
-        svg.style('display', 'none');
-      } else {
-        // if (legendOpts.display) {
-        //   d3.select(`#${mapid}`).select('.legendDiv').style('display', 'block')
-        // } else {
-        //   d3.select(`#${mapid}`).select('.legendDiv').style('display', 'none')
-        // }
-        // callback[0] is fired at the start of data display
-        // can be used to show a busy indicator.
-        if (callbacks[0]) callbacks[0]();
-        setTimeout(function () {
-          return yieldRedraw(data, buffer);
-        }, 50);
+      if (!data) {
+        data = {};
       }
+
+      if (!data.records) {
+        data.records = [];
+      }
+
+      if (callbacks[0]) callbacks[0]();
+      setTimeout(function () {
+        return yieldRedraw(data, buffer);
+      }, 50);
     }
 
     function yieldRedraw(data, buffer) {
@@ -11566,14 +11562,19 @@
         });
         var topLeft = bounds[0];
         var bottomRight = bounds[1];
-        svg.attr("width", bottomRight[0] - topLeft[0]).attr("height", bottomRight[1] - topLeft[1]).style("left", topLeft[0] + "px").style("top", topLeft[1] + "px");
-        g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")"); // I can't find a way of dealing with paths and circles in the same
+
+        if (isFinite(topLeft) && isFinite(bottomRight)) {
+          // These values are not finite if no data specified
+          svg.attr("width", bottomRight[0] - topLeft[0]).attr("height", bottomRight[1] - topLeft[1]).style("left", topLeft[0] + "px").style("top", topLeft[1] + "px");
+          g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
+        } // I can't find a way of dealing with paths and circles in the same
         // enter/update statement. (There may be a way using d3 symbols for
         // creating the circles, but sizing would need work.) So instead
         // we do two enter/update statements - one for circles and one for
         // paths, but it means that we have to repeat all the common code
         // for setting properties, event handlers etc.
         // Separate data rendered with path and data rendered with Circle
+
 
         var filteredDataPath = filteredData.filter(function (d) {
           var shape = d.shape ? d.shape : data.shape;
