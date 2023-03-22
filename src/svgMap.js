@@ -646,6 +646,10 @@ export function svgMap({
   * This will be word-wrapped to the width of the image.
   * Some HTML tags, e.g. <i> are recognised, but in order to facilitate word wrapping, each word must be marked up
   * separately - there should be no white space within the tag.
+  * @param {Array.<string>} svgInfo.textFormatted - An array of strings to be concatenated anddisplayed at the foot of the map. 
+  * Each element in the array is preceded by one of the of the following tokens which indicates how it is to be formatted:
+  * n# indicates no formatting; i# indicates italics and b# indicates emboldening.
+  * This resultig string will be word-wrapped to the width of the image.
   * @param {string} svgInfo.img - The path of an image to be displayed at the foot of the map. If the image is wider
   * than the SVG, it is rescaled to the size of the SVG.
   * @param {number} svgInfo.fontSize - The size of the font to be used for the text string (defaults to 12)

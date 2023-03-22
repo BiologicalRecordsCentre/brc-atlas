@@ -175,7 +175,19 @@ function addInfo(svg, trans, expand, svgInfo) {
 
   if (!svgInfo) return Promise.resolve()
   
-  const infoText = svgInfo.text ? svgInfo.text.split(' ') : []
+  let infoText
+  if (svgInfo.text) {
+    infoText = svgInfo.text.split(' ')
+  } else if (svgInfo.textFormatted && svgInfo.textFormatted.length) {
+    infoText = []
+    svgInfo.textFormatted.forEach(it => {
+      const format = it.substr(0,2)
+      infoText = [...infoText, ...it.substr(2).split(' ').map(its => `${format}${its}`)].filter(it => it.length)
+    })
+  } else {
+    infoText = []
+  }
+
   const margin = svgInfo.margin ? svgInfo.margin : 0
   const fontSize = svgInfo.fontSize ? svgInfo.fontSize : 12
 
@@ -202,6 +214,18 @@ function addInfo(svg, trans, expand, svgInfo) {
     if (w.startsWith('<i>')) {
       ts.style('font-style', 'italic')
       word = w.replace('<i>', '').replace('</i>', '')
+    } else if (w.startsWith('i#')) {
+      ts.style('font-style', 'italic')
+      word = w.replace('i#', '')
+    } else if (w.startsWith('b#')) {
+      ts.style('font-weight', 'bold')
+      word = w.replace('b#', '')
+    } else if (w.startsWith('I#')) {
+      ts.style('font-weight', 'bold')
+      ts.style('font-style', 'italic')
+      word = w.replace('I#', '')
+    } else if (w.startsWith('n#')) {
+      word = w.replace('n#', '')
     } else {
       word = w
     }
