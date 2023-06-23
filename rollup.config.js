@@ -22,6 +22,17 @@ export default [
       css({ output: null })
 		]
   },
+  {
+    input: './src_e/eCss.js',
+    output: {
+			name: 'brcatlas_e',
+			file: pkg.browser,
+			format: 'umd'
+		},
+		plugins: [
+      css({ output: null })
+		]
+  },
   // Browser-friendly UMD builds
   // No need to create a minified version as jsdelivr CDN can do that for us
   // Avoid bundling d3 or leaflet
@@ -66,5 +77,24 @@ export default [
       babel({ babelHelpers: 'bundled', presets: ['@babel/preset-env'] }),
       terser()
 		]
-  }
+  },
+  {
+    external: ['d3'],
+		input: 'index_e.js',
+		output: {
+			name: 'brcatlas_e',
+			file: pkg.browser,
+			format: 'umd',
+      globals: {
+        'd3': 'd3'
+      },
+		},
+		plugins: [
+      //eslint(),
+			resolve(), // so Rollup can find node libs
+      commonjs(), // so Rollup can convert CommonJS modules to an ES modules
+      json(), // required to import package into index.js
+      babel({ babelHelpers: 'bundled', presets: ['@babel/preset-env'] }),
+		]
+  },
 ]
