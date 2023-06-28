@@ -26,7 +26,7 @@ export default [
     input: './src_e/eCss.js',
     output: {
 			name: 'brcatlas_e',
-			file: pkg.browser,
+			file: pkg.browser_e,
 			format: 'umd'
 		},
 		plugins: [
@@ -83,7 +83,7 @@ export default [
 		input: 'index_e.js',
 		output: {
 			name: 'brcatlas_e',
-			file: pkg.browser,
+			file: pkg.browser_e,
 			format: 'umd',
       globals: {
         'd3': 'd3'

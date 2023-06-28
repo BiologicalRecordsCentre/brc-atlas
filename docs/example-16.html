@@ -7,24 +7,57 @@
 <body>
   <div class="content">
     <h1>Using the BRC Atlas Library</h1>
-    <h2>Show a European grid map (UNDER DEVELOPMENT)</h2>
+    <h2>European map (under development)</h2>
     <div id="map"></div>
+    <!-- <button onClick="loadTest('./es-painted-ladies-5yr-20230627-ebms.csv')">EBMS data last 5 years</button>
+    <button onClick="loadTest('./es-painted-ladies-5yr-20230627.csv')">All data last 5 years</button> -->
+    <input type="range" min="1" max="52" value="1" class="slider" oninput="displayTest(this.value)"></input>
+    <div id="weekNo"></div>
 
     <!--Page CSS-->
     <link rel="stylesheet" href="example.css" />
 
+    <!--Proj4 JS required exernal dependency of BRC Atlas library for European stuff-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.0/proj4.js"></script>
+
     <!--D3 JS required exernal dependency of BRC Atlas library-->
-    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
 
     <!--BRC Atlas library JS and CSS-->
     <script src="./../dist/brcatlas_e.umd.js"></script>
     <link rel="stylesheet" type="text/css" href="./../dist/brcatlas_e.umd.css">
 
     <script>
-      var map = brcatlas.svgMap({
-        selector: "#map"
+      loadTest('./es-painted-ladies-5yr-20230627-ebms.csv')
+
+      var map = brcatlas_e.eSvgMap({
+        selector: "#map",
+        outputWidth: 900,
+        outputHeight: 700,
+        mapBB: [1000000, 800000, 6000000, 5500000], // [minx, miny, maxx, maxy]
       })
-  
+
+      function loadTest(file) {
+        d3.csv(file, d => {
+          // Data from ES is event.week, event.year, location.point
+          // Convert to week, year, lat, lon
+          return {
+            year: Number(d['event.year'].replace(',','')),
+            week: Number(d['event.week']),
+            lat: Number(d['location.point'].split(',')[0]),
+            lon: Number(d['location.point'].split(',')[1])
+          }
+        }).then(data => {
+          map.loadData(data)
+        })
+      }
+
+      function displayTest(e) {
+        //console.log(e)
+        map.mapData(Number(e))
+        d3.select("#weekNo").text(e)
+      }
+
     </script>
   </div>
 </body>

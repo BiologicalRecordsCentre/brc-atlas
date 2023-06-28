@@ -5,6 +5,7 @@
   "type": "module",
   "main": "dist/brcatlas.umd.js",
   "browser": "dist/brcatlas.umd.js",
+  "browser_e": "dist/brcatlas_e.umd.js",
   "browsermin": "dist/brcatlas.min.umd.js",
   "scripts": {
     "lint": "npx eslint src",
@@ -27,7 +28,8 @@
     "leaflet": "^1.7.1",
     "leaflet-control-custom": "^1.0.0",
     "leaflet.markercluster": "^1.5.0",
-    "micromodal": "^0.4.6"
+    "micromodal": "^0.4.6",
+    "proj4": "^2.9.0"
   },
   "devDependencies": {
     "@babel/core": "^7.10.4",
