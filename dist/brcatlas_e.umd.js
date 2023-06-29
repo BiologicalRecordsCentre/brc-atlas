@@ -7645,6 +7645,8 @@
   }; // For testing only
   //constants.thisCdn = ''
 
+  var countriesEbms = ['Austria', 'Belgium', 'Croatia', 'Czechia', 'Finland', 'France', 'Germany', 'Hungary', 'Ireland', 'Italy', 'Luxembourg', 'Norway', 'Portugal', 'Slovenia', 'Spain', 'Sweden', 'Switzerland', 'Netherlands', 'United Kingdom'];
+
   /** @module eSvgMap */
   function eSvgMap(_ref) {
     var _ref$selector = _ref.selector,
@@ -7652,9 +7654,9 @@
         _ref$mapid = _ref.mapid,
         mapid = _ref$mapid === void 0 ? 'svgMap' : _ref$mapid,
         _ref$outputWidth = _ref.outputWidth,
-        outputWidth = _ref$outputWidth === void 0 ? 900 : _ref$outputWidth,
+        outputWidth = _ref$outputWidth === void 0 ? 0 : _ref$outputWidth,
         _ref$outputHeight = _ref.outputHeight,
-        outputHeight = _ref$outputHeight === void 0 ? 700 : _ref$outputHeight,
+        outputHeight = _ref$outputHeight === void 0 ? 0 : _ref$outputHeight,
         _ref$mapBB = _ref.mapBB,
         mapBB = _ref$mapBB === void 0 ? [1000000, 800000, 6600000, 5500000] : _ref$mapBB,
         _ref$fillEurope = _ref.fillEurope,
@@ -7667,9 +7669,31 @@
         strokeEurope = _ref$strokeEurope === void 0 ? 'rgb(100,100,100)' : _ref$strokeEurope,
         _ref$expand = _ref.expand,
         expand = _ref$expand === void 0 ? false : _ref$expand;
-    // Function level variables
-    var dataGridded = [];
-    var countriesEbms = ['Austria', 'Belgium', 'Croatia', 'Czechia', 'Finland', 'France', 'Germany', 'Hungary', 'Ireland', 'Italy', 'Luxembourg', 'Norway', 'Portugal', 'Slovenia', 'Spain', 'Sweden', 'Switzerland', 'Netherlands', 'United Kingdom']; // Create a parent div for the SVG within the parent element passed
+
+    // Get dimensions of parent element
+    if (!outputWidth) {
+      outputWidth = document.querySelector(selector).clientWidth;
+    }
+
+    if (!outputHeight) {
+      outputHeight = document.querySelector(selector).clientHeight;
+    }
+
+    console.log('outputHeight', outputHeight);
+    console.log('outputWidth', outputWidth); // Function level variables
+
+    var dataGridded = []; // Transformed data
+
+    var transform; // Transformation function from EPSG 3505 to SVG coords
+
+    var geoPath; // D3 geopath transformation function from EPSG 3505 to SVG coords
+
+    var d30; // Size of 30 km in pixels
+
+    var currentWeek; // Currently displayed week
+
+    var currentYear; // Currently displayed year
+    // Create a parent div for the SVG within the parent element passed
     // as an argument. Allows us to style correctly for positioning etc.
 
     var mainDiv = d3.select("".concat(selector)).append("div").attr('id', mapid).style("position", "relative").style("display", "inline"); // Create the SVG.
@@ -7703,74 +7727,89 @@
     var dotsWeek2 = zoomG.append("g").attr("id", "dotsWeek2"); // Load the boundary data
 
     var boundaryEuropeGjson = "".concat(constants.thisCdn, "/assets/european/european-countries-3035.geojson");
-    var boundaryWorldGjson = "".concat(constants.thisCdn, "/assets/european/world-land-trimmed-3035.geojson"); // Work out the extents for the transformation.
-    // The full extent of the area denoted by opts.mapBB
-    // must be visible in the SVG. Unless the SVG width/height
-    // is exactly the same aspect ratio of mapBB, then that
-    // means adjusting the real world mapBB.
+    var boundaryWorldGjson = "".concat(constants.thisCdn, "/assets/european/world-land-trimmed-3035.geojson"); // Create transformation and get dot size
 
-    var minxMap = mapBB[0];
-    var minyMap = mapBB[1];
-    var maxxMap = mapBB[2];
-    var maxyMap = mapBB[3];
-    var xCentreMap = minxMap + (maxxMap - minxMap) / 2;
-    var yCentreMap = minyMap + (maxyMap - minyMap) / 2;
+    transform = getTransformation();
+    geoPath = getGeoPath();
+    d30 = transform([30000, 0])[0] - transform([0, 0])[0];
+    displayMapBackground();
 
-    if (outputWidth / outputHeight > (maxxMap - minxMap) / (maxyMap - minyMap)) {
-      var mapWidth = outputWidth / outputHeight * (maxyMap - minyMap);
-      minxMap = xCentreMap - mapWidth / 2;
-      maxxMap = minxMap + mapWidth;
-    } else {
-      var mapHeight = outputHeight / outputWidth * (maxxMap - minxMap);
-      minyMap = yCentreMap - mapHeight / 2;
-      maxyMap = minyMap + mapHeight;
-    } // Create the transformation function
+    function getTransformation() {
+      // Work out the extents for the transformation.
+      // The full extent of the area denoted by opts.mapBB
+      // must be visible in the SVG. Unless the SVG width/height
+      // is exactly the same aspect ratio of mapBB, then that
+      // means adjusting the real world mapBB.
+      var minxMap = mapBB[0];
+      var minyMap = mapBB[1];
+      var maxxMap = mapBB[2];
+      var maxyMap = mapBB[3];
+      var xCentreMap = minxMap + (maxxMap - minxMap) / 2;
+      var yCentreMap = minyMap + (maxyMap - minyMap) / 2;
 
-
-    function transform(p) {
-      var x = p[0];
-      var y = p[1];
-      var tX, tY;
-      var realWidth = maxxMap - minxMap;
-      var realHeight = maxyMap - minyMap;
-      tX = outputWidth * (x - minxMap) / realWidth;
-      tY = outputHeight - outputHeight * (y - minyMap) / realHeight;
-      return [tX, tY];
-    } // Calculate the size in pixels of a 30km dot
+      if (outputWidth / outputHeight > (maxxMap - minxMap) / (maxyMap - minyMap)) {
+        var mapWidth = outputWidth / outputHeight * (maxyMap - minyMap);
+        minxMap = xCentreMap - mapWidth / 2;
+        maxxMap = minxMap + mapWidth;
+      } else {
+        var mapHeight = outputHeight / outputWidth * (maxxMap - minxMap);
+        minyMap = yCentreMap - mapHeight / 2;
+        maxyMap = minyMap + mapHeight;
+      } // Return the transformation function
 
 
-    var d30 = transform([30000, 0])[0] - transform([0, 0])[0]; // console.log('d30', d30)
+      return function (p) {
+        var x = p[0];
+        var y = p[1];
+        var tX, tY;
+        var realWidth = maxxMap - minxMap;
+        var realHeight = maxyMap - minyMap;
+        tX = outputWidth * (x - minxMap) / realWidth;
+        tY = outputHeight - outputHeight * (y - minyMap) / realHeight;
+        return [tX, tY];
+      };
+    }
 
-    var trans = d3.geoPath().projection(d3.geoTransform({
-      point: function point(x, y) {
-        var tP = transform([x, y]);
-        var tX = tP[0];
-        var tY = tP[1];
-        this.stream.point(tX, tY);
-      }
-    }));
-    d3.json(boundaryEuropeGjson).then(function (data) {
-      console.log('data', data); // const dataFeaturesEurope = data.features.filter(d => d.properties.SOVEREIGNT !== 'Russia')
+    function getGeoPath() {
+      return d3.geoPath().projection(d3.geoTransform({
+        point: function point(x, y) {
+          var tP = transform([x, y]);
+          var tX = tP[0];
+          var tY = tP[1];
+          this.stream.point(tX, tY);
+        }
+      }));
+    }
 
-      var dataFeaturesEbms = data.features.filter(function (d) {
-        return countriesEbms.includes(d.properties.SOVEREIGNT);
-      }); // data.features = dataFeaturesEurope
-      // boundaryEurope.append("path")
-      //   .datum(data)
-      //   .attr("d", trans)
-      //   .style("fill", 'yellow')
-      //   .style("stroke", strokeEurope)
+    function displayMapBackground() {
+      d3.json(boundaryEuropeGjson).then(function (data) {
+        console.log('data', data); // const dataFeaturesEurope = data.features.filter(d => d.properties.SOVEREIGNT !== 'Russia')
 
-      data.features = dataFeaturesEbms;
-      boundaryEbms.append("path").datum(data).attr("d", trans).style("fill", fillEurope).style("stroke", strokeEurope);
-    });
-    d3.json(boundaryWorldGjson).then(function (data) {
-      // console.log('data', data)
-      boundaryWorld.append("path").datum(data).attr("d", trans).style("fill", fillWorld);
-    });
+        var dataFeaturesEbms = data.features.filter(function (d) {
+          return countriesEbms.includes(d.properties.SOVEREIGNT);
+        }); // data.features = dataFeaturesEurope
+        // boundaryEurope.append("path")
+        //   .datum(data)
+        //   .attr("d", geoPath)
+        //   .style("fill", 'yellow')
+        //   .style("stroke", strokeEurope)
+
+        data.features = dataFeaturesEbms;
+        boundaryEbms.selectAll("path").remove();
+        boundaryEbms.append("path").datum(data).attr("d", geoPath).style("fill", fillEurope).style("stroke", strokeEurope);
+      });
+      d3.json(boundaryWorldGjson).then(function (data) {
+        // console.log('data', data)
+        boundaryWorld.selectAll("path").remove();
+        boundaryWorld.append("path").datum(data).attr("d", geoPath).style("fill", fillWorld);
+      });
+    } // API functions
+
 
     function mapData(week, year) {
-      // First filter the gridded data based on week and, optionally, year.
+      currentWeek = week;
+      currentYear = year; // First filter the gridded data based on week and, optionally, year.
+
       var dYear = dataGridded.filter(function (d) {
         return !year || d.year === year;
       });
@@ -7888,10 +7927,33 @@
       }
     }
 
+    function resize(width, height) {
+      outputWidth = width;
+      outputHeight = height;
+
+      if (expand) {
+        svg.attr("viewBox", "0 0 " + outputWidth + " " + outputHeight);
+      } else {
+        svg.attr("width", outputWidth);
+        svg.attr("height", outputHeight);
+      }
+
+      transform = getTransformation();
+      geoPath = getGeoPath();
+      d30 = transform([30000, 0])[0] - transform([0, 0])[0];
+      displayMapBackground();
+      console.log('Remap data');
+      dotsWeek0.selectAll(".dot0").remove();
+      dotsWeek0.selectAll(".dot1").remove();
+      dotsWeek0.selectAll(".dot2").remove();
+      mapData(currentWeek, currentYear);
+    }
+
     return {
       loadData: loadData,
       mapData: mapData,
-      getWeekDates: getWeekDates
+      getWeekDates: getWeekDates,
+      resize: resize
     };
   }
 

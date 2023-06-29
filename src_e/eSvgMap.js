@@ -2,14 +2,14 @@
 
 import * as d3 from 'd3'
 import proj4 from 'proj4'
-import { constants } from '../src/constants.js'
+import { constants, countriesEbms } from './eConstants.js'
 
 export function eSvgMap({
   // Default options in here
   selector = 'body',
   mapid = 'svgMap',
-  outputWidth = 900,
-  outputHeight = 700,
+  outputWidth = 0,
+  outputHeight = 0,
   mapBB = [1000000, 800000, 6600000, 5500000], // [minx, miny, maxx, maxy]
   fillEurope = 'black',
   fillWorld = 'rgb(50,50,50',
@@ -18,30 +18,24 @@ export function eSvgMap({
   expand = false
 }) {
 
-  // Function level variables
-  let dataGridded = []
+  // Get dimensions of parent element
+  if (!outputWidth) {
+    outputWidth = document.querySelector(selector).clientWidth
+  }
+  if (!outputHeight) {
+    outputHeight = document.querySelector(selector).clientHeight
+  }
 
-  let countriesEbms = [
-    'Austria',
-    'Belgium',
-    'Croatia',
-    'Czechia',
-    'Finland',
-    'France',
-    'Germany',
-    'Hungary',
-    'Ireland',
-    'Italy',
-    'Luxembourg',
-    'Norway',
-    'Portugal',
-    'Slovenia',
-    'Spain',
-    'Sweden',
-    'Switzerland',
-    'Netherlands',
-    'United Kingdom',
-  ]
+  console.log('outputHeight', outputHeight)
+  console.log('outputWidth', outputWidth)
+
+  // Function level variables
+  let dataGridded = [] // Transformed data
+  let transform // Transformation function from EPSG 3505 to SVG coords
+  let geoPath // D3 geopath transformation function from EPSG 3505 to SVG coords
+  let d30 // Size of 30 km in pixels
+  let currentWeek // Currently displayed week
+  let currentYear // Currently displayed year
 
   // Create a parent div for the SVG within the parent element passed
   // as an argument. Allows us to style correctly for positioning etc.
@@ -85,85 +79,103 @@ export function eSvgMap({
   const boundaryEuropeGjson=`${constants.thisCdn}/assets/european/european-countries-3035.geojson`
   const boundaryWorldGjson=`${constants.thisCdn}/assets/european/world-land-trimmed-3035.geojson`
 
-  // Work out the extents for the transformation.
-  // The full extent of the area denoted by opts.mapBB
-  // must be visible in the SVG. Unless the SVG width/height
-  // is exactly the same aspect ratio of mapBB, then that
-  // means adjusting the real world mapBB.
-  let minxMap = mapBB[0]
-  let minyMap = mapBB[1]
-  let maxxMap = mapBB[2]
-  let maxyMap = mapBB[3]
-  const xCentreMap = minxMap + (maxxMap-minxMap) / 2
-  const yCentreMap = minyMap + (maxyMap-minyMap) / 2
-  if (outputWidth / outputHeight > (maxxMap - minxMap) / (maxyMap - minyMap)) {
-    const mapWidth = outputWidth / outputHeight * (maxyMap - minyMap)
-    minxMap = xCentreMap - mapWidth / 2
-    maxxMap = minxMap + mapWidth
-  } else {
-    const mapHeight = outputHeight / outputWidth * (maxxMap - minxMap)
-    minyMap = yCentreMap - mapHeight / 2
-    maxyMap = minyMap + mapHeight
-  }
-  // Create the transformation function
-  function transform(p) {
-    const x = p[0]
-    const y = p[1]
-    let tX, tY
-    const realWidth = maxxMap-minxMap
-    const realHeight = maxyMap-minyMap
-    tX = outputWidth * (x-minxMap)/realWidth
-    tY = outputHeight - outputHeight * (y-minyMap)/realHeight
-    return [tX, tY]
-  }
-  // Calculate the size in pixels of a 30km dot
-  const d30 = transform([30000,0])[0] - transform([0,0])[0]
-  // console.log('d30', d30)
+  // Create transformation and get dot size
+  transform = getTransformation()
+  geoPath = getGeoPath()
+  d30 = transform([30000,0])[0] - transform([0,0])[0]
+  displayMapBackground()
 
-  const trans = d3.geoPath()
-  .projection(
-    d3.geoTransform({
-      point: function(x, y) {
-        const tP = transform([x,y])
-        const tX = tP[0]
-        const tY = tP[1]
-        this.stream.point(tX, tY)
-      }
+  function getTransformation() {
+
+    // Work out the extents for the transformation.
+    // The full extent of the area denoted by opts.mapBB
+    // must be visible in the SVG. Unless the SVG width/height
+    // is exactly the same aspect ratio of mapBB, then that
+    // means adjusting the real world mapBB.
+    let minxMap = mapBB[0]
+    let minyMap = mapBB[1]
+    let maxxMap = mapBB[2]
+    let maxyMap = mapBB[3]
+    const xCentreMap = minxMap + (maxxMap-minxMap) / 2
+    const yCentreMap = minyMap + (maxyMap-minyMap) / 2
+    if (outputWidth / outputHeight > (maxxMap - minxMap) / (maxyMap - minyMap)) {
+      const mapWidth = outputWidth / outputHeight * (maxyMap - minyMap)
+      minxMap = xCentreMap - mapWidth / 2
+      maxxMap = minxMap + mapWidth
+    } else {
+      const mapHeight = outputHeight / outputWidth * (maxxMap - minxMap)
+      minyMap = yCentreMap - mapHeight / 2
+      maxyMap = minyMap + mapHeight
+    }
+    // Return the transformation function
+    return function(p) {
+      const x = p[0]
+      const y = p[1]
+      let tX, tY
+      const realWidth = maxxMap-minxMap
+      const realHeight = maxyMap-minyMap
+      tX = outputWidth * (x-minxMap)/realWidth
+      tY = outputHeight - outputHeight * (y-minyMap)/realHeight
+      return [tX, tY]
+    }
+  }
+
+  function getGeoPath () {
+    return  d3.geoPath()
+      .projection(
+        d3.geoTransform({
+          point: function(x, y) {
+            const tP = transform([x,y])
+            const tX = tP[0]
+            const tY = tP[1]
+            this.stream.point(tX, tY)
+          }
+        })
+      )
+  }
+
+  function displayMapBackground() {
+
+    d3.json(boundaryEuropeGjson).then(data => {
+
+      console.log('data', data)
+
+      // const dataFeaturesEurope = data.features.filter(d => d.properties.SOVEREIGNT !== 'Russia')
+      const dataFeaturesEbms = data.features.filter(d => countriesEbms.includes(d.properties.SOVEREIGNT))
+
+      // data.features = dataFeaturesEurope
+
+      // boundaryEurope.append("path")
+      //   .datum(data)
+      //   .attr("d", geoPath)
+      //   .style("fill", 'yellow')
+      //   .style("stroke", strokeEurope)
+
+      data.features = dataFeaturesEbms
+      boundaryEbms.selectAll("path").remove()
+      boundaryEbms.append("path")
+        .datum(data)
+        .attr("d", geoPath)
+        .style("fill", fillEurope)
+        .style("stroke", strokeEurope)
     })
-  )
 
-  d3.json(boundaryEuropeGjson).then(data => {
-    console.log('data', data)
+    d3.json(boundaryWorldGjson).then(data => {
+      // console.log('data', data)
+      boundaryWorld.selectAll("path").remove()
+      boundaryWorld.append("path")
+        .datum(data)
+        .attr("d", geoPath)
+        .style("fill", fillWorld)
+    })
+  }
 
-    // const dataFeaturesEurope = data.features.filter(d => d.properties.SOVEREIGNT !== 'Russia')
-    const dataFeaturesEbms = data.features.filter(d => countriesEbms.includes(d.properties.SOVEREIGNT))
-
-    // data.features = dataFeaturesEurope
-
-    // boundaryEurope.append("path")
-    //   .datum(data)
-    //   .attr("d", trans)
-    //   .style("fill", 'yellow')
-    //   .style("stroke", strokeEurope)
-
-    data.features = dataFeaturesEbms
-
-    boundaryEbms.append("path")
-      .datum(data)
-      .attr("d", trans)
-      .style("fill", fillEurope)
-      .style("stroke", strokeEurope)
-  })
-
-  d3.json(boundaryWorldGjson).then(data => {
-    // console.log('data', data)
-    boundaryWorld.append("path")
-      .datum(data)
-      .attr("d", trans)
-      .style("fill", fillWorld)
-  })
+  // API functions
 
   function mapData(week, year) {
+
+    currentWeek = week
+    currentYear = year
 
     // First filter the gridded data based on week and, optionally, year.
     const dYear = dataGridded.filter(d => !year || d.year === year)
@@ -271,10 +283,32 @@ export function eSvgMap({
     }
   }
 
+  function resize(width, height) {
+    outputWidth = width
+    outputHeight = height
+    if (expand) {
+      svg.attr("viewBox", "0 0 " + outputWidth + " " +  outputHeight)
+    } else {
+      svg.attr("width", outputWidth)
+      svg.attr("height", outputHeight)
+    }
+    transform = getTransformation()
+    geoPath = getGeoPath()
+    d30 = transform([30000,0])[0] - transform([0,0])[0]
+    displayMapBackground()
+
+    console.log('Remap data')
+    dotsWeek0.selectAll(".dot0").remove()
+    dotsWeek0.selectAll(".dot1").remove()
+    dotsWeek0.selectAll(".dot2").remove()
+    mapData(currentWeek, currentYear)
+  }
+
   return ({
     loadData: loadData,
     mapData: mapData,
-    getWeekDates: getWeekDates
+    getWeekDates: getWeekDates,
+    resize: resize,
   })
 }
 
