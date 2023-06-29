@@ -6,4 +6,4 @@ export const constants = {
 }
 
 // For testing only
-constants.thisCdn = ''
+//constants.thisCdn = ''
