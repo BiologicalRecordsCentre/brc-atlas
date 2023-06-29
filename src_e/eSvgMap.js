@@ -11,11 +11,11 @@ export function eSvgMap({
   outputWidth = 900,
   outputHeight = 700,
   mapBB = [1000000, 800000, 6600000, 5500000], // [minx, miny, maxx, maxy]
-  //mapBB = [2740000, 2950000, 4060000, 4220000], // [minx, miny, maxx, maxy]
   fillEurope = 'black',
   fillWorld = 'rgb(50,50,50',
   fillOcean = 'rgb(100,100,100)',
   strokeEurope = 'rgb(100,100,100)',
+  expand = false
 }) {
 
   // Function level variables
@@ -53,9 +53,14 @@ export function eSvgMap({
 
   // Create the SVG.
   const svg = mainDiv.append("svg")
-    .style("width", outputWidth)
-    .style("height", outputHeight)
     .style("background-color", fillOcean)
+
+  if (expand) {
+    svg.attr("viewBox", "0 0 " + outputWidth + " " +  outputHeight)
+  } else {
+    svg.attr("width", outputWidth)
+    svg.attr("height", outputHeight)
+  }
 
   // Zoom g element
   const zoomG = svg.append("g")
@@ -230,9 +235,46 @@ export function eSvgMap({
     // console.log('dataGridded', dataGridded)
   }
 
+  function getWeekDates (week, year) {
+    // Given week number and a year, return start and end dates of week.
+    // Where there's no year, assume a non-leap year.
+
+    // Set up arrays
+    const mnthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+    const mnthAbbrv = mnthNames.map(d => d.substring(0,3))
+
+    const mnthLengths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    if (year && year%4 === 0) mnthLengths[1] = 29
+    let dsum = 0
+    const mnthDays = mnthLengths.map(d => dsum += d)
+
+    // Return variables
+    let dds, dde, mms, mme
+    // Convert week to start day
+    const startDay = (week-1) * 7 + 1
+    const endDay = startDay + 6
+    for (let m=0; m<12; m++) {
+      if (startDay <= mnthDays[m] && !dds) {
+        dds = m ? startDay - mnthDays[m-1] : startDay
+        mms = mnthAbbrv[m]
+      }
+      if (endDay <= mnthDays[m] && !dde) {
+        dde = m ? endDay - mnthDays[m-1] : endDay
+        mme = mnthAbbrv[m]
+      }
+    }
+
+    if (mms === mme) {
+      return `${dds} - ${dde} ${mme}`
+    } else {
+      return `${dds} ${mms} - ${dde} ${mme}`
+    }
+  }
+
   return ({
     loadData: loadData,
-    mapData: mapData
+    mapData: mapData,
+    getWeekDates: getWeekDates
   })
 }
 

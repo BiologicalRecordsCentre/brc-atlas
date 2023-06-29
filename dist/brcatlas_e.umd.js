@@ -7664,7 +7664,9 @@
         _ref$fillOcean = _ref.fillOcean,
         fillOcean = _ref$fillOcean === void 0 ? 'rgb(100,100,100)' : _ref$fillOcean,
         _ref$strokeEurope = _ref.strokeEurope,
-        strokeEurope = _ref$strokeEurope === void 0 ? 'rgb(100,100,100)' : _ref$strokeEurope;
+        strokeEurope = _ref$strokeEurope === void 0 ? 'rgb(100,100,100)' : _ref$strokeEurope,
+        _ref$expand = _ref.expand,
+        expand = _ref$expand === void 0 ? false : _ref$expand;
     // Function level variables
     var dataGridded = [];
     var countriesEbms = ['Austria', 'Belgium', 'Croatia', 'Czechia', 'Finland', 'France', 'Germany', 'Hungary', 'Ireland', 'Italy', 'Luxembourg', 'Norway', 'Portugal', 'Slovenia', 'Spain', 'Sweden', 'Switzerland', 'Netherlands', 'United Kingdom']; // Create a parent div for the SVG within the parent element passed
@@ -7672,7 +7674,15 @@
 
     var mainDiv = d3.select("".concat(selector)).append("div").attr('id', mapid).style("position", "relative").style("display", "inline"); // Create the SVG.
 
-    var svg = mainDiv.append("svg").style("width", outputWidth).style("height", outputHeight).style("background-color", fillOcean); // Zoom g element
+    var svg = mainDiv.append("svg").style("background-color", fillOcean);
+
+    if (expand) {
+      svg.attr("viewBox", "0 0 " + outputWidth + " " + outputHeight);
+    } else {
+      svg.attr("width", outputWidth);
+      svg.attr("height", outputHeight);
+    } // Zoom g element
+
 
     var zoomG = svg.append("g");
 
@@ -7839,9 +7849,49 @@
       }); // console.log('dataGridded', dataGridded)
     }
 
+    function getWeekDates(week, year) {
+      // Given week number and a year, return start and end dates of week.
+      // Where there's no year, assume a non-leap year.
+      // Set up arrays
+      var mnthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      var mnthAbbrv = mnthNames.map(function (d) {
+        return d.substring(0, 3);
+      });
+      var mnthLengths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+      if (year && year % 4 === 0) mnthLengths[1] = 29;
+      var dsum = 0;
+      var mnthDays = mnthLengths.map(function (d) {
+        return dsum += d;
+      }); // Return variables
+
+      var dds, dde, mms, mme; // Convert week to start day
+
+      var startDay = (week - 1) * 7 + 1;
+      var endDay = startDay + 6;
+
+      for (var m = 0; m < 12; m++) {
+        if (startDay <= mnthDays[m] && !dds) {
+          dds = m ? startDay - mnthDays[m - 1] : startDay;
+          mms = mnthAbbrv[m];
+        }
+
+        if (endDay <= mnthDays[m] && !dde) {
+          dde = m ? endDay - mnthDays[m - 1] : endDay;
+          mme = mnthAbbrv[m];
+        }
+      }
+
+      if (mms === mme) {
+        return "".concat(dds, " - ").concat(dde, " ").concat(mme);
+      } else {
+        return "".concat(dds, " ").concat(mms, " - ").concat(dde, " ").concat(mme);
+      }
+    }
+
     return {
       loadData: loadData,
-      mapData: mapData
+      mapData: mapData,
+      getWeekDates: getWeekDates
     };
   }
 

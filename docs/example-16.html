@@ -3,6 +3,46 @@
 <head>
   <meta charset="utf-8">
   <title>BRC Atlas Library example 16</title>
+  <style>
+    .slidecontainer {
+      width: 100%; /* Width of the outside container */
+    }
+
+    /* The slider itself */
+    .slider {
+      -webkit-appearance: none;  /* Override default CSS styles */
+      appearance: none;
+      width: 100%; /* Full-width */
+      height: 25px; /* Specified height */
+      background: #d3d3d3; /* Grey background */
+      outline: none; /* Remove outline */
+      opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+      -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+      transition: opacity .2s;
+    }
+
+    /* Mouse-over effects */
+    .slider:hover {
+      opacity: 1; /* Fully shown on mouse-over */
+    }
+
+    /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none; /* Override default look */
+      appearance: none;
+      width: 25px; /* Set a specific slider handle width */
+      height: 25px; /* Slider handle height */
+      background: blue; /* Green background */
+      cursor: pointer; /* Cursor on hover */
+    }
+
+    .slider::-moz-range-thumb {
+      width: 25px; /* Set a specific slider handle width */
+      height: 25px; /* Slider handle height */
+      background: blue; /* Green background */
+      cursor: pointer; /* Cursor on hover */
+    }
+  </style>
 </head>
 <body>
   <div class="content">
@@ -11,7 +51,9 @@
     <div id="map"></div>
     <!-- <button onClick="loadTest('./es-painted-ladies-5yr-20230627-ebms.csv')">EBMS data last 5 years</button>
     <button onClick="loadTest('./es-painted-ladies-5yr-20230627.csv')">All data last 5 years</button> -->
-    <input type="range" min="1" max="52" value="1" class="slider" oninput="displayTest(this.value)"></input>
+    <div class="slidecontainer" >
+      <input type="range" min="1" max="52" value="1" class="slider" oninput="displayTest(this.value)"></input>
+    </div>
     <div id="weekNo"></div>
 
     <!--Page CSS-->
@@ -33,8 +75,9 @@
       var map = brcatlas_e.eSvgMap({
         selector: "#map",
         outputWidth: 900,
-        outputHeight: 700,
+        outputHeight: 500,
         mapBB: [1000000, 800000, 6000000, 5500000], // [minx, miny, maxx, maxy]
+        expand: true
       })
 
       function loadTest(file) {
@@ -55,7 +98,7 @@
       function displayTest(e) {
         //console.log(e)
         map.mapData(Number(e))
-        d3.select("#weekNo").text(e)
+        d3.select("#weekNo").text(map.getWeekDates(Number(e)))
       }
 
     </script>
