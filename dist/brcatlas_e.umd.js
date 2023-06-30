@@ -7662,26 +7662,30 @@
         _ref$fillEurope = _ref.fillEurope,
         fillEurope = _ref$fillEurope === void 0 ? 'black' : _ref$fillEurope,
         _ref$fillWorld = _ref.fillWorld,
-        fillWorld = _ref$fillWorld === void 0 ? 'rgb(50,50,50' : _ref$fillWorld,
+        fillWorld = _ref$fillWorld === void 0 ? 'rgb(50,50,50)' : _ref$fillWorld,
         _ref$fillOcean = _ref.fillOcean,
         fillOcean = _ref$fillOcean === void 0 ? 'rgb(100,100,100)' : _ref$fillOcean,
         _ref$strokeEurope = _ref.strokeEurope,
         strokeEurope = _ref$strokeEurope === void 0 ? 'rgb(100,100,100)' : _ref$strokeEurope,
+        _ref$fillDot = _ref.fillDot,
+        fillDot = _ref$fillDot === void 0 ? 'red' : _ref$fillDot,
         _ref$expand = _ref.expand,
-        expand = _ref$expand === void 0 ? false : _ref$expand;
-
-    // Get dimensions of parent element
-    if (!outputWidth) {
-      outputWidth = document.querySelector(selector).clientWidth;
-    }
-
-    if (!outputHeight) {
-      outputHeight = document.querySelector(selector).clientHeight;
-    }
-
-    console.log('outputHeight', outputHeight);
-    console.log('outputWidth', outputWidth); // Function level variables
-
+        expand = _ref$expand === void 0 ? false : _ref$expand,
+        _ref$highlightCountri = _ref.highlightCountries,
+        highlightCountries = _ref$highlightCountri === void 0 ? countriesEbms : _ref$highlightCountri,
+        _ref$dotSize = _ref.dotSize1,
+        dotSize1 = _ref$dotSize === void 0 ? 1 : _ref$dotSize,
+        _ref$dotSize2 = _ref.dotSize2,
+        dotSize2 = _ref$dotSize2 === void 0 ? 3 : _ref$dotSize2,
+        _ref$dotSize3 = _ref.dotSize3,
+        dotSize3 = _ref$dotSize3 === void 0 ? 6 : _ref$dotSize3,
+        _ref$dotOpacity = _ref.dotOpacity1,
+        dotOpacity1 = _ref$dotOpacity === void 0 ? 1 : _ref$dotOpacity,
+        _ref$dotOpacity2 = _ref.dotOpacity2,
+        dotOpacity2 = _ref$dotOpacity2 === void 0 ? 0.4 : _ref$dotOpacity2,
+        _ref$dotOpacity3 = _ref.dotOpacity3,
+        dotOpacity3 = _ref$dotOpacity3 === void 0 ? 0.1 : _ref$dotOpacity3;
+    // Function level variables
     var dataGridded = []; // Transformed data
 
     var transform; // Transformation function from EPSG 3505 to SVG coords
@@ -7699,14 +7703,7 @@
     var mainDiv = d3.select("".concat(selector)).append("div").attr('id', mapid).style("position", "relative").style("display", "inline"); // Create the SVG.
 
     var svg = mainDiv.append("svg").style("background-color", fillOcean);
-
-    if (expand) {
-      svg.attr("viewBox", "0 0 " + outputWidth + " " + outputHeight);
-    } else {
-      svg.attr("width", outputWidth);
-      svg.attr("height", outputHeight);
-    } // Zoom g element
-
+    sizeSvg(); // Zoom g element
 
     var zoomG = svg.append("g");
 
@@ -7720,7 +7717,7 @@
 
     var boundaryWorld = zoomG.append("g").attr("id", "boundaryWorld"); //const boundaryEurope = svg.append("g").attr("id", "boundaryEurope")
 
-    var boundaryEbms = zoomG.append("g").attr("id", "boundaryEbms"); // Group element for dots
+    var boundaryEurope = zoomG.append("g").attr("id", "boundaryEurope"); // Group element for dots
 
     var dotsWeek0 = zoomG.append("g").attr("id", "dotsWeek0");
     var dotsWeek1 = zoomG.append("g").attr("id", "dotsWeek1");
@@ -7733,6 +7730,27 @@
     geoPath = getGeoPath();
     d30 = transform([30000, 0])[0] - transform([0, 0])[0];
     displayMapBackground();
+
+    function sizeSvg() {
+      // Get dimensions of parent element
+      if (!outputWidth) {
+        outputWidth = document.querySelector(selector).clientWidth;
+      }
+
+      if (!outputHeight) {
+        outputHeight = document.querySelector(selector).clientHeight;
+      }
+
+      console.log('outputHeight', outputHeight);
+      console.log('outputWidth', outputWidth);
+
+      if (expand) {
+        svg.attr("viewBox", "0 0 " + outputWidth + " " + outputHeight);
+      } else {
+        svg.attr("width", outputWidth);
+        svg.attr("height", outputHeight);
+      }
+    }
 
     function getTransformation() {
       // Work out the extents for the transformation.
@@ -7783,20 +7801,12 @@
 
     function displayMapBackground() {
       d3.json(boundaryEuropeGjson).then(function (data) {
-        console.log('data', data); // const dataFeaturesEurope = data.features.filter(d => d.properties.SOVEREIGNT !== 'Russia')
-
         var dataFeaturesEbms = data.features.filter(function (d) {
-          return countriesEbms.includes(d.properties.SOVEREIGNT);
-        }); // data.features = dataFeaturesEurope
-        // boundaryEurope.append("path")
-        //   .datum(data)
-        //   .attr("d", geoPath)
-        //   .style("fill", 'yellow')
-        //   .style("stroke", strokeEurope)
-
+          return highlightCountries.includes(d.properties.SOVEREIGNT);
+        });
         data.features = dataFeaturesEbms;
-        boundaryEbms.selectAll("path").remove();
-        boundaryEbms.append("path").datum(data).attr("d", geoPath).style("fill", fillEurope).style("stroke", strokeEurope);
+        boundaryEurope.selectAll("path").remove();
+        boundaryEurope.append("path").datum(data).attr("d", geoPath).style("fill", fillEurope).style("stroke", strokeEurope);
       });
       d3.json(boundaryWorldGjson).then(function (data) {
         // console.log('data', data)
@@ -7842,29 +7852,29 @@
       dotsWeek0.selectAll(".dot0").data(dWeek0, function (d) {
         return d.id;
       }).join(function (enter) {
-        return enter.append("circle").classed("dot0", true).attr("fill", "red").attr("cx", function (d) {
+        return enter.append("circle").classed("dot0", true).attr("fill", fillDot).attr("opacity", dotOpacity1).attr("cx", function (d) {
           return transform([d.x, d.y])[0];
         }).attr("cy", function (d) {
           return transform([d.x, d.y])[1];
-        }).attr("r", d30 / 2);
+        }).attr("r", d30 / 2 * dotSize1);
       });
       dotsWeek1.selectAll(".dot1").data(dWeek1, function (d) {
         return d.id;
       }).join(function (enter) {
-        return enter.append("circle").classed("dot1", true).attr("fill", "red").attr("opacity", 0.6).attr("cx", function (d) {
+        return enter.append("circle").classed("dot1", true).attr("fill", fillDot).attr("opacity", dotOpacity2).attr("cx", function (d) {
           return transform([d.x, d.y])[0];
         }).attr("cy", function (d) {
           return transform([d.x, d.y])[1];
-        }).attr("r", 1.5 * d30);
+        }).attr("r", d30 / 2 * dotSize2);
       });
       dotsWeek2.selectAll(".dot2").data(dWeek2, function (d) {
         return d.id;
       }).join(function (enter) {
-        return enter.append("circle").classed("dot2", true).attr("fill", "red").attr("opacity", 0.3).attr("cx", function (d) {
+        return enter.append("circle").classed("dot2", true).attr("fill", fillDot).attr("opacity", dotOpacity3).attr("cx", function (d) {
           return transform([d.x, d.y])[0];
         }).attr("cy", function (d) {
           return transform([d.x, d.y])[1];
-        }).attr("r", 3 * d30);
+        }).attr("r", d30 / 2 * dotSize3);
       });
     }
 
@@ -7930,30 +7940,83 @@
     function resize(width, height) {
       outputWidth = width;
       outputHeight = height;
-
-      if (expand) {
-        svg.attr("viewBox", "0 0 " + outputWidth + " " + outputHeight);
-      } else {
-        svg.attr("width", outputWidth);
-        svg.attr("height", outputHeight);
-      }
-
+      sizeSvg();
       transform = getTransformation();
       geoPath = getGeoPath();
       d30 = transform([30000, 0])[0] - transform([0, 0])[0];
       displayMapBackground();
       console.log('Remap data');
       dotsWeek0.selectAll(".dot0").remove();
-      dotsWeek0.selectAll(".dot1").remove();
-      dotsWeek0.selectAll(".dot2").remove();
+      dotsWeek1.selectAll(".dot1").remove();
+      dotsWeek2.selectAll(".dot2").remove();
       mapData(currentWeek, currentYear);
+    }
+
+    function setDisplayOpts(opts) {
+      if (opts.fillOcean) {
+        fillOcean = opts.fillOcean;
+        svg.style("background-color", fillOcean);
+      }
+
+      if (opts.fillWorld) {
+        fillWorld = opts.fillWorld;
+        boundaryWorld.selectAll("path").style("fill", fillWorld);
+      }
+
+      if (opts.fillEurope) {
+        fillEurope = opts.fillEurope;
+        boundaryEurope.selectAll("path").style("fill", fillEurope);
+      }
+
+      if (opts.strokeEurope) {
+        strokeEurope = opts.strokeEurope;
+        boundaryEurope.selectAll("path").style("stroke", strokeEurope);
+      }
+
+      if (opts.fillDot) {
+        fillDot = opts.fillDot;
+        dotsWeek0.selectAll(".dot0").style("fill", fillDot);
+        dotsWeek1.selectAll(".dot1").style("fill", fillDot);
+        dotsWeek2.selectAll(".dot2").style("fill", fillDot);
+      }
+
+      if (opts.dotSize1) {
+        dotSize1 = opts.dotSize1;
+        mapData(currentWeek, currentYear);
+      }
+
+      if (opts.dotSize2) {
+        dotSize2 = opts.dotSize2;
+        mapData(currentWeek, currentYear);
+      }
+
+      if (opts.dotSize3) {
+        dotSize3 = opts.dotSize3;
+        mapData(currentWeek, currentYear);
+      }
+
+      if (opts.dotOpacity1) {
+        dotOpacity1 = opts.dotOpacity1;
+        mapData(currentWeek, currentYear);
+      }
+
+      if (opts.dotOpacity2) {
+        dotOpacity2 = opts.dotOpacity2;
+        mapData(currentWeek, currentYear);
+      }
+
+      if (opts.dotOpacity3) {
+        dotOpacity3 = opts.dotOpacity3;
+        mapData(currentWeek, currentYear);
+      }
     }
 
     return {
       loadData: loadData,
       mapData: mapData,
       getWeekDates: getWeekDates,
-      resize: resize
+      resize: resize,
+      setDisplayOpts: setDisplayOpts
     };
   }
 

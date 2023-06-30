@@ -12,22 +12,19 @@ export function eSvgMap({
   outputHeight = 0,
   mapBB = [1000000, 800000, 6600000, 5500000], // [minx, miny, maxx, maxy]
   fillEurope = 'black',
-  fillWorld = 'rgb(50,50,50',
+  fillWorld = 'rgb(50,50,50)',
   fillOcean = 'rgb(100,100,100)',
   strokeEurope = 'rgb(100,100,100)',
-  expand = false
+  fillDot = 'red',
+  expand = false,
+  highlightCountries = countriesEbms,
+  dotSize1 = 1,
+  dotSize2 = 3,
+  dotSize3 = 6,
+  dotOpacity1 = 1,
+  dotOpacity2 = 0.4,
+  dotOpacity3 = 0.1,
 }) {
-
-  // Get dimensions of parent element
-  if (!outputWidth) {
-    outputWidth = document.querySelector(selector).clientWidth
-  }
-  if (!outputHeight) {
-    outputHeight = document.querySelector(selector).clientHeight
-  }
-
-  console.log('outputHeight', outputHeight)
-  console.log('outputWidth', outputWidth)
 
   // Function level variables
   let dataGridded = [] // Transformed data
@@ -49,12 +46,7 @@ export function eSvgMap({
   const svg = mainDiv.append("svg")
     .style("background-color", fillOcean)
 
-  if (expand) {
-    svg.attr("viewBox", "0 0 " + outputWidth + " " +  outputHeight)
-  } else {
-    svg.attr("width", outputWidth)
-    svg.attr("height", outputHeight)
-  }
+  sizeSvg()
 
   // Zoom g element
   const zoomG = svg.append("g")
@@ -69,7 +61,7 @@ export function eSvgMap({
   // Group element for european boundary and world boundary
   const boundaryWorld = zoomG.append("g").attr("id", "boundaryWorld")
   //const boundaryEurope = svg.append("g").attr("id", "boundaryEurope")
-  const boundaryEbms = zoomG.append("g").attr("id", "boundaryEbms")
+  const boundaryEurope = zoomG.append("g").attr("id", "boundaryEurope")
   // Group element for dots
   const dotsWeek0= zoomG.append("g").attr("id", "dotsWeek0")
   const dotsWeek1= zoomG.append("g").attr("id", "dotsWeek1")
@@ -84,6 +76,26 @@ export function eSvgMap({
   geoPath = getGeoPath()
   d30 = transform([30000,0])[0] - transform([0,0])[0]
   displayMapBackground()
+
+  function sizeSvg() {
+    // Get dimensions of parent element
+    if (!outputWidth) {
+      outputWidth = document.querySelector(selector).clientWidth
+    }
+    if (!outputHeight) {
+      outputHeight = document.querySelector(selector).clientHeight
+    }
+
+    console.log('outputHeight', outputHeight)
+    console.log('outputWidth', outputWidth)
+
+    if (expand) {
+      svg.attr("viewBox", "0 0 " + outputWidth + " " +  outputHeight)
+    } else {
+      svg.attr("width", outputWidth)
+      svg.attr("height", outputHeight)
+    }
+  }
 
   function getTransformation() {
 
@@ -138,22 +150,11 @@ export function eSvgMap({
 
     d3.json(boundaryEuropeGjson).then(data => {
 
-      console.log('data', data)
-
-      // const dataFeaturesEurope = data.features.filter(d => d.properties.SOVEREIGNT !== 'Russia')
-      const dataFeaturesEbms = data.features.filter(d => countriesEbms.includes(d.properties.SOVEREIGNT))
-
-      // data.features = dataFeaturesEurope
-
-      // boundaryEurope.append("path")
-      //   .datum(data)
-      //   .attr("d", geoPath)
-      //   .style("fill", 'yellow')
-      //   .style("stroke", strokeEurope)
+      const dataFeaturesEbms = data.features.filter(d => highlightCountries.includes(d.properties.SOVEREIGNT))
 
       data.features = dataFeaturesEbms
-      boundaryEbms.selectAll("path").remove()
-      boundaryEbms.append("path")
+      boundaryEurope.selectAll("path").remove()
+      boundaryEurope.append("path")
         .datum(data)
         .attr("d", geoPath)
         .style("fill", fillEurope)
@@ -194,21 +195,22 @@ export function eSvgMap({
       .join (
         enter => enter.append("circle")
           .classed("dot0", true)
-          .attr("fill", "red")
+          .attr("fill", fillDot)
+          .attr("opacity", dotOpacity1)
           .attr("cx", d => transform([d.x, d.y])[0])
           .attr("cy", d => transform([d.x, d.y])[1])
-          .attr("r", d30/2)
+          .attr("r", d30/2*dotSize1)
       )
     dotsWeek1.selectAll(".dot1")
       .data(dWeek1, d => d.id)
       .join (
         enter => enter.append("circle")
           .classed("dot1", true)
-          .attr("fill", "red")
-          .attr("opacity", 0.6)
+          .attr("fill", fillDot)
+          .attr("opacity", dotOpacity2)
           .attr("cx", d => transform([d.x, d.y])[0])
           .attr("cy", d => transform([d.x, d.y])[1])
-          .attr("r", 1.5*d30)
+          .attr("r", d30/2*dotSize2)
       )
 
     dotsWeek2.selectAll(".dot2")
@@ -216,11 +218,11 @@ export function eSvgMap({
       .join (
         enter => enter.append("circle")
           .classed("dot2", true)
-          .attr("fill", "red")
-          .attr("opacity", 0.3)
+          .attr("fill", fillDot)
+          .attr("opacity", dotOpacity3)
           .attr("cx", d => transform([d.x, d.y])[0])
           .attr("cy", d => transform([d.x, d.y])[1])
-          .attr("r", 3*d30)
+          .attr("r", d30/2*dotSize3)
       )
   }
 
@@ -286,12 +288,8 @@ export function eSvgMap({
   function resize(width, height) {
     outputWidth = width
     outputHeight = height
-    if (expand) {
-      svg.attr("viewBox", "0 0 " + outputWidth + " " +  outputHeight)
-    } else {
-      svg.attr("width", outputWidth)
-      svg.attr("height", outputHeight)
-    }
+    sizeSvg()
+
     transform = getTransformation()
     geoPath = getGeoPath()
     d30 = transform([30000,0])[0] - transform([0,0])[0]
@@ -299,9 +297,58 @@ export function eSvgMap({
 
     console.log('Remap data')
     dotsWeek0.selectAll(".dot0").remove()
-    dotsWeek0.selectAll(".dot1").remove()
-    dotsWeek0.selectAll(".dot2").remove()
+    dotsWeek1.selectAll(".dot1").remove()
+    dotsWeek2.selectAll(".dot2").remove()
     mapData(currentWeek, currentYear)
+  }
+
+  function setDisplayOpts(opts) {
+    if (opts.fillOcean) {
+      fillOcean = opts.fillOcean
+      svg.style("background-color", fillOcean)
+    }
+    if (opts.fillWorld) {
+      fillWorld = opts.fillWorld
+      boundaryWorld.selectAll("path").style("fill", fillWorld)
+    }
+    if (opts.fillEurope) {
+      fillEurope = opts.fillEurope
+      boundaryEurope.selectAll("path").style("fill", fillEurope)
+    }
+    if (opts.strokeEurope) {
+      strokeEurope = opts.strokeEurope
+      boundaryEurope.selectAll("path").style("stroke", strokeEurope)
+    }
+    if (opts.fillDot) {
+      fillDot = opts.fillDot
+      dotsWeek0.selectAll(".dot0").style("fill", fillDot)
+      dotsWeek1.selectAll(".dot1").style("fill", fillDot)
+      dotsWeek2.selectAll(".dot2").style("fill", fillDot)
+    }
+    if (opts.dotSize1) {
+      dotSize1 = opts.dotSize1
+      mapData(currentWeek, currentYear)
+    }
+    if (opts.dotSize2) {
+      dotSize2 = opts.dotSize2
+      mapData(currentWeek, currentYear)
+    }
+    if (opts.dotSize3) {
+      dotSize3 = opts.dotSize3
+      mapData(currentWeek, currentYear)
+    }
+    if (opts.dotOpacity1) {
+      dotOpacity1 = opts.dotOpacity1
+      mapData(currentWeek, currentYear)
+    }
+    if (opts.dotOpacity2) {
+      dotOpacity2 = opts.dotOpacity2
+      mapData(currentWeek, currentYear)
+    }
+    if (opts.dotOpacity3) {
+      dotOpacity3 = opts.dotOpacity3
+      mapData(currentWeek, currentYear)
+    }
   }
 
   return ({
@@ -309,6 +356,7 @@ export function eSvgMap({
     mapData: mapData,
     getWeekDates: getWeekDates,
     resize: resize,
+    setDisplayOpts: setDisplayOpts
   })
 }
 

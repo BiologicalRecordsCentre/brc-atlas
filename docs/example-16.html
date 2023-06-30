@@ -5,23 +5,64 @@
   <title>BRC Atlas Library example 16</title>
   <style>
     .content {
-      max-width: 960px;
+      max-width: 1200px;
       margin: auto;
     }
   </style>
 </head>
 <body>
   <div class="content">
-    <h1>Using the BRC Atlas Library</h1>
-    <h2>European map (under development)</h2>
-    <div id="map"></div>
-    <!-- <button onClick="loadTest('./es-painted-ladies-5yr-20230627-ebms.csv')">EBMS data last 5 years</button>
-    <button onClick="loadTest('./es-painted-ladies-5yr-20230627.csv')">All data last 5 years</button> -->
-    <div class="slidecontainer" >
-      <input type="range" min="1" max="52" value="1" class="slider" oninput="displayTest(this.value)"></input>
+    <!-- <h1>Using the BRC Atlas Library</h1> -->
+    <h2>European map: demonstration of code under development</h2>
+
+    <div style="display: grid; grid-template-columns: 3fr 1fr; grid-gap: 20px;">
+
+      <div>
+        <div id="map"></div>
+
+        <div id="playPause" onclick="playPause()">></div>
+        <div class="slidecontainer" >
+          <input type="range" min="1" max="52" value="1" class="slider" oninput="displayTest(this.value)"></input>
+        </div>
+
+        <div id="weekNo" style="text-align: center;"></div>
+      </div>
+
+      <div>
+        <span class="clabel">Sea:</span><input type="text" style="width: 60px"  id="fillOcean"></input><br/>
+        <span class="clabel">Land:</span><input type="text" style="width: 60px"  id="fillWorld"></input><br/>
+        <span class="clabel">Countries:</span><input type="text" style="width: 60px"  id="fillEurope"></input><br/>
+        <span class="clabel">Countries outline:</span><input type="text" style="width: 60px"  id="strokeEurope"></input><br/>
+        <span class="clabel">Dot colour:</span><input type="text" style="width: 60px"  id="fillDot"></input><br/>
+        <br/>
+        <span class="clabel">Dot 1 size:</span><input type="number" style="width: 60px" step="1" min="1" max="30" id="dotSize1"></input><br/>
+        <span class="clabel">Dot 2 size:</span><input type="number" style="width: 60px" step="1" min="1" max="30" id="dotSize2"></input><br/>
+        <span class="clabel">Dot 3 size:</span><input type="number" style="width: 60px" step="1" min="1" max="30" id="dotSize3"></input><br/>
+        <br/>
+        <span class="clabel">Dot 1 opacity:</span><input type="number" style="width: 60px" step="0.1" min="0" max="1" id="dotOpacity1"></input><br/>
+        <span class="clabel">Dot 2 opacity:</span><input type="number" style="width: 60px" step="0.1" min="0" max="1" id="dotOpacity2"></input><br/>
+        <span class="clabel">Dot 3 opacity:</span><input type="number" style="width: 60px" step="0.1" min="0" max="1" id="dotOpacity3"></input><br/>
+        <div style="font-size: 0.8em;">
+          <p>
+            This demonstration uses previously downloaded data for Painted Ladies submitted via eBMS in the last five years. The visualisation
+            is based on the 'traces' display from the Euro Bird Portal.
+          </p>
+          <p>
+            Countries are those participating in eBMS. Dot 1 indicates if the butterfly was recorded in the current week, dot 2 the previous
+            week and dot 3 the week before that. Data are aggregated on a 30 km grid based on the 'ETRS89-LAEA Europe' coordinate reference
+            system (EPSG:3035). The smallest dot size (1) corresponds to a dot of 30 km diameter.
+          </p>
+          <p>
+            Press the play button to animate the map, or drag the slider to the desired week.
+          </p>
+          <p>
+            You can pan the map by dragging with your mouse and you can zoom with your mouse wheele.
+          </p>
+        </div>
+
+      </div>
+
     </div>
-    <div id="weekNo"></div>
-    <button onclick="resizeDisplay()">Resize</button>
 
     <!--European examples CSS-->
     <link rel="stylesheet" type="text/css" href="./example-europe.css">
@@ -36,16 +77,35 @@
     <script src="./../dist/brcatlas_e.umd.js"></script>
     <link rel="stylesheet" type="text/css" href="./../dist/brcatlas_e.umd.css">
 
+    <!--JSColor needed for this demo (changing colours)-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.5.1/jscolor.min.js"></script>
+
+
     <script>
       loadTest('./es-painted-ladies-5yr-20230627-ebms.csv')
 
-      var map = brcatlas_e.eSvgMap({
+      var pp = false
+      var week = 1
+
+      var mapOpts = {
         selector: "#map",
-        outputWidth: 900,
+        outputWidth: 700,
         outputHeight: 500,
         mapBB: [1000000, 800000, 6000000, 5500000], // [minx, miny, maxx, maxy]
-        expand: true
-      })
+        expand: true,
+        fillEurope: '#1a1a20',
+        fillWorld: '#2f303e',
+        fillOcean: '#3a3d4a',
+        strokeEurope: '#27272d',
+        fillDot: '#f54b29',
+        dotSize1: 1,
+        dotSize2: 3,
+        dotSize3: 6,
+        dotOpacity1: 1,
+        dotOpacity2: 0.4,
+        dotOpacity3: 0.1,
+      }
+      var map = brcatlas_e.eSvgMap(mapOpts)
 
       function loadTest(file) {
         d3.csv(file, d => {
@@ -59,19 +119,93 @@
           }
         }).then(data => {
           map.loadData(data)
+          displayTest(1)
         })
       }
 
       function displayTest(e) {
         //console.log(e)
-        map.mapData(Number(e))
-        d3.select("#weekNo").text(map.getWeekDates(Number(e)))
+        week = Number(e)
+        map.mapData(week)
+        d3.select("#weekNo").text(map.getWeekDates(week))
       }
 
       function resizeDisplay() {
         map.resize(300, 300)
       }
 
+      function playPause() {
+        pp = !pp
+        if (pp) {
+          d3.select('#playPause').text("||")
+        } else {
+          d3.select('#playPause').text(">")
+        }
+      }
+      window.setInterval(function() {
+        if (pp) {
+          week = week === 52 ? 1 : week+1
+          document.querySelector('.slider').value = week
+          displayTest(week)
+        }
+      }, 300)
+
+
+      // Create colour pickers
+      const fillOcean = new JSColor('#fillOcean', {onInput: function() {
+        map.setDisplayOpts({fillOcean:  fillOcean.toHEXString()})
+      }})
+      const fillWorld = new JSColor('#fillWorld', {onInput: function() {
+        map.setDisplayOpts({fillWorld:  fillWorld.toHEXString()})
+      }})
+      const fillEurope = new JSColor('#fillEurope', {onInput: function() {
+        map.setDisplayOpts({fillEurope:  fillEurope.toHEXString()})
+      }})
+      const strokeEurope = new JSColor('#strokeEurope', {onInput: function() {
+        map.setDisplayOpts({strokeEurope:  strokeEurope.toHEXString()})
+      }})
+      const fillDot = new JSColor('#fillDot', {onInput: function() {
+        map.setDisplayOpts({fillDot:  fillDot.toHEXString()})
+      }})
+
+      // Initialise colour pickers
+      fillOcean.fromString(mapOpts.fillOcean)
+      fillWorld.fromString(mapOpts.fillWorld)
+      fillEurope.fromString(mapOpts.fillEurope)
+      strokeEurope.fromString(mapOpts.strokeEurope)
+      fillDot.fromString(mapOpts.fillDot)
+
+      // Attach handlers to dot size controls
+      d3.select('#dotSize1').on('change', function() {
+        map.setDisplayOpts({dotSize1: d3.select('#dotSize1').property('value')})
+      })
+      d3.select('#dotSize2').on('change', function() {
+        map.setDisplayOpts({dotSize2: d3.select('#dotSize2').property('value')})
+      })
+      d3.select('#dotSize3').on('change', function() {
+        map.setDisplayOpts({dotSize3: d3.select('#dotSize3').property('value')})
+      })
+
+      // Initialise dot size controls
+      d3.select('#dotSize1').property('value', mapOpts.dotSize1)
+      d3.select('#dotSize2').property('value', mapOpts.dotSize2)
+      d3.select('#dotSize3').property('value', mapOpts.dotSize3)
+
+       // Attach handlers to dot opacity controls
+       d3.select('#dotOpacity1').on('change', function() {
+        map.setDisplayOpts({dotSize1: d3.select('#dotOpacity1').property('value')})
+      })
+      d3.select('#dotOpacity2').on('change', function() {
+        map.setDisplayOpts({dotOpacity2: d3.select('#dotOpacity2').property('value')})
+      })
+      d3.select('#dotOpacity3').on('change', function() {
+        map.setDisplayOpts({dotOpacity3: d3.select('#dotOpacity3').property('value')})
+      })
+
+      // Initialise dot opacity controls
+      d3.select('#dotOpacity1').property('value', mapOpts.dotOpacity1)
+      d3.select('#dotOpacity2').property('value', mapOpts.dotOpacity2)
+      d3.select('#dotOpacity3').property('value', mapOpts.dotOpacity3)
     </script>
   </div>
 </body>

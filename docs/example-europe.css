@@ -3,8 +3,32 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.clabel {
+  width: 8em;
+  display: inline-block;
+  text-align: right;
+  padding-right: 0.2em;
+  font-size: 1em;
+  margin-bottom: 0.5em;
+}
+
+#playPause {
+  float: left;
+  width: 30px;
+  height: 30px;
+  border: 0px;
+  background-color: grey;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 30px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+}
+
 .slidecontainer {
-  width: 100%; /* Width of the outside container */
+  float: left;
+  width: calc(100% - 32px); /* Width of the outside container */
 }
 
 /* The slider itself */
