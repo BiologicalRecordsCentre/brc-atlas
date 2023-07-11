@@ -20,7 +20,7 @@
       external dependency of the BRC Atlas library. In this example they are all included from CDNs.
     </p>
 <pre>
-<code class="html">&lt;script src=&quot;https://d3js.org/d3.v5.min.js&quot;&gt;&lt;/script&gt;
+<code class="html">&lt;script src=&quot;https://d3js.org/d3.v7.min.js&quot;&gt;&lt;/script&gt;
 &lt;script src=&quot;https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas/dist/brcatlas.umd.js&quot;&gt;&lt;/script&gt;
 &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas/dist/brcatlas.umd.css&quot;&gt;&lt;/script&gt;</code>
 </pre>
@@ -54,7 +54,7 @@
 
     <p>
       Use the 'setIdentfier' method of the map object to load a CSV file. The 'Standard hectad' data accessor function which
-      we previously identified when we instantiated the map will process the file. 
+      we previously identified when we instantiated the map will process the file.
     </p>
 
 <pre>
@@ -62,7 +62,7 @@
 </pre>
 
   <p>
-    Finally we draw the map with the 'redrawMap' method. 
+    Finally we draw the map with the 'redrawMap' method.
   </p>
 
 <pre>
@@ -70,20 +70,20 @@
 </pre>
 
     <p>
-      We have specified a CSV file in the same folder as the example html page. An extract is reproduced below. 
+      We have specified a CSV file in the same folder as the example html page. An extract is reproduced below.
       The 'Standard hectad' accessor expects a CSV file with five columns as show below:
     </p>
     <ol>
       <li><strong>hectad</strong>: the grid reference of a hectad. The file can contain a mixture of hectad
         grid references for Britain, Ireland and the Channel Islands.</li>
-      <li><strong>colour</strong>: the html colour with which to display the hectad. Colours 
+      <li><strong>colour</strong>: the html colour with which to display the hectad. Colours
         can be specified using standard HTML colour names (e.g. 'indianred') or hex codes (e.g. #CD5C5C).</li>
       <li><strong>shape</strong>: permitted values are: circle, square, diamond, triangle-up, triangle-down.</li>
       <li><strong>opacity</strong>: a number between 0 and 1.</li>
       <li><strong>size</strong>: a number between 0 and 1.</li>
     </ol>
     <p>
-      In the example file, all the hectads are specified, with the same colour, shape, size and opacity, but 
+      In the example file, all the hectads are specified, with the same colour, shape, size and opacity, but
       you can specify these on a per/hectad basis.
     </p>
 
@@ -108,7 +108,7 @@ WV27,circle,black,0.8,1</code>
     <link rel="stylesheet" href="example.css" />
 
     <!--D3 JS required exernal dependency of BRC Atlas library-->
-    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
 
     <!--BRC Atlas library JS and CSS-->
     <script src="./../dist/brcatlas.umd.js"></script>
