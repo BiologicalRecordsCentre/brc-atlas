@@ -104,6 +104,7 @@ export default [
 			name: 'brcatlas_e',
 			file: pkg.browsermin_e,
 			format: 'umd',
+      sourcemap: true,
       globals: {
         'd3': 'd3'
       },
