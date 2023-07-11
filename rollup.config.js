@@ -97,4 +97,24 @@ export default [
       babel({ babelHelpers: 'bundled', presets: ['@babel/preset-env'] }),
 		]
   },
+  {
+    external: ['d3'],
+		input: 'index_e.js',
+		output: {
+			name: 'brcatlas_e',
+			file: pkg.browsermin_e,
+			format: 'umd',
+      globals: {
+        'd3': 'd3'
+      },
+		},
+		plugins: [
+      //eslint(),
+			resolve(), // so Rollup can find node libs
+      commonjs(), // so Rollup can convert CommonJS modules to an ES modules
+      json(), // required to import package into index.js
+      babel({ babelHelpers: 'bundled', presets: ['@babel/preset-env'] }),
+      terser()
+		]
+  },
 ]

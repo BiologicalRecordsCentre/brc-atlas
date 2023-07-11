@@ -513,6 +513,7 @@
   var browser = "dist/brcatlas.umd.js";
   var browser_e = "dist/brcatlas_e.umd.js";
   var browsermin = "dist/brcatlas.min.umd.js";
+  var browsermin_e = "dist/brcatlas_e.min.umd.js";
   var scripts = {
   	lint: "npx eslint src",
   	test: "jest",
@@ -562,6 +563,7 @@
   	browser: browser,
   	browser_e: browser_e,
   	browsermin: browsermin,
+  	browsermin_e: browsermin_e,
   	scripts: scripts,
   	author: author,
   	license: license,
