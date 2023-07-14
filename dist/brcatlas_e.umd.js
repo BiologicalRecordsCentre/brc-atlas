@@ -7714,7 +7714,7 @@
 
     var zoomControls = mainDiv.append("div").classed('zoom-controls', true).style('display', showZoomControls ? 'block' : 'none');
     var zoomIn = zoomControls.append("div").text("+").classed('zoom-control-button', true).classed('zoom-control-top-button', true);
-    var zoomOut = zoomControls.append("div").html("<code>&#8212;</code>").classed('zoom-control-button', true); // Create the SVG.
+    var zoomOut = zoomControls.append("div").html("&#8211;").classed('zoom-control-button', true); // Create the SVG.
 
     var svg = mainDiv.append("svg").style("background-color", fillOcean);
     sizeSvg(); // Zoom g element

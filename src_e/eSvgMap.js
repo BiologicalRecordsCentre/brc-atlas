@@ -62,7 +62,7 @@ export function eSvgMap({
   const zoomIn = zoomControls.append("div").text("+")
     .classed('zoom-control-button', true)
     .classed('zoom-control-top-button', true)
-  const zoomOut = zoomControls.append("div").html("<code>&#8212;</code>")
+  const zoomOut = zoomControls.append("div").html("&#8211;")
     .classed('zoom-control-button', true)
 
   // Create the SVG.
