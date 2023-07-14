@@ -7,25 +7,3 @@ export const constants = {
 
 // For testing only
 //constants.thisCdn = ''
-
-export const countriesEbms = [
-    'Austria',
-    'Belgium',
-    'Croatia',
-    'Czechia',
-    'Finland',
-    'France',
-    'Germany',
-    'Hungary',
-    'Ireland',
-    'Italy',
-    'Luxembourg',
-    'Norway',
-    'Portugal',
-    'Slovenia',
-    'Spain',
-    'Sweden',
-    'Switzerland',
-    'Netherlands',
-    'United Kingdom',
-  ]

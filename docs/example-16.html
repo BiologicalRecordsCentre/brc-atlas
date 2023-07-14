@@ -84,6 +84,28 @@
     <script>
       loadTest('./es-painted-ladies-5yr-20230627-ebms.csv')
 
+      const countriesEbms = [
+        'Austria',
+        'Belgium',
+        'Croatia',
+        'Czechia',
+        'Finland',
+        'France',
+        'Germany',
+        'Hungary',
+        'Ireland',
+        'Italy',
+        'Luxembourg',
+        'Norway',
+        'Portugal',
+        'Slovenia',
+        'Spain',
+        'Sweden',
+        'Switzerland',
+        'Netherlands',
+        'United Kingdom',
+      ]
+
       var pp = false
       var week = 1
 
@@ -94,7 +116,8 @@
         mapBB: [1000000, 800000, 6000000, 5500000], // [minx, miny, maxx, maxy]
         expand: true,
         fillEurope: '#1a1a20',
-        fillWorld: '#2f303e',
+        //fillWorld: '#2f303e',
+        fillWorld: '#1a1a20',
         fillOcean: '#3a3d4a',
         strokeEurope: '#27272d',
         fillDot: '#f54b29',
@@ -104,6 +127,9 @@
         dotOpacity1: 1,
         dotOpacity2: 0.4,
         dotOpacity3: 0.1,
+        //highlightCountries: countriesEbms,
+        hightlightAllEurrope: true,
+        //showZoomControls: false
       }
       var map = brcatlas_e.eSvgMap(mapOpts)
 

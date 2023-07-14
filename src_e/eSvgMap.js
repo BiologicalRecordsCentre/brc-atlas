@@ -2,7 +2,7 @@
 
 import * as d3 from 'd3'
 import proj4 from 'proj4'
-import { constants, countriesEbms } from './eConstants.js'
+import { constants } from './eConstants.js'
 
 export function eSvgMap({
   // Default options in here
@@ -17,13 +17,15 @@ export function eSvgMap({
   strokeEurope = 'rgb(100,100,100)',
   fillDot = 'red',
   expand = false,
-  highlightCountries = countriesEbms,
+  highlightCountries = [],
+  hightlightAllEurrope = false,
   dotSize1 = 1,
   dotSize2 = 3,
   dotSize3 = 6,
   dotOpacity1 = 1,
   dotOpacity2 = 0.4,
   dotOpacity3 = 0.1,
+  showZoomControls = true
 }) {
 
   // Function level variables
@@ -42,6 +44,27 @@ export function eSvgMap({
     .style("position", "relative")
     .style("display", "inline")
 
+   // Map loading spinner
+   let mapLoaderShowExplicit = false
+   const mapLoader = mainDiv.append("div")
+     .classed('map-loader', true)
+   const mapLoaderInner = mapLoader.append("div")
+     .classed('map-loader-inner', true)
+   mapLoaderInner.append("div")
+     .classed('map-loader-spinner', true)
+   mapLoaderInner.append("div").text("Loading map data...")
+     .classed('map-loader-text', true)
+
+  // Zoom control
+  const zoomControls = mainDiv.append("div")
+    .classed('zoom-controls', true)
+    .style('display', showZoomControls ? 'block' : 'none')
+  const zoomIn = zoomControls.append("div").text("+")
+    .classed('zoom-control-button', true)
+    .classed('zoom-control-top-button', true)
+  const zoomOut = zoomControls.append("div").html("<code>&#8212;</code>")
+    .classed('zoom-control-button', true)
+
   // Create the SVG.
   const svg = mainDiv.append("svg")
     .style("background-color", fillOcean)
@@ -57,6 +80,10 @@ export function eSvgMap({
   const zoom = d3.zoom()
     .on ('zoom', handleZoom)
   svg.call(zoom)
+
+  // Attach actions to zoom buttons
+  zoomIn.on('click', () => svg.transition().call(zoom.scaleBy, 2))
+  zoomOut.on('click', () => svg.transition().call(zoom.scaleBy, 0.5))
 
   // Group element for european boundary and world boundary
   const boundaryWorld = zoomG.append("g").attr("id", "boundaryWorld")
@@ -150,9 +177,9 @@ export function eSvgMap({
 
     d3.json(boundaryEuropeGjson).then(data => {
 
-      const dataFeaturesEbms = data.features.filter(d => highlightCountries.includes(d.properties.SOVEREIGNT))
+      const dataFeaturesHighlight = data.features.filter(d => hightlightAllEurrope || highlightCountries.includes(d.properties.SOVEREIGNT))
 
-      data.features = dataFeaturesEbms
+      data.features = dataFeaturesHighlight
       boundaryEurope.selectAll("path").remove()
       boundaryEurope.append("path")
         .datum(data)
@@ -169,6 +196,10 @@ export function eSvgMap({
         .attr("d", geoPath)
         .style("fill", fillWorld)
     })
+
+    if (!mapLoaderShowExplicit) {
+      mapLoader.classed('map-loader-hidden', true)
+    }
   }
 
   // API functions
@@ -351,12 +382,23 @@ export function eSvgMap({
     }
   }
 
+   /** @function showBusy
+  * @param {boolean} show - A boolean value to indicate whether or not to show map data loading.
+  * @description <b>This function is exposed as a method on the API returned from the eSvgMap function</b>.
+  * Allows calling application to display/hide an indicator showing the map data is loading.
+  */
+   function showBusy(show) {
+    mapLoaderShowExplicit = show
+    mapLoader.classed('map-loader-hidden', !mapLoaderShowExplicit)
+  }
+
   return ({
     loadData: loadData,
     mapData: mapData,
     getWeekDates: getWeekDates,
     resize: resize,
-    setDisplayOpts: setDisplayOpts
+    setDisplayOpts: setDisplayOpts,
+    showBusy: showBusy,
   })
 }
 

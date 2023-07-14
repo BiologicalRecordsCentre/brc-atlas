@@ -7574,7 +7574,7 @@
   includedProjections(proj4);
 
   var name = "brcatlas";
-  var version = "1.1.3";
+  var version = "1.1.4";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
@@ -7647,8 +7647,6 @@
   }; // For testing only
   //constants.thisCdn = ''
 
-  var countriesEbms = ['Austria', 'Belgium', 'Croatia', 'Czechia', 'Finland', 'France', 'Germany', 'Hungary', 'Ireland', 'Italy', 'Luxembourg', 'Norway', 'Portugal', 'Slovenia', 'Spain', 'Sweden', 'Switzerland', 'Netherlands', 'United Kingdom'];
-
   /** @module eSvgMap */
   function eSvgMap(_ref) {
     var _ref$selector = _ref.selector,
@@ -7674,7 +7672,9 @@
         _ref$expand = _ref.expand,
         expand = _ref$expand === void 0 ? false : _ref$expand,
         _ref$highlightCountri = _ref.highlightCountries,
-        highlightCountries = _ref$highlightCountri === void 0 ? countriesEbms : _ref$highlightCountri,
+        highlightCountries = _ref$highlightCountri === void 0 ? [] : _ref$highlightCountri,
+        _ref$hightlightAllEur = _ref.hightlightAllEurrope,
+        hightlightAllEurrope = _ref$hightlightAllEur === void 0 ? false : _ref$hightlightAllEur,
         _ref$dotSize = _ref.dotSize1,
         dotSize1 = _ref$dotSize === void 0 ? 1 : _ref$dotSize,
         _ref$dotSize2 = _ref.dotSize2,
@@ -7686,7 +7686,9 @@
         _ref$dotOpacity2 = _ref.dotOpacity2,
         dotOpacity2 = _ref$dotOpacity2 === void 0 ? 0.4 : _ref$dotOpacity2,
         _ref$dotOpacity3 = _ref.dotOpacity3,
-        dotOpacity3 = _ref$dotOpacity3 === void 0 ? 0.1 : _ref$dotOpacity3;
+        dotOpacity3 = _ref$dotOpacity3 === void 0 ? 0.1 : _ref$dotOpacity3,
+        _ref$showZoomControls = _ref.showZoomControls,
+        showZoomControls = _ref$showZoomControls === void 0 ? true : _ref$showZoomControls;
     // Function level variables
     var dataGridded = []; // Transformed data
 
@@ -7702,7 +7704,17 @@
     // Create a parent div for the SVG within the parent element passed
     // as an argument. Allows us to style correctly for positioning etc.
 
-    var mainDiv = d3.select("".concat(selector)).append("div").attr('id', mapid).style("position", "relative").style("display", "inline"); // Create the SVG.
+    var mainDiv = d3.select("".concat(selector)).append("div").attr('id', mapid).style("position", "relative").style("display", "inline"); // Map loading spinner
+
+    var mapLoaderShowExplicit = false;
+    var mapLoader = mainDiv.append("div").classed('map-loader', true);
+    var mapLoaderInner = mapLoader.append("div").classed('map-loader-inner', true);
+    mapLoaderInner.append("div").classed('map-loader-spinner', true);
+    mapLoaderInner.append("div").text("Loading map data...").classed('map-loader-text', true); // Zoom control
+
+    var zoomControls = mainDiv.append("div").classed('zoom-controls', true).style('display', showZoomControls ? 'block' : 'none');
+    var zoomIn = zoomControls.append("div").text("+").classed('zoom-control-button', true).classed('zoom-control-top-button', true);
+    var zoomOut = zoomControls.append("div").html("<code>&#8212;</code>").classed('zoom-control-button', true); // Create the SVG.
 
     var svg = mainDiv.append("svg").style("background-color", fillOcean);
     sizeSvg(); // Zoom g element
@@ -7715,7 +7727,14 @@
     }
 
     var zoom = d3.zoom().on('zoom', handleZoom);
-    svg.call(zoom); // Group element for european boundary and world boundary
+    svg.call(zoom); // Attach actions to zoom buttons
+
+    zoomIn.on('click', function () {
+      return svg.transition().call(zoom.scaleBy, 2);
+    });
+    zoomOut.on('click', function () {
+      return svg.transition().call(zoom.scaleBy, 0.5);
+    }); // Group element for european boundary and world boundary
 
     var boundaryWorld = zoomG.append("g").attr("id", "boundaryWorld"); //const boundaryEurope = svg.append("g").attr("id", "boundaryEurope")
 
@@ -7803,10 +7822,10 @@
 
     function displayMapBackground() {
       d3.json(boundaryEuropeGjson).then(function (data) {
-        var dataFeaturesEbms = data.features.filter(function (d) {
-          return highlightCountries.includes(d.properties.SOVEREIGNT);
+        var dataFeaturesHighlight = data.features.filter(function (d) {
+          return hightlightAllEurrope || highlightCountries.includes(d.properties.SOVEREIGNT);
         });
-        data.features = dataFeaturesEbms;
+        data.features = dataFeaturesHighlight;
         boundaryEurope.selectAll("path").remove();
         boundaryEurope.append("path").datum(data).attr("d", geoPath).style("fill", fillEurope).style("stroke", strokeEurope);
       });
@@ -7815,6 +7834,10 @@
         boundaryWorld.selectAll("path").remove();
         boundaryWorld.append("path").datum(data).attr("d", geoPath).style("fill", fillWorld);
       });
+
+      if (!mapLoaderShowExplicit) {
+        mapLoader.classed('map-loader-hidden', true);
+      }
     } // API functions
 
 
@@ -8012,13 +8035,25 @@
         mapData(currentWeek, currentYear);
       }
     }
+    /** @function showBusy
+    * @param {boolean} show - A boolean value to indicate whether or not to show map data loading.
+    * @description <b>This function is exposed as a method on the API returned from the eSvgMap function</b>.
+    * Allows calling application to display/hide an indicator showing the map data is loading.
+    */
+
+
+    function showBusy(show) {
+      mapLoaderShowExplicit = show;
+      mapLoader.classed('map-loader-hidden', !mapLoaderShowExplicit);
+    }
 
     return {
       loadData: loadData,
       mapData: mapData,
       getWeekDates: getWeekDates,
       resize: resize,
-      setDisplayOpts: setDisplayOpts
+      setDisplayOpts: setDisplayOpts,
+      showBusy: showBusy
     };
   }
 
