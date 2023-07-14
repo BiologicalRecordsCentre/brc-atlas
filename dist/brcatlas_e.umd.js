@@ -7574,7 +7574,7 @@
   includedProjections(proj4);
 
   var name = "brcatlas";
-  var version = "1.1.2";
+  var version = "1.1.3";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
