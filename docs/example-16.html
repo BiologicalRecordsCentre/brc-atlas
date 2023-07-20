@@ -220,7 +220,7 @@
 
       // Attach handlers to dot opacity controls
       d3.select('#dotOpacity1').on('change', function() {
-        map.setDisplayOpts({dotSize1: d3.select('#dotOpacity1').property('value')})
+        map.setDisplayOpts({dotOpacity1: d3.select('#dotOpacity1').property('value')})
       })
       d3.select('#dotOpacity2').on('change', function() {
         map.setDisplayOpts({dotOpacity2: d3.select('#dotOpacity2').property('value')})
