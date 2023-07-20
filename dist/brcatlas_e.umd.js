@@ -7574,7 +7574,7 @@
   includedProjections(proj4);
 
   var name = "brcatlas";
-  var version = "1.1.5";
+  var version = "1.1.6";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
@@ -7688,7 +7688,9 @@
         _ref$dotOpacity3 = _ref.dotOpacity3,
         dotOpacity3 = _ref$dotOpacity3 === void 0 ? 0.1 : _ref$dotOpacity3,
         _ref$showZoomControls = _ref.showZoomControls,
-        showZoomControls = _ref$showZoomControls === void 0 ? true : _ref$showZoomControls;
+        showZoomControls = _ref$showZoomControls === void 0 ? true : _ref$showZoomControls,
+        _ref$aggregate = _ref.aggregate,
+        aggregate = _ref$aggregate === void 0 ? true : _ref$aggregate;
     // Function level variables
     var dataGridded = []; // Transformed data
 
@@ -7911,8 +7913,16 @@
         var xy = proj4(epsg3035, [d.lon, d.lat]);
         var x = xy[0];
         var y = xy[1];
-        var gx = Math.floor(x / 30000) * 30000 + 15000;
-        var gy = Math.floor(y / 30000) * 30000 + 15000;
+        var gx, gy;
+
+        if (aggregate) {
+          gx = Math.floor(x / 30000) * 30000 + 15000;
+          gy = Math.floor(y / 30000) * 30000 + 15000;
+        } else {
+          gx = x;
+          gy = y;
+        }
+
         return {
           year: d.year,
           week: d.week,

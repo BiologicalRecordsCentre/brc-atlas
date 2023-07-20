@@ -25,7 +25,8 @@ export function eSvgMap({
   dotOpacity1 = 1,
   dotOpacity2 = 0.4,
   dotOpacity3 = 0.1,
-  showZoomControls = true
+  showZoomControls = true,
+  aggregate = true
 }) {
 
   // Function level variables
@@ -267,8 +268,14 @@ export function eSvgMap({
       const xy = proj4(epsg3035,[d.lon,d.lat])
       const x = xy[0]
       const y = xy[1]
-      const gx = Math.floor(x/30000) * 30000 + 15000
-      const gy = Math.floor(y/30000) * 30000 + 15000
+      let gx, gy
+      if (aggregate) {
+        gx = Math.floor(x/30000) * 30000 + 15000
+        gy = Math.floor(y/30000) * 30000 + 15000
+      } else {
+        gx = x
+        gy = y
+      }
       return {
         year: d.year,
         week: d.week,
@@ -277,6 +284,8 @@ export function eSvgMap({
         id: `${gx}-${gy}`
       }
     })
+
+
     // console.log('dataGridded', dataGridded)
   }
 
