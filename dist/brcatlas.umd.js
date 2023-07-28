@@ -10056,21 +10056,51 @@
           var triangleExit = triangle.exit().transition().ease(d3.easeCubic).duration(500).attr("d", d3.symbol().type(d3.symbolTriangle).size(0)).remove();
           addPromise(triangleExit); // Dot caption display
 
-          svg.selectAll('.dot').on('mouseover', function (d) {
+          svg.selectAll('.dot').on('mouseover', function (a1, a2) {
             if (captionId) {
-              if (d.caption) {
-                d3.select("#".concat(captionId)).html(d.caption);
+              // D3 v5 passes d as first argument but v7 passes
+              // d as second argument - event as first.
+              var caption;
+
+              if (a1.caption) {
+                caption = a1.caption;
+              } else if (a2.caption) {
+                caption = a2.caption;
+              }
+
+              if (caption) {
+                d3.select("#".concat(captionId)).html(caption);
               } else {
                 d3.select("#".concat(captionId)).html('');
               }
             }
-          }).on('mouseout', function (d) {
+          }).on('mouseout', function (a1, a2) {
             if (captionId) {
-              d3.select("#".concat(captionId)).html(d.noCaption ? d.noCaption : '');
+              // D3 v5 passes d as first argument but v7 passes
+              // d as second argument - event as first.
+              var noCaption;
+
+              if (a1.noCaption) {
+                noCaption = a1.noCaption;
+              } else if (a2.noCaption) {
+                noCaption = a2.noCaption;
+              }
+
+              d3.select("#".concat(captionId)).html(noCaption ? noCaption : '');
             }
-          }).on('click', function (d) {
+          }).on('click', function (a1, a2) {
             if (onclick) {
-              onclick(d.gr, d.id ? d.id : null, d.caption ? d.caption : null);
+              // D3 v5 passes d as first argument but v7 passes
+              // d as second argument - event as first.
+              var caption;
+
+              if (a1.caption) {
+                caption = a1.caption;
+              } else if (a2.caption) {
+                caption = a2.caption;
+              }
+
+              onclick(d.gr, d.id ? d.id : null, caption ? caption : null);
             }
           }); // Use Promise.all on pTrans to trigger code after
           // all transitions complete.

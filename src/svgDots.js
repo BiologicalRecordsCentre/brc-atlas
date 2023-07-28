@@ -56,7 +56,7 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           .append("circle")
           //.classed('dotCircle dot', true)
           .attr("cx", d => transform(getCentroid(d.gr, proj).centroid)[0])
-          .attr("cy", d => transform(getCentroid(d.gr, proj).centroid)[1]) 
+          .attr("cy", d => transform(getCentroid(d.gr, proj).centroid)[1])
           .attr("r", 0)
           .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
@@ -70,8 +70,8 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
             }
             return c
           })
-          .transition()  
-            .ease(d3.easeCubic)   
+          .transition()
+            .ease(d3.easeCubic)
             .duration(500)
           .attr("r", d => {
             const size = d.size ? d.size : data.size
@@ -84,7 +84,7 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           .attr("data-caption", d => getCaption(d))
 
         addPromise(circlesMerge)
-          
+
         const circlesExit = circles.exit()
           .transition()
             .ease(d3.easeCubic)
@@ -104,13 +104,13 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
         }
         const bullseyes = svg.selectAll('.dotBullseye')
           .data(recBullseyes, d => d.gr)
-        
+
         const bullseyesMerge =  bullseyes.enter()
           .append("circle")
           //.classed('dotBullseye dot', true)
           // .attr('clip-path', 'circle()')
           .attr("cx", d => transform(getCentroid(d.gr, proj).centroid)[0])
-          .attr("cy", d => transform(getCentroid(d.gr, proj).centroid)[1]) 
+          .attr("cy", d => transform(getCentroid(d.gr, proj).centroid)[1])
           .attr("r", 0)
           .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour2 ? d.colour2 : data.colour2)
@@ -123,8 +123,8 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
             }
             return c
           })
-          .transition()  
-            .ease(d3.easeCubic)   
+          .transition()
+            .ease(d3.easeCubic)
             .duration(500)
           .attr("r", d => {
             const size = d.size ? d.size : data.size
@@ -160,7 +160,7 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
           .attr("x", d => transform(getCentroid(d.gr, proj).centroid)[0])
           .attr("y", d => transform(getCentroid(d.gr, proj).centroid)[1])
           .attr("width", 0)
-          .attr("height", 0) 
+          .attr("height", 0)
           .attr("fill-opacity", d => d.opacity ? d.opacity : data.opacity)
           .style("fill", d => d.colour ? d.colour : data.colour)
         .merge(squares)
@@ -172,12 +172,12 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
             }
             return c
           })
-          .transition()  
-            .ease(d3.easeCubic)   
+          .transition()
+            .ease(d3.easeCubic)
             .duration(500)
           .attr("width", d => {
             const size = d.size ? d.size : data.size
-            return 2 * radiusPixels * size 
+            return 2 * radiusPixels * size
           })
           .attr("height", d => {
             const size = d.size ? d.size : data.size
@@ -220,7 +220,7 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
         }
         const diamonds = svg.selectAll('.dotDiamond')
           .data(recDiamonds, d => d.gr)
-        
+
         const diamondsEnter =  diamonds.enter()
           .append("path")
           //.classed('dotDiamond dot', true)
@@ -245,8 +245,8 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
             }
             return c
           })
-          .transition()  
-            .ease(d3.easeCubic)   
+          .transition()
+            .ease(d3.easeCubic)
             .duration(500)
           .attr("d", d3.symbol().type(d3.symbolSquare).size(radiusPixels * radiusPixels * 2))
           .attr("transform", d => {
@@ -317,8 +317,8 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
             }
             return c
           })
-          .transition()  
-            .ease(d3.easeCubic)   
+          .transition()
+            .ease(d3.easeCubic)
             .duration(500)
           .attr("d", d3.symbol().type(d3.symbolTriangle).size(radiusPixels * radiusPixels * 1.7))
           .attr("transform", d => {
@@ -358,23 +358,47 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
 
         // Dot caption display
         svg.selectAll('.dot')
-          .on('mouseover', d => {
+          .on('mouseover', (a1,a2) => {
             if (captionId) {
-              if (d.caption) {
-                d3.select(`#${captionId}`).html(d.caption)
+              // D3 v5 passes d as first argument but v7 passes
+              // d as second argument - event as first.
+              let caption
+              if (a1.caption) {
+                caption = a1.caption
+              } else if (a2.caption) {
+                caption = a2.caption
+              }
+              if (caption) {
+                d3.select(`#${captionId}`).html(caption)
               } else {
                 d3.select(`#${captionId}`).html('')
               }
             }
           })
-          .on('mouseout', d => {
+          .on('mouseout', (a1,a2) => {
             if (captionId) {
-              d3.select(`#${captionId}`).html(d.noCaption ? d.noCaption : '')
+              // D3 v5 passes d as first argument but v7 passes
+              // d as second argument - event as first.
+              let noCaption
+              if (a1.noCaption) {
+                noCaption = a1.noCaption
+              } else if (a2.noCaption) {
+                noCaption = a2.noCaption
+              }
+              d3.select(`#${captionId}`).html(noCaption ? noCaption : '')
             }
           })
-          .on('click', d => {
+          .on('click', (a1,a2) => {
             if (onclick) {
-              onclick(d.gr, d.id ? d.id : null, d.caption ? d.caption : null)
+              // D3 v5 passes d as first argument but v7 passes
+              // d as second argument - event as first.
+              let caption
+              if (a1.caption) {
+                caption = a1.caption
+              } else if (a2.caption) {
+                caption = a2.caption
+              }
+              onclick(d.gr, d.id ? d.id : null, caption ? caption : null)
             }
           })
 
