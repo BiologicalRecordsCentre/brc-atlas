@@ -32,7 +32,7 @@ import { downloadCurrentData } from './download.js'
  * object also has an property called 'zoom' which can be set to an array of Leaflet zoom levels. The style properties will
  * only be applied if the map zoom level is in the array. A shortcut to indicating all zoom levels not included in other
  * array members is an empty array. If the property includes only one style object, with the zoom property set to an empty
- * array, then the style properties will be applied at all zoom levels. 
+ * array, then the style properties will be applied at all zoom levels.
  * @param {string} opts.captionId - The id of a DOM element into which feature-specific HTML will be displayed
  * as the mouse moves over a dot on the map. The HTML markup must be stored in an attribute called 'caption'
  * in the input data.
@@ -48,7 +48,7 @@ import { downloadCurrentData } from './download.js'
  * names are the 'keys' which should be human readable descriptiosn of the map types.
  * @param {string} opts.mapTypesKey - Sets the key of the selected data accessor function (map type).
  * @param {legendOpts} opts.legendOpts - Sets options for a map legend.
- * @param {Array.<function>} opts.callbacks - An array of callbacks that can be used during data loading/display. 
+ * @param {Array.<function>} opts.callbacks - An array of callbacks that can be used during data loading/display.
  * Typically these can be used to display/hide busy indicators.
  * <br/>callbacks[0] is fired at the start of data redraw.
  * <br/>callbacks[1] is fired at the end of data redraw.
@@ -65,7 +65,7 @@ export function leafletMap({
   showVcs = false,
   showVcsTooltips = true,
   styleVcs = [
-    {zoom: [], color: 'black', fill: true, weight: 2, opacity: 0.4, fillOpacity: 0}, 
+    {zoom: [], color: 'black', fill: true, weight: 2, opacity: 0.4, fillOpacity: 0},
     {zoom: [7,6,5,4,3,2,1], color: 'black', fill: true, weight: 1, opacity: 0.3, fillOpacity: 0}
   ],
   captionId = '',
@@ -123,7 +123,7 @@ export function leafletMap({
   }
 
   const map = new L.Map(mapid, {center: [55, -4], zoom: 6, layers:[baseMaps[selectedBaselayerName]]})
-  
+
   map.on("viewreset", redraw) // Not firing on current version - seems to be a bug
   map.on("zoomstart", () => {
     //console.log("zoom start")
@@ -165,7 +165,7 @@ export function leafletMap({
       return new L.Control.Legend(opts)
   }
   L.control.Legend({ position: 'topleft' }).addTo(map)
-  
+
   function projectPoint(x, y) {
     const point = map.latLngToLayerPoint(new L.LatLng(y, x))
     this.stream.point(point.x, point.y)
@@ -243,8 +243,8 @@ export function leafletMap({
   function redraw() {
 
     // redraw and yieldRedraw are separated into two separate
-    // functions so that callbacks[0] can be called before 
-    // called the rest of the code asynchronously. This is 
+    // functions so that callbacks[0] can be called before
+    // called the rest of the code asynchronously. This is
     // required in order to yield control to event queue so that
     // if callbacks[0] updates gui (e.g. to show busy indicator)
     // it happens before rest of code executed.
@@ -271,7 +271,7 @@ export function leafletMap({
 
     legendOpts.accessorData = data.legend
     if (!(legendOpts.display && (legendOpts.data || legendOpts.accessorData))) {
-    //if (!legendOpts || !legendOpts.data || !legendOpts.data.lines || !legendOpts.data.lines.length) { 
+    //if (!legendOpts || !legendOpts.data || !legendOpts.data.lines || !legendOpts.data.lines.length) {
       d3.select(`#${mapid}`).select('.legendDiv').style('display', 'none')
     } else {
       if (legendOpts.display) {
@@ -280,7 +280,7 @@ export function leafletMap({
         d3.select(`#${mapid}`).select('.legendDiv').style('display', 'none')
       }
     }
-    
+
     if (!data) {
       data = {}
     }
@@ -291,8 +291,8 @@ export function leafletMap({
     setTimeout(() => yieldRedraw(data, buffer), 50)
   }
 
-  function yieldRedraw(data, buffer) { 
-    
+  function yieldRedraw(data, buffer) {
+
     // Hide point markers
     if (markers && precision!==0) {
       map.removeLayer(markers)
@@ -341,7 +341,7 @@ export function leafletMap({
         svg.attr("width", bottomRight[0] - topLeft[0])
           .attr("height", bottomRight[1] - topLeft[1])
           .style("left", topLeft[0] + "px")
-          .style("top", topLeft[1] + "px")  
+          .style("top", topLeft[1] + "px")
 
         g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")")
       }
@@ -365,7 +365,6 @@ export function leafletMap({
       // Create promises to be resolved when the circles and paths
       // have been redrawn.
       let pRedrawPath, pRedrawCircle
- 
       const up = g.selectAll("path")
         .data(filteredDataPath, function(d) {
           return d.gr
@@ -383,12 +382,24 @@ export function leafletMap({
               return 'pointer'
             }
           })
-          .on('click', d => {
+          .on('click', (a1,a2) => {
+            let d
+            if(a1.type === 'click') {
+              d=a2
+            } else {
+              d=a1
+            }
             if (onclick) {
               onclick(d.gr, d.id ? d.id : null, d.caption ? d.caption : null)
             }
           })
-          .on('mouseover', d => {
+          .on('mouseover', (a1,a2) => {
+            let d
+            if(a1.type === 'mouseover') {
+              d=a2
+            } else {
+              d=a1
+            }
             if (captionId) {
               if (d.caption) {
                 d3.select(`#${captionId}`).html(d.caption)
@@ -397,7 +408,13 @@ export function leafletMap({
               }
             }
           })
-          .on('mouseout', d => {
+          .on('mouseout', (a1,a2) => {
+            let d
+            if(a1.type === 'mouseout') {
+              d=a2
+            } else {
+              d=a1
+            }
             if (captionId) {
               d3.select(`#${captionId}`).html(d.noCaption ? d.noCaption : '')
             }
@@ -414,7 +431,7 @@ export function leafletMap({
       } else {
         pRedrawPath = Promise.resolve()
       }
-    
+
       const uc = g.selectAll("circle")
         .data(filteredDataCircle, function(d) {
           return d.gr
@@ -437,7 +454,7 @@ export function leafletMap({
         if (rad === 0) rad=1
 
         // Update the features
-        
+
         pRedrawCircle = uc.enter()
           .append("circle")
           .style("pointer-events", "all")
@@ -581,10 +598,10 @@ export function leafletMap({
     }
 
     function geojsonCountries(data) {
-      
-      return L.geoJSON(data, 
+
+      return L.geoJSON(data,
         {
-          pane: 'vcpane', 
+          pane: 'vcpane',
           style: getStyle()
         }
       ).addTo(map)
@@ -594,8 +611,8 @@ export function leafletMap({
   function redrawVcs() {
 
     //console.log(map.getZoom())
-    const root = constants.thisCdn 
-  
+    const root = constants.thisCdn
+
     // Load the VC mbr file if not already
     if (showVcs) {
       if (!vcs.mbrs) {
@@ -769,10 +786,10 @@ export function leafletMap({
           return l.bindPopup(`VC: <b>${f.properties['CODE']}</b> ${f.properties['NAME']}`)
         }
       }
-      return L.geoJSON(data, 
+      return L.geoJSON(data,
         {
-          pane: 'vcpane', 
-          style: getStyle(), 
+          pane: 'vcpane',
+          style: getStyle(),
           interactive: showVcsTooltips,
           onEachFeature: fn
         }
@@ -836,7 +853,7 @@ export function leafletMap({
   }
 
 /** @function setMapType
-  * @param {string} newMapTypesKey - A string which a key used to identify a data accessor function. 
+  * @param {string} newMapTypesKey - A string which a key used to identify a data accessor function.
   * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
   * The data accessor is stored in the mapTypesSel object and referenced by this key.
   */
@@ -845,7 +862,7 @@ export function leafletMap({
   }
 
 /** @function setIdentfier
-  * @param {string} identifier - A string which identifies some data to 
+  * @param {string} identifier - A string which identifies some data to
   * a data accessor function.
   * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
   * The data accessor function, specified elsewhere, will use this identifier to access
@@ -881,7 +898,7 @@ export function leafletMap({
         //Legend
         legendOpts.accessorData = data.legend
         if (legendOpts.display && (legendOpts.data || legendOpts.accessorData)) {
-          const legendSvg = d3.select(selector).append('svg') 
+          const legendSvg = d3.select(selector).append('svg')
           svgLegend(legendSvg, legendOpts)
           const bbox = legendSvg.node().getBBox()
           const w = legendOpts.width ? legendOpts.width : bbox.x + bbox.width + bbox.x
@@ -930,8 +947,8 @@ export function leafletMap({
 /** @function setSize
   * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
   * Change the size of the leaflet map.
-  * @param {number} width - Width of the map. 
-  * @param {number} height - Height of the map. 
+  * @param {number} width - Width of the map.
+  * @param {number} height - Height of the map.
   */
  function setSize(width, height){
   d3.select(`#${mapid}`)
@@ -951,7 +968,7 @@ export function leafletMap({
  /** @function addBasemapLayer
   * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
   * Provides a method to add a basemap layer after the map is created.
-  * @param {basemapConfig} config - a configuration object to define the new layer. 
+  * @param {basemapConfig} config - a configuration object to define the new layer.
   */
   function addBasemapLayer(config){
     if (!baseMaps[config.name]) {
@@ -981,7 +998,7 @@ export function leafletMap({
  /** @function removeBasemapLayer
   * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
   * Provides a method to remove a basemap layer after the map is created.
-  * @param {string} mapName - the name by which the map layer is identified (appears in layer selection). 
+  * @param {string} mapName - the name by which the map layer is identified (appears in layer selection).
   */
   function removeBasemapLayer(mapName){
     if (baseMaps[mapName] && Object.keys(baseMaps).length > 1) {
@@ -1003,12 +1020,12 @@ export function leafletMap({
  /** @function addGeojsonLayer
   * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
   * Provides a method to add a geojson layer after the map is created.
-  * @param {geojsonConfig} config - a configuration object to define the new layer. 
+  * @param {geojsonConfig} config - a configuration object to define the new layer.
   */
   function addGeojsonLayer(config){
-    
+
     if (!geojsonLayers[config.name]) {
-      
+
       if (!config.style) {
         config.style = {
           "color": "blue",
@@ -1027,7 +1044,7 @@ export function leafletMap({
  /** @function removeGeojsonLayer
   * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
   * Provides a method to remove a geojson layer after the map is created.
-  * @param {string} mapName - the name by which the map layer is identified. 
+  * @param {string} mapName - the name by which the map layer is identified.
   */
   function removeGeojsonLayer(name){
     if (geojsonLayers[name]) {
@@ -1042,7 +1059,7 @@ export function leafletMap({
  /** @function showOverlay
   * @description <b>This function allows you to show/hide the leaflet overlay layer (atlas layer)</b>.
   * Provides a method to show/hide the leaflet overlay layer used to display atlas data.
-  * @param {boolean} show - Set to true to display the layer, or false to hide it. 
+  * @param {boolean} show - Set to true to display the layer, or false to hide it.
   */
   function showOverlay(show) {
     if (show) {
@@ -1066,7 +1083,7 @@ export function leafletMap({
     clusterZoomThreshold = level
     if (precision===0){
       pointMarkers()
-    } 
+    }
   }
 
 /** @function setShowVcs
@@ -1088,7 +1105,7 @@ export function leafletMap({
 }
 
 /** @function downloadData
-  * @param {boolean} asGeojson - a boolean value that indicates whether to generate GeoJson (if false, generates CSV). 
+  * @param {boolean} asGeojson - a boolean value that indicates whether to generate GeoJson (if false, generates CSV).
   * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
   */
   function downloadData(asGeojson){

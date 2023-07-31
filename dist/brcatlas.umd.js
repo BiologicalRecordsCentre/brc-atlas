@@ -10057,50 +10057,50 @@
           addPromise(triangleExit); // Dot caption display
 
           svg.selectAll('.dot').on('mouseover', function (a1, a2) {
+            // D3 v5 passes d as first argument but v7 passes
+            // d as second argument - event as first.
+            var d;
+
+            if (a1.type === 'mouseover') {
+              d = a2;
+            } else {
+              d = a1;
+            }
+
             if (captionId) {
-              // D3 v5 passes d as first argument but v7 passes
-              // d as second argument - event as first.
-              var caption;
-
-              if (a1.caption) {
-                caption = a1.caption;
-              } else if (a2.caption) {
-                caption = a2.caption;
-              }
-
-              if (caption) {
-                d3.select("#".concat(captionId)).html(caption);
+              if (d.caption) {
+                d3.select("#".concat(captionId)).html(d.caption);
               } else {
                 d3.select("#".concat(captionId)).html('');
               }
             }
           }).on('mouseout', function (a1, a2) {
+            // D3 v5 passes d as first argument but v7 passes
+            // d as second argument - event as first.
+            var d;
+
+            if (a1.type === 'mouseout') {
+              d = a2;
+            } else {
+              d = a1;
+            }
+
             if (captionId) {
-              // D3 v5 passes d as first argument but v7 passes
-              // d as second argument - event as first.
-              var noCaption;
-
-              if (a1.noCaption) {
-                noCaption = a1.noCaption;
-              } else if (a2.noCaption) {
-                noCaption = a2.noCaption;
-              }
-
-              d3.select("#".concat(captionId)).html(noCaption ? noCaption : '');
+              d3.select("#".concat(captionId)).html(d.noCaption ? d.noCaption : '');
             }
           }).on('click', function (a1, a2) {
+            // D3 v5 passes d as first argument but v7 passes
+            // d as second argument - event as first.
+            var d;
+
+            if (a1.type === 'mouseout') {
+              d = a2;
+            } else {
+              d = a1;
+            }
+
             if (onclick) {
-              // D3 v5 passes d as first argument but v7 passes
-              // d as second argument - event as first.
-              var caption;
-
-              if (a1.caption) {
-                caption = a1.caption;
-              } else if (a2.caption) {
-                caption = a2.caption;
-              }
-
-              onclick(d.gr, d.id ? d.id : null, caption ? caption : null);
+              onclick(d.gr, d.id ? d.id : null, d.caption ? d.caption : null);
             }
           }); // Use Promise.all on pTrans to trigger code after
           // all transitions complete.
@@ -11492,7 +11492,7 @@
    * object also has an property called 'zoom' which can be set to an array of Leaflet zoom levels. The style properties will
    * only be applied if the map zoom level is in the array. A shortcut to indicating all zoom levels not included in other
    * array members is an empty array. If the property includes only one style object, with the zoom property set to an empty
-   * array, then the style properties will be applied at all zoom levels. 
+   * array, then the style properties will be applied at all zoom levels.
    * @param {string} opts.captionId - The id of a DOM element into which feature-specific HTML will be displayed
    * as the mouse moves over a dot on the map. The HTML markup must be stored in an attribute called 'caption'
    * in the input data.
@@ -11508,7 +11508,7 @@
    * names are the 'keys' which should be human readable descriptiosn of the map types.
    * @param {string} opts.mapTypesKey - Sets the key of the selected data accessor function (map type).
    * @param {legendOpts} opts.legendOpts - Sets options for a map legend.
-   * @param {Array.<function>} opts.callbacks - An array of callbacks that can be used during data loading/display. 
+   * @param {Array.<function>} opts.callbacks - An array of callbacks that can be used during data loading/display.
    * Typically these can be used to display/hide busy indicators.
    * <br/>callbacks[0] is fired at the start of data redraw.
    * <br/>callbacks[1] is fired at the end of data redraw.
@@ -11749,8 +11749,8 @@
 
     function redraw() {
       // redraw and yieldRedraw are separated into two separate
-      // functions so that callbacks[0] can be called before 
-      // called the rest of the code asynchronously. This is 
+      // functions so that callbacks[0] can be called before
+      // called the rest of the code asynchronously. This is
       // required in order to yield control to event queue so that
       // if callbacks[0] updates gui (e.g. to show busy indicator)
       // it happens before rest of code executed.
@@ -11777,7 +11777,7 @@
       legendOpts.accessorData = data.legend;
 
       if (!(legendOpts.display && (legendOpts.data || legendOpts.accessorData))) {
-        //if (!legendOpts || !legendOpts.data || !legendOpts.data.lines || !legendOpts.data.lines.length) { 
+        //if (!legendOpts || !legendOpts.data || !legendOpts.data.lines || !legendOpts.data.lines.length) {
         d3.select("#".concat(mapid)).select('.legendDiv').style('display', 'none');
       } else {
         if (legendOpts.display) {
@@ -11872,11 +11872,27 @@
             if (onclick) {
               return 'pointer';
             }
-          }).on('click', function (d) {
+          }).on('click', function (a1, a2) {
+            var d;
+
+            if (a1.type === 'click') {
+              d = a2;
+            } else {
+              d = a1;
+            }
+
             if (onclick) {
               onclick(d.gr, d.id ? d.id : null, d.caption ? d.caption : null);
             }
-          }).on('mouseover', function (d) {
+          }).on('mouseover', function (a1, a2) {
+            var d;
+
+            if (a1.type === 'mouseover') {
+              d = a2;
+            } else {
+              d = a1;
+            }
+
             if (captionId) {
               if (d.caption) {
                 d3.select("#".concat(captionId)).html(d.caption);
@@ -11884,7 +11900,15 @@
                 d3.select("#".concat(captionId)).html('');
               }
             }
-          }).on('mouseout', function (d) {
+          }).on('mouseout', function (a1, a2) {
+            var d;
+
+            if (a1.type === 'mouseout') {
+              d = a2;
+            } else {
+              d = a1;
+            }
+
             if (captionId) {
               d3.select("#".concat(captionId)).html(d.noCaption ? d.noCaption : '');
             }
@@ -12291,7 +12315,7 @@
       return style;
     }
     /** @function setMapType
-      * @param {string} newMapTypesKey - A string which a key used to identify a data accessor function. 
+      * @param {string} newMapTypesKey - A string which a key used to identify a data accessor function.
       * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
       * The data accessor is stored in the mapTypesSel object and referenced by this key.
       */
@@ -12301,7 +12325,7 @@
       mapTypesKey = newMapTypesKey;
     }
     /** @function setIdentfier
-      * @param {string} identifier - A string which identifies some data to 
+      * @param {string} identifier - A string which identifies some data to
       * a data accessor function.
       * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
       * The data accessor function, specified elsewhere, will use this identifier to access
@@ -12387,8 +12411,8 @@
     /** @function setSize
       * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
       * Change the size of the leaflet map.
-      * @param {number} width - Width of the map. 
-      * @param {number} height - Height of the map. 
+      * @param {number} width - Width of the map.
+      * @param {number} height - Height of the map.
       */
 
 
@@ -12408,7 +12432,7 @@
     /** @function addBasemapLayer
      * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
      * Provides a method to add a basemap layer after the map is created.
-     * @param {basemapConfig} config - a configuration object to define the new layer. 
+     * @param {basemapConfig} config - a configuration object to define the new layer.
      */
 
 
@@ -12443,7 +12467,7 @@
     /** @function removeBasemapLayer
      * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
      * Provides a method to remove a basemap layer after the map is created.
-     * @param {string} mapName - the name by which the map layer is identified (appears in layer selection). 
+     * @param {string} mapName - the name by which the map layer is identified (appears in layer selection).
      */
 
 
@@ -12468,7 +12492,7 @@
     /** @function addGeojsonLayer
      * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
      * Provides a method to add a geojson layer after the map is created.
-     * @param {geojsonConfig} config - a configuration object to define the new layer. 
+     * @param {geojsonConfig} config - a configuration object to define the new layer.
      */
 
 
@@ -12494,7 +12518,7 @@
     /** @function removeGeojsonLayer
      * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
      * Provides a method to remove a geojson layer after the map is created.
-     * @param {string} mapName - the name by which the map layer is identified. 
+     * @param {string} mapName - the name by which the map layer is identified.
      */
 
 
@@ -12509,7 +12533,7 @@
     /** @function showOverlay
      * @description <b>This function allows you to show/hide the leaflet overlay layer (atlas layer)</b>.
      * Provides a method to show/hide the leaflet overlay layer used to display atlas data.
-     * @param {boolean} show - Set to true to display the layer, or false to hide it. 
+     * @param {boolean} show - Set to true to display the layer, or false to hide it.
      */
 
 
@@ -12561,7 +12585,7 @@
       redrawCountries();
     }
     /** @function downloadData
-      * @param {boolean} asGeojson - a boolean value that indicates whether to generate GeoJson (if false, generates CSV). 
+      * @param {boolean} asGeojson - a boolean value that indicates whether to generate GeoJson (if false, generates CSV).
       * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
       */
 

@@ -359,46 +359,46 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
         // Dot caption display
         svg.selectAll('.dot')
           .on('mouseover', (a1,a2) => {
+            // D3 v5 passes d as first argument but v7 passes
+            // d as second argument - event as first.
+            let d
+            if(a1.type === 'mouseover') {
+              d=a2
+            } else {
+              d=a1
+            }
             if (captionId) {
-              // D3 v5 passes d as first argument but v7 passes
-              // d as second argument - event as first.
-              let caption
-              if (a1.caption) {
-                caption = a1.caption
-              } else if (a2.caption) {
-                caption = a2.caption
-              }
-              if (caption) {
-                d3.select(`#${captionId}`).html(caption)
+              if (d.caption) {
+                d3.select(`#${captionId}`).html(d.caption)
               } else {
                 d3.select(`#${captionId}`).html('')
               }
             }
           })
           .on('mouseout', (a1,a2) => {
+            // D3 v5 passes d as first argument but v7 passes
+            // d as second argument - event as first.
+            let d
+            if(a1.type === 'mouseout') {
+              d=a2
+            } else {
+              d=a1
+            }
             if (captionId) {
-              // D3 v5 passes d as first argument but v7 passes
-              // d as second argument - event as first.
-              let noCaption
-              if (a1.noCaption) {
-                noCaption = a1.noCaption
-              } else if (a2.noCaption) {
-                noCaption = a2.noCaption
-              }
-              d3.select(`#${captionId}`).html(noCaption ? noCaption : '')
+              d3.select(`#${captionId}`).html(d.noCaption ? d.noCaption : '')
             }
           })
           .on('click', (a1,a2) => {
+            // D3 v5 passes d as first argument but v7 passes
+            // d as second argument - event as first.
+            let d
+            if(a1.type === 'mouseout') {
+              d=a2
+            } else {
+              d=a1
+            }
             if (onclick) {
-              // D3 v5 passes d as first argument but v7 passes
-              // d as second argument - event as first.
-              let caption
-              if (a1.caption) {
-                caption = a1.caption
-              } else if (a2.caption) {
-                caption = a2.caption
-              }
-              onclick(d.gr, d.id ? d.id : null, caption ? caption : null)
+              onclick(d.gr, d.id ? d.id : null, d.caption ? d.caption : null)
             }
           })
 
