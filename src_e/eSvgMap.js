@@ -4,10 +4,55 @@ import * as d3 from 'd3'
 import proj4 from 'proj4'
 import { constants } from './eConstants.js'
 
+/**
+ * @param {Object} opts - Initialisation options.
+ * @param {string} opts.selector - The CSS selector of the element which will be the parent of the SVG. (Default - body.)
+ * @param {string} opts.mapid - The id for the map to be created. (Default - es=SvgMap.)
+ * @param {number} opts.outputWidth - The width of the map in pixels. If this is set to zero then the
+ * width is set to the client width of the element indicated by the opts.selector parameter. (Default - 0.)
+ * @param {number} opts.outputHeight - The height of the map in pixels. If this is set to zero then the
+ * height is set to the client height of the element indicated by the opts.selector parameter. (Default - 0.)
+ * @param {Array.<number>} opts.mapBB - The MBR of an area that must be fully visible in the map to start. This
+ * iniitally positions the map view. The array has the form [minx, miny, maxx, maxy]. The numbers are in the
+ * coordinate system EPSG:3035 (ETRS89-extended / LAEA Europe) which is that used for the map.
+ * (Default - [1000000, 800000, 6600000, 5500000].)
+ * @param {boolean} opts.expand - Indicates whether or not the map will expand to fill parent element. (Default - false.)
+ * @param {boolean} opts.hightlightAllEurope - Indicates whether or not *all* European countries are to be
+ * highlighted.
+ * @param {Array.<string>} opts.highlightCountries - An array of country names that are to be highlighted. The country names
+ * must match those used in the SOVEREIGNT property of the boundaryEuropeGjson asset. Only useful if the hightlightAllEurope
+ * option is set to false.
+ * @param {string} opts.fillEurope - Specifies the fill colour to use for the countries considered to be part of 'Europe'
+ * for the purposes of the visualisation. Can use any recognised JS way to specify a colour. (Default - black.)
+ * @param {string} opts.strokeEurope - Specifies the stroke colour to use for the countries considered to be part of 'Europe'
+ * for the purposes of the visualisation. Can use any recognised JS way to specify a colour. (Default - rgb(100,100,100).)
+ * @param {string} opts.fillWord - Specifies the fill colour to use for countries not considered to be part of 'Europe'
+ * for the purposes of the visualisation. Can use any recognised JS way to specify a colour. (Default - rgb(50,50,50).)
+ * @param {string} opts.fillOcean - Specifies the fill colour to use for Ocean. Can use any recognised JS way to specify
+ * a colour. (Default - rgb(100,100,100).)
+ * @param {string} opts.fillDot - Specifies the fill colour to use for map dots. Can use any recognised JS way to specify
+ * a colour. (Default - red.)
+ * @param {string} opts.dotSize1 - Specifies a size multiplier for dot1. The base dotsize corresponds to a 30km radius on the
+ * ground. For the 'traces' map, dot1 represents records found in the current week. (Default - 1.)
+ * @param {string} opts.dotSize2 - Specifies a size multiplier for dot2. The base dotsize corresponds to a 30km radius on the
+ * ground. For the 'traces' map, dot2 represents records found in the previous week. (Default - 3.)
+ * @param {string} opts.dotSize3 - Specifies a size multiplier for dot3. The base dotsize corresponds to a 30km radius on the
+ * ground. For the 'traces' map, dot3 represents records found in the week two weeks before current. (Default - 6.)
+ * @param {string} opts.dotOpacity1 - Specifies an opacity for dot1. For the 'traces' map, dot1 represents records
+ * found in the current week. (Default - 1.)
+ * @param {string} opts.dotOpacity2 - Specifies an opacity for dot2. For the 'traces' map, dot2 represents records
+ * found in the previous week. (Default - 0.4.)
+ * @param {string} opts.dotOpacity3 - Specifies an opacity for dot3. For the 'traces' map, dot3 represents records
+ * found in the week two weeks before current. (Default - 0.1.)
+ * @param {boolean} opts.showZoomControls - Indicates whether zoom controls are to be displayed on the map. (Default - true.)
+ * @param {boolean} opts.aggregate - Indicates data locations are to be shifted to the centre of the nearest
+ * 30km grid square. (Default - true.)
+ * @returns {module:eSvgMap~api} api - Returns an API for the map.
+ */
 export function eSvgMap({
   // Default options in here
   selector = 'body',
-  mapid = 'svgMap',
+  mapid = 'eSvgMap',
   outputWidth = 0,
   outputHeight = 0,
   mapBB = [1000000, 800000, 6600000, 5500000], // [minx, miny, maxx, maxy]
@@ -18,7 +63,7 @@ export function eSvgMap({
   fillDot = 'red',
   expand = false,
   highlightCountries = [],
-  hightlightAllEurrope = false,
+  hightlightAllEurope = false,
   dotSize1 = 1,
   dotSize2 = 3,
   dotSize3 = 6,
@@ -178,7 +223,7 @@ export function eSvgMap({
 
     d3.json(boundaryEuropeGjson).then(data => {
 
-      const dataFeaturesHighlight = data.features.filter(d => hightlightAllEurrope || highlightCountries.includes(d.properties.SOVEREIGNT))
+      const dataFeaturesHighlight = data.features.filter(d => hightlightAllEurope || highlightCountries.includes(d.properties.SOVEREIGNT))
 
       data.features = dataFeaturesHighlight
       boundaryEurope.selectAll("path").remove()
@@ -205,6 +250,12 @@ export function eSvgMap({
 
   // API functions
 
+/** @function mapData
+  * @param {number} week - A number indicating the week of the year for which to display data.
+  * @param {number} year - A number indicating the year for which to display data can be blank to include all years.
+  * @description <b>This function is exposed as a method on the API returned from the eSvgMap function</b>.
+  * Display the data for a given year/week. If no year is specified, then data from all years are included.
+  */
   function mapData(week, year) {
 
     currentWeek = week
@@ -258,6 +309,11 @@ export function eSvgMap({
       )
   }
 
+/** @function loadData
+  * @param {Array.<object>} data - An array of data objects which should have the format: {year, week, lat, lon}.
+  * @description <b>This function is exposed as a method on the API returned from the eSvgMap function</b>.
+  * This method is called to load fresh data. Doesn't itself display any data.
+  */
   function loadData(data) {
 
     // console.log('data loaded', data)
@@ -284,11 +340,16 @@ export function eSvgMap({
         id: `${gx}-${gy}`
       }
     })
-
-
     // console.log('dataGridded', dataGridded)
   }
 
+/** @function getWeekDates
+  * @param {number} week - A number indicating the week of the year for which to get dates.
+  * @param {number} year - A number indicating the week for which to get dates.
+  * @description <b>This function is exposed as a method on the API returned from the eSvgMap function</b>.
+  * Returns the start and end dates for a particular week and year. Where no year is specified, a leap
+  * year is assumed.
+  */
   function getWeekDates (week, year) {
     // Given week number and a year, return start and end dates of week.
     // Where there's no year, assume a non-leap year.
@@ -325,6 +386,12 @@ export function eSvgMap({
     }
   }
 
+/** @function resize
+  * @param {number} width - A number indicating the width of the map in pixels.
+  * @param {number} height - A number indicating the height of the map in pixels.
+  * @description <b>This function is exposed as a method on the API returned from the eSvgMap function</b>.
+  * Resize the map.
+  */
   function resize(width, height) {
     outputWidth = width
     outputHeight = height
@@ -342,6 +409,11 @@ export function eSvgMap({
     mapData(currentWeek, currentYear)
   }
 
+/** @function setDisplayOpts
+  * @param {Object} opts - Initialisation options. The options are the color and dot size/opacity options.
+  * @description <b>This function is exposed as a method on the API returned from the eSvgMap function</b>.
+  * Set display options for the map.
+  */
   function setDisplayOpts(opts) {
     if (opts.fillOcean) {
       fillOcean = opts.fillOcean
@@ -391,7 +463,7 @@ export function eSvgMap({
     }
   }
 
-   /** @function showBusy
+/** @function showBusy
   * @param {boolean} show - A boolean value to indicate whether or not to show map data loading.
   * @description <b>This function is exposed as a method on the API returned from the eSvgMap function</b>.
   * Allows calling application to display/hide an indicator showing the map data is loading.
@@ -401,6 +473,15 @@ export function eSvgMap({
     mapLoader.classed('map-loader-hidden', !mapLoaderShowExplicit)
   }
 
+  /**
+   * @typedef {Object} api
+   * @property {module:eSvgMap~loadData} loadData - Set the data to use for the map.
+   * @property {module:eSvgMap~mapData} mapData - Display a subset of the data.
+   * @property {module:eSvgMap~getWeekDates} getWeekDates - For a given weeka and year, return the start and end dates.
+   * @property {module:eSvgMap~resize} resize - Resize the map to the specified size.
+   * @property {module:eSvgMap~setDisplayOpts} setDisplayOpts - Set the display options for the map.
+   * @property {module:eSvgMap~showBusy} showBusy - Set a boolean value to indicate whether or not to show map data loading.
+   */
   return ({
     loadData: loadData,
     mapData: mapData,
