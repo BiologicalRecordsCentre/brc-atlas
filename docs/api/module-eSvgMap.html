@@ -1,0 +1,1910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Module: eSvgMap</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Module: eSvgMap</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".eSvgMap"><span class="type-signature">(static) </span>eSvgMap<span class="signature">(opts)</span><span class="type-signature"> &rarr; {<a href="module-eSvgMap.html#~api">module:eSvgMap~api</a>}</span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>opts</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Initialisation options.
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>selector</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The CSS selector of the element which will be the parent of the SVG. (Default - body.)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>mapid</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The id for the map to be created. (Default - es=SvgMap.)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>outputWidth</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The width of the map in pixels. If this is set to zero then the
+width is set to the client width of the element indicated by the opts.selector parameter. (Default - 0.)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>outputHeight</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The height of the map in pixels. If this is set to zero then the
+height is set to the client height of the element indicated by the opts.selector parameter. (Default - 0.)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>mapBB</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The MBR of an area that must be fully visible in the map to start. This
+iniitally positions the map view. The array has the form [minx, miny, maxx, maxy]. The numbers are in the
+coordinate system EPSG:3035 (ETRS89-extended / LAEA Europe) which is that used for the map.
+(Default - [1000000, 800000, 6600000, 5500000].)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>expand</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Indicates whether or not the map will expand to fill parent element. (Default - false.)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>hightlightAllEurope</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Indicates whether or not *all* European countries are to be
+highlighted.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>highlightCountries</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;string></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">An array of country names that are to be highlighted. The country names
+must match those used in the SOVEREIGNT property of the boundaryEuropeGjson asset. Only useful if the hightlightAllEurope
+option is set to false.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>fillEurope</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Specifies the fill colour to use for the countries considered to be part of 'Europe'
+for the purposes of the visualisation. Can use any recognised JS way to specify a colour. (Default - black.)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>strokeEurope</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Specifies the stroke colour to use for the countries considered to be part of 'Europe'
+for the purposes of the visualisation. Can use any recognised JS way to specify a colour. (Default - rgb(100,100,100).)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>fillWord</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Specifies the fill colour to use for countries not considered to be part of 'Europe'
+for the purposes of the visualisation. Can use any recognised JS way to specify a colour. (Default - rgb(50,50,50).)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>fillOcean</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Specifies the fill colour to use for Ocean. Can use any recognised JS way to specify
+a colour. (Default - rgb(100,100,100).)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>fillDot</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Specifies the fill colour to use for map dots. Can use any recognised JS way to specify
+a colour. (Default - red.)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dotSize1</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Specifies a size multiplier for dot1. The base dotsize corresponds to a 30km radius on the
+ground. For the 'traces' map, dot1 represents records found in the current week. (Default - 1.)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dotSize2</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Specifies a size multiplier for dot2. The base dotsize corresponds to a 30km radius on the
+ground. For the 'traces' map, dot2 represents records found in the previous week. (Default - 3.)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dotSize3</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Specifies a size multiplier for dot3. The base dotsize corresponds to a 30km radius on the
+ground. For the 'traces' map, dot3 represents records found in the week two weeks before current. (Default - 6.)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dotOpacity1</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Specifies an opacity for dot1. For the 'traces' map, dot1 represents records
+found in the current week. (Default - 1.)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dotOpacity2</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Specifies an opacity for dot2. For the 'traces' map, dot2 represents records
+found in the previous week. (Default - 0.4.)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dotOpacity3</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Specifies an opacity for dot3. For the 'traces' map, dot3 represents records
+found in the week two weeks before current. (Default - 0.1.)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>showZoomControls</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Indicates whether zoom controls are to be displayed on the map. (Default - true.)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>aggregate</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Indicates data locations are to be shifted to the centre of the nearest
+30km grid square. (Default - true.)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_e_eSvgMap.js.html">src_e/eSvgMap.js</a>, <a href="src_e_eSvgMap.js.html#line52">line 52</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    api - Returns an API for the map.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="module-eSvgMap.html#~api">module:eSvgMap~api</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~getWeekDates"><span class="type-signature">(inner) </span>getWeekDates<span class="signature">(week, year)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <b>This function is exposed as a method on the API returned from the eSvgMap function</b>.
+Returns the start and end dates for a particular week and year. Where no year is specified, a leap
+year is assumed.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>week</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">A number indicating the week of the year for which to get dates.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>year</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">A number indicating the week for which to get dates.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_e_eSvgMap.js.html">src_e/eSvgMap.js</a>, <a href="src_e_eSvgMap.js.html#line346">line 346</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~loadData"><span class="type-signature">(inner) </span>loadData<span class="signature">(data)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <b>This function is exposed as a method on the API returned from the eSvgMap function</b>.
+This method is called to load fresh data. Doesn't itself display any data.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;object></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">An array of data objects which should have the format: {year, week, lat, lon}.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_e_eSvgMap.js.html">src_e/eSvgMap.js</a>, <a href="src_e_eSvgMap.js.html#line312">line 312</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~mapData"><span class="type-signature">(inner) </span>mapData<span class="signature">(week, year)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <b>This function is exposed as a method on the API returned from the eSvgMap function</b>.
+Display the data for a given year/week. If no year is specified, then data from all years are included.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>week</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">A number indicating the week of the year for which to display data.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>year</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">A number indicating the year for which to display data can be blank to include all years.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_e_eSvgMap.js.html">src_e/eSvgMap.js</a>, <a href="src_e_eSvgMap.js.html#line253">line 253</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~resize"><span class="type-signature">(inner) </span>resize<span class="signature">(width, height)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <b>This function is exposed as a method on the API returned from the eSvgMap function</b>.
+Resize the map.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>width</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">A number indicating the width of the map in pixels.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>height</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">A number indicating the height of the map in pixels.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_e_eSvgMap.js.html">src_e/eSvgMap.js</a>, <a href="src_e_eSvgMap.js.html#line389">line 389</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~setDisplayOpts"><span class="type-signature">(inner) </span>setDisplayOpts<span class="signature">(opts)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <b>This function is exposed as a method on the API returned from the eSvgMap function</b>.
+Set display options for the map.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>opts</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Initialisation options. The options are the color and dot size/opacity options.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_e_eSvgMap.js.html">src_e/eSvgMap.js</a>, <a href="src_e_eSvgMap.js.html#line412">line 412</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~showBusy"><span class="type-signature">(inner) </span>showBusy<span class="signature">(show)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <b>This function is exposed as a method on the API returned from the eSvgMap function</b>.
+Allows calling application to display/hide an indicator showing the map data is loading.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>show</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">A boolean value to indicate whether or not to show map data loading.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_e_eSvgMap.js.html">src_e/eSvgMap.js</a>, <a href="src_e_eSvgMap.js.html#line466">line 466</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Type Definitions</h3>
+
+        
+                
+<h4 class="name" id="~api">api</h4>
+
+
+
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>loadData</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-eSvgMap.html#~loadData">module:eSvgMap~loadData</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Set the data to use for the map.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>mapData</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-eSvgMap.html#~mapData">module:eSvgMap~mapData</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Display a subset of the data.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>getWeekDates</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-eSvgMap.html#~getWeekDates">module:eSvgMap~getWeekDates</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">For a given weeka and year, return the start and end dates.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>resize</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-eSvgMap.html#~resize">module:eSvgMap~resize</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Resize the map to the specified size.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>setDisplayOpts</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-eSvgMap.html#~setDisplayOpts">module:eSvgMap~setDisplayOpts</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Set the display options for the map.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>showBusy</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-eSvgMap.html#~showBusy">module:eSvgMap~showBusy</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Set a boolean value to indicate whether or not to show map data loading.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_e_eSvgMap.js.html">src_e/eSvgMap.js</a>, <a href="src_e_eSvgMap.js.html#line476">line 476</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+            
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-dataAccess.html">dataAccess</a></li><li><a href="module-eSvgMap.html">eSvgMap</a></li><li><a href="module-slippyMap.html">slippyMap</a></li><li><a href="module-svgCoords.html">svgCoords</a></li><li><a href="module-svgLegend.html">svgLegend</a></li><li><a href="module-svgMap.html">svgMap</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Aug 23 2023 04:10:13 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
