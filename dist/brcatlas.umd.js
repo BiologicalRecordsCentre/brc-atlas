@@ -506,7 +506,7 @@
   };
 
   var name = "brcatlas";
-  var version = "1.1.6";
+  var version = "1.2.0";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
@@ -518,7 +518,7 @@
   	lint: "npx eslint src",
   	test: "jest",
   	build: "rollup --config",
-  	docs: "jsdoc ./src/ -R README.md -d ./docs/api"
+  	docs: "jsdoc ./src/ ./src_e/ -R README.md -d ./docs/api"
   };
   var author = "CEH Biological Records Centre";
   var license = "GPL-3.0-only";
@@ -11588,7 +11588,31 @@
     d3.select(selector).append('div').attr('id', mapid).style('width', "".concat(width, "px")).style('height', "".concat(height, "px")); // Create basemaps from config
 
     var selectedBaselayerName;
-    var baseMaps = basemapConfigs.reduce(function (bm, c) {
+    var baseMaps = basemapConfigs.filter(function (c) {
+      return !c.overlay;
+    }).reduce(function (bm, c) {
+      var lyrFn;
+
+      if (c.type === 'tileLayer') {
+        lyrFn = L.tileLayer;
+      } else if (c.type === 'wms') {
+        lyrFn = L.tileLayer.wms;
+      } else {
+        return bm;
+      }
+
+      bm[c.name] = lyrFn(c.url, c.opts);
+
+      if (c.selected) {
+        selectedBaselayerName = c.name;
+      }
+
+      return bm;
+    }, {}); // Create overlays from config
+
+    var overlayMaps = basemapConfigs.filter(function (c) {
+      return c.overlay;
+    }).reduce(function (bm, c) {
       var lyrFn;
 
       if (c.type === 'tileLayer') {
@@ -11650,7 +11674,7 @@
     var mapLayerControl;
 
     if (basemapConfigs.length > 0) {
-      mapLayerControl = L.control.layers(baseMaps).addTo(map);
+      mapLayerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
     } // Legend custom control
 
 
@@ -12431,48 +12455,72 @@
     }
     /** @function addBasemapLayer
      * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
-     * Provides a method to add a basemap layer after the map is created.
+     * Provides a method to add a basemap layer after the map is created. A basemap can be either a
+     * true leaflet basemap or a leaflet overlay layer. They are distinguised by the value of an 'overlay'
+     * configuration option.
      * @param {basemapConfig} config - a configuration object to define the new layer.
      */
 
 
     function addBasemapLayer(config) {
-      if (!baseMaps[config.name]) {
-        // Add config to baseMaps
-        var lyrFn;
+      var lyrFn;
 
-        if (config.type === 'tileLayer') {
-          lyrFn = L.tileLayer;
-        } else if (config.type === 'wms') {
-          lyrFn = L.tileLayer.wms;
-        }
+      if (config.type === 'tileLayer') {
+        lyrFn = L.tileLayer;
+      } else if (config.type === 'wms') {
+        lyrFn = L.tileLayer.wms;
+      }
 
-        if (lyrFn) {
-          baseMaps[config.name] = lyrFn(config.url, config.opts);
+      if (config.overlay) {
+        if (!overlayMaps[config.name]) {
+          // Add config to overlayMaps
+          if (lyrFn) {
+            overlayMaps[config.name] = lyrFn(config.url, config.opts);
 
-          if (Object.keys(baseMaps).length === 2) {
-            // This is the second base layer - create mapLayerControl
-            mapLayerControl = L.control.layers(baseMaps).addTo(map);
-          } else {
-            mapLayerControl.addBaseLayer(baseMaps[config.name], config.name);
+            if (!mapLayerControl) {
+              // If there's no mapLayerControl, create one
+              mapLayerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
+            } else {
+              mapLayerControl.addOverlay(overlayMaps[config.name], config.name);
+            }
           }
+        }
+      } else {
+        if (!baseMaps[config.name]) {
+          // Add config to baseMaps
+          if (lyrFn) {
+            baseMaps[config.name] = lyrFn(config.url, config.opts);
 
-          if (config.selected) {
-            map.removeLayer(baseMaps[selectedBaselayerName]);
-            map.addLayer(baseMaps[config.name]);
+            if (!mapLayerControl && Object.keys(baseMaps).length === 2) {
+              // This is the second base layer - create mapLayerControl
+              mapLayerControl = L.control.layers(baseMaps).addTo(map);
+            } else {
+              mapLayerControl.addBaseLayer(baseMaps[config.name], config.name);
+            }
+
+            if (config.selected) {
+              map.removeLayer(baseMaps[selectedBaselayerName]);
+              map.addLayer(baseMaps[config.name]);
+            }
           }
         }
       }
     }
     /** @function removeBasemapLayer
      * @description <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
-     * Provides a method to remove a basemap layer after the map is created.
+     * Provides a method to remove a basemap layer after the map is created. A basemap can be either a
+     * true leaflet basemap or a leaflet overlay layer. They are distinguised by the value of an 'overlay'
+     * configuration option.
      * @param {string} mapName - the name by which the map layer is identified (appears in layer selection).
      */
 
 
     function removeBasemapLayer(mapName) {
-      if (baseMaps[mapName] && Object.keys(baseMaps).length > 1) {
+      if (overlayMaps[mapName]) {
+        map.removeLayer(overlayMaps[mapName]);
+        mapLayerControl.removeLayer(overlayMaps[mapName]);
+        delete overlayMaps[mapName];
+      } else if (baseMaps[mapName] && Object.keys(baseMaps).length > 1) {
         map.removeLayer(baseMaps[mapName]);
         mapLayerControl.removeLayer(baseMaps[mapName]);
         delete baseMaps[mapName];
@@ -12482,11 +12530,13 @@
           // display first basemap.
           map.addLayer(baseMaps[Object.keys(baseMaps)[0]]);
         }
+      }
 
-        if (Object.keys(baseMaps).length === 1) {
-          // Only one base layer - remove mapLayerControl
-          mapLayerControl.remove();
-        }
+      if (Object.keys(baseMaps).length === 1 && Object.keys(overlayMaps).length === 0) {
+        // Only one base layer - and no overlay layers
+        // remove mapLayerControl
+        mapLayerControl.remove();
+        mapLayerControl = null;
       }
     }
     /** @function addGeojsonLayer

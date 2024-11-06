@@ -641,7 +641,9 @@ Typically these can be used to display/hide busy indicators.
 
 <div class="description">
     <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
-Provides a method to add a basemap layer after the map is created.
+Provides a method to add a basemap layer after the map is created. A basemap can be either a
+true leaflet basemap or a leaflet overlay layer. They are distinguised by the value of an 'overlay'
+configuration option.
 </div>
 
 
@@ -734,7 +736,7 @@ Provides a method to add a basemap layer after the map is created.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line968">line 968</a>
+        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line985">line 985</a>
     </li></ul></dd>
     
 
@@ -872,7 +874,7 @@ Provides a method to add a geojson layer after the map is created.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line1020">line 1020</a>
+        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line1066">line 1066</a>
     </li></ul></dd>
     
 
@@ -1009,7 +1011,7 @@ Provides a method to add a geojson layer after the map is created.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line1078">line 1078</a>
+        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line1124">line 1124</a>
     </li></ul></dd>
     
 
@@ -1098,7 +1100,7 @@ Clear the map of dots and legend.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line933">line 933</a>
+        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line950">line 950</a>
     </li></ul></dd>
     
 
@@ -1235,7 +1237,7 @@ Clear the map of dots and legend.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line1107">line 1107</a>
+        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line1153">line 1153</a>
     </li></ul></dd>
     
 
@@ -1324,7 +1326,7 @@ Expose the leaflet map invalidate size method.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line960">line 960</a>
+        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line977">line 977</a>
     </li></ul></dd>
     
 
@@ -1413,7 +1415,7 @@ Redraw the map, e.g. after changing map accessor function or map identifier.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line875">line 875</a>
+        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line892">line 892</a>
     </li></ul></dd>
     
 
@@ -1458,7 +1460,9 @@ Redraw the map, e.g. after changing map accessor function or map identifier.
 
 <div class="description">
     <b>This function is exposed as a method on the API returned from the leafletMap function</b>.
-Provides a method to remove a basemap layer after the map is created.
+Provides a method to remove a basemap layer after the map is created. A basemap can be either a
+true leaflet basemap or a leaflet overlay layer. They are distinguised by the value of an 'overlay'
+configuration option.
 </div>
 
 
@@ -1551,7 +1555,7 @@ Provides a method to remove a basemap layer after the map is created.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line998">line 998</a>
+        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line1034">line 1034</a>
     </li></ul></dd>
     
 
@@ -1689,7 +1693,7 @@ Provides a method to remove a geojson layer after the map is created.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line1044">line 1044</a>
+        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line1090">line 1090</a>
     </li></ul></dd>
     
 
@@ -1829,7 +1833,7 @@ a data accessor function.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line864">line 864</a>
+        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line881">line 881</a>
     </li></ul></dd>
     
 
@@ -1968,7 +1972,7 @@ of the legend itself.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line923">line 923</a>
+        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line940">line 940</a>
     </li></ul></dd>
     
 
@@ -2106,7 +2110,7 @@ The data accessor is stored in the mapTypesSel object and referenced by this key
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line855">line 855</a>
+        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line872">line 872</a>
     </li></ul></dd>
     
 
@@ -2243,7 +2247,7 @@ The data accessor is stored in the mapTypesSel object and referenced by this key
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line1098">line 1098</a>
+        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line1144">line 1144</a>
     </li></ul></dd>
     
 
@@ -2380,7 +2384,7 @@ The data accessor is stored in the mapTypesSel object and referenced by this key
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line1089">line 1089</a>
+        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line1135">line 1135</a>
     </li></ul></dd>
     
 
@@ -2541,7 +2545,7 @@ Change the size of the leaflet map.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line947">line 947</a>
+        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line964">line 964</a>
     </li></ul></dd>
     
 
@@ -2679,7 +2683,7 @@ Provides a method to show/hide the leaflet overlay layer used to display atlas d
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line1059">line 1059</a>
+        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line1105">line 1105</a>
     </li></ul></dd>
     
 
@@ -3187,7 +3191,7 @@ Provides a method to show/hide the leaflet overlay layer used to display atlas d
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line1117">line 1117</a>
+        <a href="src_leafletMap.js.html">src/leafletMap.js</a>, <a href="src_leafletMap.js.html#line1163">line 1163</a>
     </li></ul></dd>
     
 
@@ -3435,7 +3439,7 @@ Provides a method to show/hide the leaflet overlay layer used to display atlas d
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Aug 23 2023 04:10:13 GMT-0700 (Pacific Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Nov 06 2024 18:15:01 GMT+0000 (Greenwich Mean Time)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -16,11 +16,11 @@
     </p>
     <button onclick="removeLayer('OpenStreetMap')">Remove OpenStreetMap</button>
     <button onclick="removeLayer('OpenTopoMap')">Remove OpenTopoMap</button>
-    <button onclick="removeLayer('NLS historic')">NLS historic</button>
+    <button onclick="removeLayer('Climate change exposure 1901-1930 to 1961-1990')">Remove Climate Change overlay</button>
     <br/>
     <button onclick="addLayer('OpenStreetMap')">Add OpenStreetMap</button>
     <button onclick="addLayer('OpenTopoMap')">Add OpenTopoMap</button>
-    <button onclick="addLayer('NLS historic')">NLS historic</button>
+    <button onclick="addLayer('Climate change exposure 1901-1930 to 1961-1990')">Add Climate Change overlay</button>
 
     <!--JS and CSS required for highlighting inline example code-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
@@ -38,10 +38,10 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 
     <!--BRC Atlas library JS and CSS-->
-    <!-- <script src="./../../brc-atlas/dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="./../../brc-atlas/dist/brcatlas.umd.css"> -->
-    <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css">
+    <script src="./../dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="./../dist/brcatlas.umd.css">
+    <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
 
     <script>
       var basemapConfigs = [
@@ -67,17 +67,18 @@
         },
       ]
 
-      const nls = {
-        name: 'NLS historic',
+      const cc = {
+        name: 'Climate change exposure 1901-1930 to 1961-1990',
         type: 'wms',
-        selected: true,
-        url: 'https://nls-{s}.tileserver.com/nls/{z}/{x}/{y}.jpg', 
+        selected: false,
+        url: 'https://warehouse1.indicia.org.uk/geoserver/climate/wms',
+        overlay: true,
         opts: {
-          attribution: '<a href="https://maps.nls.uk/projects/api//">National Library of Scotland Historic Maps</a>',
-          bounds: [[49.6, -12], [61.7, 3]],
-          minZoom: 1,
-          maxZoom: 18,
-          subdomains: '0123'
+          format: 'image/png',
+          transparent: true,
+          layers: 'climate_change_exposure_1901-1930_to_1961-1990',
+          maxZoom: 17,
+          attribution: 'UKCEH'
         }
       }
 
@@ -93,8 +94,8 @@
       }
 
       function addLayer(lyrName) {
-        if (lyrName === 'NLS historic') {
-          map.addBasemapLayer(nls)
+        if (lyrName === 'Climate change exposure 1901-1930 to 1961-1990') {
+          map.addBasemapLayer(cc)
         } else if (lyrName === 'OpenStreetMap') {
           map.addBasemapLayer(basemapConfigs[0])
         } else {
