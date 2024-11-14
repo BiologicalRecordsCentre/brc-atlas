@@ -1,4 +1,4 @@
-### BRC Atlas library examples
+# BRC Atlas library examples
 
 ## API documentation
 For API details - [JSDoc API documentation](https://biologicalrecordscentre.github.io/brc-atlas/docs/api/).

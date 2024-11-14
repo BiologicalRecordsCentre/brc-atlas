@@ -6,4 +6,5 @@ export const constants = {
 }
 
 // For testing only
-constants.thisCdn = ''
+// Comment out next line prior to production builds
+//constants.thisCdn = ''

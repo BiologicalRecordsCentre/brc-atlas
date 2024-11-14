@@ -1,4 +1,4 @@
-### BRC Atlas library
+# BRC Atlas library
 The BRC Atlas library is a Javascript library for providing both easy and flexible APIs for creating static and slippy maps for atlas projects. In fact there are two libraries packaged in one project - one for British atlas mapping (`brcatlas.umd.js`) and one for European atlas mapping (`brcatlas_e.umd.js`).
 
 ## Installing
@@ -32,3 +32,23 @@ The CDN also exposes some geojson assets. These are used internally by the mappi
 For details of the API, view the [JSDoc API documentation](https://biologicalrecordscentre.github.io/brc-atlas/docs/api/).
 
 There are also a number of [working examples](https://biologicalrecordscentre.github.io/brc-atlas/docs/).
+
+## Notes for developers
+### Typical build & publish workflow
+- `npm audit --production` (look for any important vulnerabilities)
+- `npm run lint`
+- `npm test` (although virtually no tests at present) 
+- `npm run docs` 
+- Update the version number in `package.json` 
+- Ensure that `src/constants.hs` & `src_e/e_constants.js` are set up correctly (i.e. for production - not development)
+- `npm run build` (after package update so that correct version is printed to console by library) 
+- Update `docs/Readme` (if required, e.g. to link new examples) 
+- Git add any new files
+- `git commit` 
+- Git tag \<version>, e.g. `git tag 1.2.1`. Tag must match version number in package (to ensure that version can be used to target it in CDN) 
+- Git push origin <version>, e.g. `git push origin 1.2.1` (pushes the tag commit) 
+- `git push` (pushes to master branch) 
+- Run the following links to purge the jsdelivr CDN caches
+  - https://purge.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js 
+  - https://purge.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css 
+
