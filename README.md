@@ -51,8 +51,8 @@ Although these libraries are bundled here in the same package, they are essentia
 - Update `docs/Readme` (if required, e.g. to link new examples) 
 - Git add any new files
 - Git commit all changes
-- Git tag \<version>, e.g. `git tag 1.2.1`. Tag must match version number in package (to ensure that version can be used to target it in CDN) 
-- Git push origin <version>, e.g. `git push origin 1.2.1` (pushes the tag commit) 
+- Git tag \<version\>, e.g. `git tag 1.2.1`. Tag must match version number in package (to ensure that version can be used to target it in CDN) 
+- Git push origin \<version\>, e.g. `git push origin 1.2.1` (pushes the tag commit) 
 - `git push` (pushes to master branch) 
 - Run the following links to purge the jsdelivr CDN caches
   - https://purge.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js 
