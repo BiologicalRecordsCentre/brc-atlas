@@ -57,6 +57,7 @@ For API details - [JSDoc API documentation](https://biologicalrecordscentre.gith
   - Showing multiple SVG maps on one page
   - Demonstrates setting map transform options using built in control and programatically
   - Demonstrates setting map access function using built in control and programatically
+
 ### European atlas maps ###
 - [European atlas & colour options](example-16.html)
 - [European atlas full screen](example-17.html)
