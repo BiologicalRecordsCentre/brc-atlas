@@ -142,7 +142,7 @@ export function downloadCurrentData(pData, precision, asGeojson){
     }
 
     function cleanColumn(name) {
-      return name.replace(/[^\x00-\x7F]/g, "_")
+      return name.replace(/[^\x00-\x7F]/g, "_") // eslint-disable-line no-control-regex
     }
   })
 }

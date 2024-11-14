@@ -35,16 +35,15 @@ There are also a number of [working examples](https://biologicalrecordscentre.gi
 
 ## Notes for developers
 ### Typical build & publish workflow
-- `npm audit --production` (look for any important vulnerabilities)
+- `npm audit --omit=dev` (look for any important vulnerabilities)
 - `npm run lint`
-- `npm test` (although virtually no tests at present) 
 - `npm run docs` 
 - Update the version number in `package.json` 
 - Ensure that `src/constants.hs` & `src_e/e_constants.js` are set up correctly (i.e. for production - not development)
 - `npm run build` (after package update so that correct version is printed to console by library) 
 - Update `docs/Readme` (if required, e.g. to link new examples) 
 - Git add any new files
-- `git commit` 
+- Git commit all changes
 - Git tag \<version>, e.g. `git tag 1.2.1`. Tag must match version number in package (to ensure that version can be used to target it in CDN) 
 - Git push origin <version>, e.g. `git push origin 1.2.1` (pushes the tag commit) 
 - `git push` (pushes to master branch) 

@@ -7574,7 +7574,7 @@
   includedProjections(proj4);
 
   var name = "brcatlas";
-  var version = "1.2.1";
+  var version = "1.2.2";
   var description = "Javascript library for web-based biological records atlas mapping in the British Isles.";
   var type = "module";
   var main = "dist/brcatlas.umd.js";
@@ -7599,7 +7599,7 @@
   };
   var dependencies = {
   	"brc-atlas-bigr": "^2.2.2",
-  	d3: "^5.16.0",
+  	d3: "^7.9.0",
   	leaflet: "^1.7.1",
   	"leaflet-control-custom": "^1.0.0",
   	"leaflet.markercluster": "^1.5.0",
@@ -7645,8 +7645,8 @@
     bigrCdn: 'https://unpkg.com/brc-atlas-bigr/dist',
     thisCdn: "https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@".concat(pkg.version)
   }; // For testing only
-
-  constants.thisCdn = '';
+  // Comment out next line prior to production builds
+  //constants.thisCdn = ''
 
   /** @module eSvgMap */
   /**
