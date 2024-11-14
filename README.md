@@ -49,8 +49,8 @@ Although these libraries are bundled here in the same package, they are essentia
 - Ensure that `src/constants.hs` & `src_e/e_constants.js` are set up correctly (i.e. for production - not development)
 - `npm run build` (after package update so that correct version is printed to console by library) 
 - Update `docs/Readme` (if required, e.g. to link new examples) 
-- Git add any new files
-- Git commit all changes
+- Git add any new files, e.g. `git add *`
+- Git commit all changes, e.g. `git commit -a`
 - Git tag \<version\>, e.g. `git tag 1.2.1`. Tag must match version number in package (to ensure that version can be used to target it in CDN) 
 - Git push origin \<version\>, e.g. `git push origin 1.2.1` (pushes the tag commit) 
 - `git push` (pushes to master branch) 
