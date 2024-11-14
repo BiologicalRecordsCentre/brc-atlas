@@ -61,3 +61,5 @@ For API details - [JSDoc API documentation](https://biologicalrecordscentre.gith
 ### European atlas maps ###
 - [European atlas & colour options](example-16.html)
 - [European atlas full screen](example-17.html)
+
+[[Back to repo]](https://github.com/BiologicalRecordsCentre/brc-atlas)
