@@ -34,6 +34,13 @@ For details of the API, view the [JSDoc API documentation](https://biologicalrec
 There are also a number of [working examples](https://biologicalrecordscentre.github.io/brc-atlas/docs/).
 
 ## Notes for developers
+### Two libraries in one package ###
+There are two libraries in this package:
+ - `dist/brcatlas.umd.js` - for atlas mapping in Britain and Ireland
+ - `dist/brcatlas_e.umd.js` - for atlas mapping over Europe
+
+Although these libraries are bundled here in the same package, they are essentially different projects without any interdependendies.
+
 ### Typical build & publish workflow
 - `npm audit --omit=dev` (look for any important vulnerabilities)
 - `npm run lint`
