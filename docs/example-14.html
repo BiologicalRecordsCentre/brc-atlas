@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>BRC Atlas Library larger datasets</title>
+  <title>BRC Atlas Library example 14</title>
   <style>
     table, th, td {
       border: 1px solid black;
@@ -35,6 +35,15 @@
 <body>
   <div class="content">
     <h1>Using the BRC Atlas Library</h1>
+    <p>
+      Explore the source of this page and examine the code comments to see how it works.
+      Included on this page:
+      <ul>
+        <li>Displaying large datasets on a Leaflet map</li>
+        <li>Starting and stopping a busy indicator for downloading and displaying</li>
+        <li>Using the 'callbacks' property of the Leaflet map</li>
+      </ul>
+    </p>
     <h2>BRC Atlas Library using larger datasets and busy indicators</h2>
     <div>
       <div id="map" style="float: left"></div>
@@ -55,77 +64,69 @@
           <label for="symb-circle">SVG Circles</label>
         </div>
         <p id="loader-text"></p>
+        <p id="display-text"></p>
         <div id="loader" style="display: none; margin: 1em">
           <div class="loader"></div>
         </div>
       </div>   
     </div>
     <br style="clear: left"/>
-    <p>
-      Explore the source of this page to see how it works.
-    </p>
-
-    <!--JS and CSS required for highlighting inline example code-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/a11y-light.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
-
-    <!--Page CSS-->
-    <link rel="stylesheet" href="example.css" />
-
-    <!--D3 JS required exernal dependency of BRC Atlas library-->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <!--Leaflet JS required exernal dependency of BRC Atlas library-->
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-
-    <!--BRC Atlas library JS and CSS-->
-    <script src="./../dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="./../dist/brcatlas.umd.css">
-    <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
-
-    <script>
-
-      var t1
-
-      function startLoad() {
-        t1 = Math.floor(Date.now() / 100)
-        document.getElementById('loader').style.display = 'block'
-        d3.select('#loader-text').html('Downloading data...')
-      }
-      function endLoad() {
-        document.getElementById('loader').style.display = 'none'
-        var t2 = Math.floor(Date.now() / 100)
-        d3.select('#loader-text').html('Downloading took ' + String((t2-t1)/10) + ' seconds' )
-      }
-      function startDraw() {
-        t1 = Math.floor(Date.now() / 100)
-        document.getElementById('loader').style.display = 'block'
-        d3.select('#loader-text').html('Displaying data...')
-      }
-      function endDraw() {
-        document.getElementById('loader').style.display = 'none'
-        var t2 = Math.floor(Date.now() / 100)
-        d3.select('#loader-text').html('Displaying took ' + String((t2-t1)/10) + ' seconds' )
-      }
-
-      var map = brcatlas.leafletMap({
-        selector: "#map",
-        callbacks: [startDraw, endDraw, startLoad, endLoad]
-      })
-      function showDots(csv, mapType) {
-        //console.log(csv, mapType)
-        var symbol = d3.select('input[name="symboltype"]:checked').node().value
-        //console.log(symbol)
-
-        map.setMapType(mapType)
-        map.setIdentfier('../bsbi/' + csv + '_' + symbol + '.csv')
-        map.redrawMap()
-      }
-
-    </script>
   </div>
+  
+  <!--Page CSS-->
+  <link rel="stylesheet" href="example.css" />
+
+  <!--D3 JS required exernal dependency of BRC Atlas library-->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <!--Leaflet JS required exernal dependency of BRC Atlas library-->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+  <!--BRC Atlas library JS and CSS
+  Here we get the resources in this package-->
+  <script src="./../dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="./../dist/brcatlas.umd.css">
+  <!--But you can get them from the CDNs as shown below-->
+  <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
+  
+  <script>
+
+    let t1
+
+    function startLoad() {
+      t1 = Math.floor(Date.now() / 100)
+      document.getElementById('loader').style.display = 'block'
+      d3.select('#loader-text').html('Downloading data...')
+      d3.select('#display-text').html('')
+    }
+    function endLoad() {
+      document.getElementById('loader').style.display = 'none'
+      const t2 = Math.floor(Date.now() / 100)
+      d3.select('#loader-text').html('Downloading took ' + String((t2-t1)/10) + ' seconds' )
+    }
+    function startDraw() {
+      t1 = Math.floor(Date.now() / 100)
+      document.getElementById('loader').style.display = 'block'
+      d3.select('#display-text').html('Displaying data...')
+    }
+    function endDraw() {
+      document.getElementById('loader').style.display = 'none'
+      const t2 = Math.floor(Date.now() / 100)
+      d3.select('#display-text').html('Displaying took ' + String((t2-t1)/10) + ' seconds' )
+    }
+
+    const map = brcatlas.leafletMap({
+      selector: "#map",
+      // The callbacks defined above are identified to the BRC atlas leaflet map
+      callbacks: [startDraw, endDraw, startLoad, endLoad]
+    })
+    function showDots(csv, mapType) {
+      const symbol = d3.select('input[name="symboltype"]:checked').node().value
+      map.setMapType(mapType)
+      map.setIdentfier('./data/bsbi/' + csv + '_' + symbol + '.csv')
+      map.redrawMap()
+    }
+  </script>
 </body>
 </html>

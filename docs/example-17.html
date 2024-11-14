@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>BRC Atlas Library example 16</title>
+  <title>BRC Atlas Library example 17</title>
   <style>
 
   </style>
@@ -23,22 +23,24 @@
 
   <!--Proj4 JS required exernal dependency of BRC Atlas library for European stuff-->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.0/proj4.js"></script>
-
   <!--D3 JS required exernal dependency of BRC Atlas library-->
   <script src="https://d3js.org/d3.v7.min.js"></script>
 
-  <!--BRC Atlas library JS and CSS-->
+  <!--BRC European Atlas library JS and CSS
+  Here we get the resources in this package-->
   <script src="./../dist/brcatlas_e.umd.js"></script>
   <link rel="stylesheet" type="text/css" href="./../dist/brcatlas_e.umd.css">
+  <!--But you can get them from the CDNs as shown below-->
+  <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas_e.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas_e.umd.css"> -->
 
   <script>
+    let pp = false
+    let week = 1
 
-    var pp = false
-    var week = 1
+    loadTest('./data/es-painted-ladies-5yr-20230627-ebms.csv')
 
-    loadTest('./es-painted-ladies-5yr-20230627-ebms.csv')
-
-    var mapOpts = {
+    const mapOpts = {
         selector: "#map",
         mapBB: [1000000, 800000, 6000000, 5500000], // [minx, miny, maxx, maxy]
         expand: false,
@@ -55,7 +57,7 @@
         dotOpacity3: 0.1,
       }
 
-    var map = brcatlas_e.eSvgMap(mapOpts)
+    const map = brcatlas_e.eSvgMap(mapOpts)
 
     function loadTest(file) {
       d3.csv(file, d => {
@@ -94,7 +96,7 @@
       }
       window.setInterval(function() {
         if (pp) {
-          console.log(pp, week)
+          //console.log(pp, week)
           week = week === 52 ? 1 : week+1
           document.querySelector('.slider').value = week
           displayTest(week)

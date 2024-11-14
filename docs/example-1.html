@@ -7,70 +7,47 @@
 <body>
   <div class="content">
     <h1>Using the BRC Atlas Library</h1>
+    <p>
+      Explore the source of this page and examine the code comments to see how it works.
+      Included on this page:
+      <ul>
+        <li>Creating a simple UK atlas (SVG) map</li>
+        <li>Changing the island inset style</li>
+        <li>Changing the map colours and styles</li>
+        <li>Downloading map images and data</li>
+      </ul>
+    </p>
     <h2>Show a UK distribution map from a CSV file</h2>
-    <div id="map"></div>
+    <!--div element which will contain an SVG map-->
+    <div id="map1"></div>
+    <p>Note the default inset control (gear icon) in the margin-bottom
+      right of the map which is shown by default. The user can modify the 
+      way some islands are handled with this.
+    </p>
+    <h2>Modify map colours & styles</h2>
+    <!--div element which will contain an SVG map-->
+    <div id="map2"></div>
+    <p>
+      In this example the inset control is removed and the map
+      is configured to show both the Channel Islands and northern islands as insets.
+      We also changed the colours and styles used to display elements.
+    </p>
+    <h2>Download map image and data</h2>
+    <!--div element which will contain an SVG map-->
+    <div id="map3"></div>
+    <p>
+      In this example were adding some buttons to download images of
+      the currently displayed map and download the dots as geojson and CSV files.
+    </p>
     <button onclick="downloadMap()">Download image</button>
     <button onclick="downloadMap(true)">Download svg</button>
-    <!-- <button onclick="downloadWithInfo()">Download with info</button> -->
+    <button onclick="downloadWithInfo()">Download with info</button>
     <button onclick="downloadData(true)">Download as GeoJson</button>
     <button onclick="downloadData()">Download as CSV</button>
+
+    <h2>A note on the data used here</h2>
     <p>
-      Include the required Javascript libraries and CSS in the page. We need the BRC Atlas JS libary, the associated
-      CSS and the D3 library which is an external
-      external dependency of the BRC Atlas library. In this example they are all included from CDNs.
-    </p>
-<pre>
-<code class="html">&lt;script src=&quot;https://d3js.org/d3.v7.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas/dist/brcatlas.umd.js&quot;&gt;&lt;/script&gt;
-&lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas/dist/brcatlas.umd.css&quot;&gt;&lt;/script&gt;</code>
-</pre>
-
-<div id="map"></div>
-
-    <p>
-      First we create a div element which will contain the SVG map.
-    </p>
-<pre>
-<code class="html">&lt;div id=&quot;map&quot;&gt;&lt;/div&gt;</code>
-</pre>
-
-    <p>
-      Create the atlas map with a minimal - i.e. default - configuration. The configuration option 'id' is required
-      and this identifies the ID of the DOM element into which the SVG map will be inserted. In our case we created
-      a div element with the ID 'map'. The option 'mapTypesKey' specifies the data accessor function which
-      will be used to parse the data we will pass to the map. In our case we are specifying 'Standard hectad' which
-      is an accessor supplied with the BRC Atlas.
-    </p>
-    <p>
-      The 'brcatlas.svgMap' returns an object which we assign a variable called 'map'. We use this later to
-      load some data.
-    </p>
-<pre>
-<code class="javascript">var map = brcatlas.svgMap({
-  id: "map",
-  mapTypesKey: 'Standard hectad'
-})</code>
-</pre>
-
-    <p>
-      Use the 'setIdentfier' method of the map object to load a CSV file. The 'Standard hectad' data accessor function which
-      we previously identified when we instantiated the map will process the file.
-    </p>
-
-<pre>
-  <code class="javascript">map.setIdentfier('./example-hectads-1.csv')</code>
-</pre>
-
-  <p>
-    Finally we draw the map with the 'redrawMap' method.
-  </p>
-
-<pre>
-  <code class="javascript">map.redrawMap()</code>
-</pre>
-
-    <p>
-      We have specified a CSV file in the same folder as the example html page. An extract is reproduced below.
+      A CSV file is specified in the 'data' sub-folder of the folder containing this page. An extract is reproduced below.
       The 'Standard hectad' accessor expects a CSV file with five columns as show below:
     </p>
     <ol>
@@ -87,65 +64,112 @@
       you can specify these on a per/hectad basis.
     </p>
 
-<pre>
-<code class="csv">hectad,shape,colour,opacity,size
-D22,circle,black,0.8,1
-H05,circle,black,0.8,1
-HU43,circle,black,0.8,1
-NS97,circle,black,0.8,1
-NT14,circle,black,0.8,1
-WA60,circle,black,0.8,1
-WV27,circle,black,0.8,1</code>
-</pre>
-
-    <!--JS and CSS required for highlighting inline example code-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/a11y-light.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
-
-    <!--Page CSS-->
-    <link rel="stylesheet" href="example.css" />
-
-    <!--D3 JS required exernal dependency of BRC Atlas library-->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-
-    <!--BRC Atlas library JS and CSS-->
-    <script src="./../dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="./../dist/brcatlas.umd.css">
-    <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
-
-    <script>
-      var map = brcatlas.svgMap({
-        selector: "#map",
-        mapTypesKey: 'Standard hectad',
-        boundaryShadowColour: 'blue',
-        boundaryShadowWidth: 10,
-        seaFill: 'white'
-        //boundaryFill: 'red',
-        //expand: true,
-        //transOptsControl: false
-      })
-      map.setIdentfier('./example-hectads-1.csv')
-      map.redrawMap()
-
-      function downloadMap(asSvg) {
-        map.saveMap(asSvg, null, 'map')
-      }
-      function downloadData(asGeojson) {
-        map.downloadData(asGeojson)
-      }
-      function downloadWithInfo(asSvg) {
-        let info = {
-          text: '<i>Abies</i> <i>procera,</i> in <i>BSBI <i>Online</i> <i>Atlas</i> <i>2020</i>, eds P.A. Stroh, T. Humphrey, R.J. Burkmar, O.L. Pescott, D.B. Roy, & K.J. Walker. http://172.17.0.2/atlas/2cd4p9h.cqm [Accessed 07/01/2022]',
-          fontSize: 10,
-          margin: 5,
-          img: '../work/logos.png'
-        }
-        map.saveMap(asSvg, info, 'map')
-      }
-    </script>
+    <pre>
+    D22,circle,black,0.8,1
+    H05,circle,black,0.8,1
+    HU43,circle,black,0.8,1
+    NS97,circle,black,0.8,1
+    NT14,circle,black,0.8,1
+    WA60,circle,black,0.8,1
+    WV27,circle,black,0.8,1
+    </pre>
   </div>
+
+  <!--Page CSS-->
+  <link rel="stylesheet" href="example.css" />
+
+  <!--D3 JS required exernal dependency of BRC Atlas library-->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <!--BRC Atlas library JS and CSS
+  Here we get the resources in this package-->
+  <script src="./../dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="./../dist/brcatlas.umd.css">
+  <!--But you can get them from the CDNs as shown below-->
+  <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
+
+  <script>
+    /*
+    Create an atlas map with a minimal - i.e. default - configuration. The configuration option 'id' is required
+    and this identifies the ID of the DOM element into which the SVG map will be inserted. In our case we created
+    a div element with the ID 'map'. The option 'mapTypesKey' specifies the data accessor function which
+    will be used to parse the data we will pass to the map. In our case we are specifying 'Standard hectad' which
+    is an accessor supplied with the BRC Atlas.
+    
+    The 'brcatlas.svgMap' returns an object which we assign a constiable called 'map1'. We use this later to
+    load some data.
+    */
+    const map1 = brcatlas.svgMap({
+      selector: "#map1",
+      mapTypesKey: 'Standard hectad'
+    })
+    /* 
+    Use the 'setIdentfier' method of the map object to load a CSV file. The 'Standard hectad' data accessor function which
+    we previously identified when we instantiated the map will process the file. Then redraw the map.
+    */
+    map1.setIdentfier('./data/example-hectads-1.csv')
+    map1.redrawMap()
+    /*
+    In the next example the inset control which appears to the user by default is removed and the map
+    is configured to show both the Channel Islands and northern islands in insets.
+
+    We also changed the colours and styles used to display elements.
+    */
+    const map2 = brcatlas.svgMap({
+      selector: "#map2",
+      mapTypesKey: 'Standard hectad',
+      transOptsControl: false,
+      transOptsKey: 'BI4',
+      seaFill: 'white',
+      boundaryColour: 'black',
+      boundaryFill: '#eeeeee',
+      gridLineColour: 'black',
+      gridLineStyle: 'dashed',
+      insetColour: 'black'
+    })
+    map2.setIdentfier('./data/example-hectads-1.csv')
+    map2.redrawMap()
+
+    /*
+    The final example is used to demonstrate the download functions available
+    in the svgMap API.
+    */
+    const map3 = brcatlas.svgMap({
+      selector: "#map3",
+      mapTypesKey: 'Standard hectad',
+      transOptsControl: false,
+      transOptsKey: 'BI4',
+      seaFill: 'white',
+    })
+    map3.setIdentfier('./data/example-hectads-1.csv')
+    map3.redrawMap()
+    /*
+    Here are the button event handlers for handling the
+    download requests. 
+    */
+    function downloadMap(asSvg) {
+      // The asSvg boolean flag indicates whether the
+      // map image is to be downloaded as an SVG or a PNG
+      map3.saveMap(asSvg, null, 'map')
+    }
+    function downloadData(asGeojson) {
+      // The asGeojson boolean flag indicates whether the
+      // map data (dots) are to be downloaded as an Geojson or CSV
+      map3.downloadData(asGeojson)
+    }
+    function downloadWithInfo(asSvg) {
+      // By adding an info object to the API 'saveMap' call, we
+      // can specify that some information and, optionally, an
+      // image is to be added to the downloaded image.
+      const info = {
+        text: `This map image was downloaded from ${window.location} on ${new Date().toDateString()}`,
+        fontSize: 10,
+        margin: 5,
+        img: './data/BRC_UKCEH_logo_small.png'
+      }
+      map3.saveMap(asSvg, info, 'map')
+    }
+  </script>
 </body>
 </html>

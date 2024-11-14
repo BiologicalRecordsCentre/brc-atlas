@@ -49,7 +49,7 @@ export function parseTags () {
 
       const opts = {
         selector: `#${id}`,
-        mapid: `#${id}-map`,
+        mapid: `${id}-map`,
         mapTypesKey: mapTypesKey,
         transOptsControl: mapopts,
         legendOpts: getLegendOpts (el, precision)

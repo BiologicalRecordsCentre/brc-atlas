@@ -16,7 +16,6 @@
       font-style: normal;
       font-display: swap;
     }
-
     .flex-container {
       display: flex;
     }
@@ -28,256 +27,266 @@
 <body>
   <div class="content">
     <h1>Using the BRC Atlas Library</h1>
+    <p>
+      Explore the source of this page and examine the code comments to see how it works.
+      Included on this page:
+      <ul>
+        <li>Creating local atlas maps</li>
+        <li>Creating a custom 'transOptsSel'</li>
+        <li>Switching between custom local views</li>
+        <li>Interactive display of details as mouse moved over map dots</li>
+        <li>Custom data accessor function</li>
+        <li>Setting a custom map background image</li>
+        <li>Creating map legends</li>
+        <li>Using a non-standard font for the legend</li>
+        <li>Downloading map images</li>
+        <li>Showing the map busy indicator</li>
+      </ul>
+    </p>
     <h2>Local atlas maps example</h2>
+    <p>
+      This example demonstrates a local atlas
+      created using the BRC Atlas library.
+    </p>
     <div class="flex-container">
       <div id="map"></div>
       <div id="controls">
-        <input type="radio" id="radAd" name="mapdata" value="./chesh-lancs-araneus-diadematus-tetrads.csv" onchange='reDrawDots()'>
+        <p>
+          Use the radio buttons to switch between different local
+          atlas examples.
+        </p>
+        <input type="radio" id="radAd" name="mapdata" value="./data/chesh-lancs-araneus-diadematus-tetrads.csv" onchange='reDrawDots()'>
         <label for="radAd"><i>Araneus diadematus</i> tetrad distribution</label><br/>
-        <input type="radio" id="radAq" name="mapdata" value="./chesh-lancs-araneus-quadratus-tetrads.csv" onchange='reDrawDots()'>
+        <input type="radio" id="radAq" name="mapdata" value="./data/chesh-lancs-araneus-quadratus-tetrads.csv" onchange='reDrawDots()'>
         <label for="radAq"><i>Araneus quadratus</i> tetrad distribution</label><br/>
-        <input type="radio" id="radCoin" name="mapdata" value="./chesh-lancs-araneus-diadematus-and-quadratus-tetrads.csv" onchange='reDrawDots()'>
+        <input type="radio" id="radCoin" name="mapdata" value="./data/chesh-lancs-araneus-diadematus-and-quadratus-tetrads.csv" onchange='reDrawDots()'>
         <label for="radCoin">Tetrad coincidence of <i>A. diadematus</i> and <i>A. quadratus</i></label><br/>
-        <input type="radio" id="radRichness" name="mapdata" value="./chesh-lancs-arachnid-richness-tetrads.csv" onchange='reDrawDots()'>
+        <input type="radio" id="radRichness" name="mapdata" value="./data/chesh-lancs-arachnid-richness-tetrads.csv" onchange='reDrawDots()'>
         <label for="radRichness">Tetrad species richness for all Arachnids</label><br/>
+        <p>Move the mouse over the dots on the map to see dot details below:</p>
         <div style='margin-top: 1em' id='dotCaption'></div>
       </div>
     </div>
     
-    <p>
-      This example demonstrates a local atlas
-      created using the BRC Atlas library. You can consult some
-      other examples, <a href='./example-1.html'>example-1.html</a>
-      and <a href='./example-3.html'>example-3.html</a>. To learn about
-      some of the techniques used to create it.
-    </p>
-    <p>
-      The techniques used here but not described in those examples will
-      be documented in time. Until then, you can view the source and
-      download the various data files, images etc to work out how it
-      is put together.
-    </p>
-    <p>
-      Also look at the <a href='https://biologicalrecordscentre.github.io/brc-atlas/docs/api/'>BRC Altas API documentation</a>.
-    </p>
-
     <button onclick="downloadMapImage()">Download png image</button>
     <button onclick="downloadMapSvg()">Download svg</button>
-    <button onclick="changeView()">Change view</button>
+    <select name="view" id="view" onchange="changeView()">
+      <option value="chesh-lancs">Cheshire/Lancashire</option>
+      <option value="vc11">VC11 - South Hampshire</option>
+      <option value="vc10">VC10 - IOW</option>
+    </select>
     <button onclick="showBusy()">Toggle busy</button>
+  </div>
 
-    <!--JS and CSS required for highlighting inline example code-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/a11y-light.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
+  <!--Page CSS-->
+  <link rel="stylesheet" href="example.css" />
 
-    <!--Page CSS-->
-    <link rel="stylesheet" href="example.css" />
+  <!--D3 JS required exernal dependency of BRC Atlas library-->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
 
-    <!--D3 JS required exernal dependency of BRC Atlas library-->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
+  <!--BRC Atlas library JS and CSS
+  Here we get the resources in this package-->
+  <script src="./../dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="./../dist/brcatlas.umd.css">
+  <!--But you can get them from the CDNs as shown below-->
+  <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
 
-    <!--BRC Atlas library JS and CSS-->
-    <script src="./../dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="./../dist/brcatlas.umd.css">
-    <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@0.7.0/dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@0.7.0/dist/brcatlas.umd.css"> -->
-
-    <script>
-      const dataAccessors = brcatlas.dataAccessors
-      dataAccessors['Species richness'] = function (file) {
-        // Here we're adding a custom data accessor to the defaults supplied
-        // by brcatlas to deal with our species richness CSV which is not in
-        // the format expeceted by the stadard data accessors.
-        return new Promise((resolve, reject) => {
-          d3.csv(file).then(function(data) {
-            const richness = data.map(function(d){return Number(d.richness)})
-            const maxRichness = Math.max.apply(null, richness)
-            const colours = d3.scaleLinear()
-              .domain([0, maxRichness])
-              .range(['green', 'magenta'])
-            data.forEach(function(d){
-              d.colour = colours(Number(d.richness)),
-              d.caption = `Richness: <strong>${d.richness}</strong> species`,
-              // testing interactivity 
-              d.legendKey = Number(d.richness) <=97 ? 'low' : 'high'
-            })
-
-            let legendLines = [{
-              colour: 'green',
-              text: '1 species',
-              key: 'low'
-            }]
-            for (let i=1; i<5; i++){
-              const n = maxRichness / 4 * i
-              legendLines.push({
-                colour: colours(n),
-                text: Math.floor(n) + ' species',
-                key: Math.floor(n) <= 97 ? 'low' : 'high'
-              })
-            }
-            resolve({
-              records: data,
-              precision: 2000,
-              shape: 'circle',
-              // stroke: 'black',
-              // colour2: 'red',
-              opacity: 0.6,
-              size: 1,
-              legend: {
-                title: 'Species richness',
-                size: 1,
-                shape: 'circle',
-                // stroke: 'black',
-                // colour2: 'red',
-                precision: 2000,
-                opacity: 0.6,
-                lines: legendLines
-              }
-            })
-          }).catch(function(e){
-            reject(e)
+<script>
+    // Here we add a custom data accessor to the defaults supplied
+    // by brcatlas to deal with our species richness CSV which is not in
+    // the format expeceted by the stadard data accessors.
+    const dataAccessors = brcatlas.dataAccessors
+    dataAccessors['Species richness'] = function (file) {
+      return new Promise((resolve, reject) => {
+        d3.csv(file).then(function(data) {
+          const richness = data.map(function(d){return Number(d.richness)})
+          const maxRichness = Math.max.apply(null, richness)
+          const colours = d3.scaleLinear()
+            .domain([0, maxRichness])
+            .range(['green', 'magenta'])
+          data.forEach(function(d){
+            d.colour = colours(Number(d.richness)),
+            d.caption = `Richness: <strong>${d.richness}</strong> species`
           })
+          let legendLines = [{
+            colour: 'green',
+            text: '1 species',
+          }]
+          for (let i=1; i<5; i++){
+            const n = maxRichness / 4 * i
+            legendLines.push({
+              colour: colours(n),
+              text: Math.floor(n) + ' species'
+            })
+          }
+          resolve({
+            records: data,
+            precision: 2000,
+            shape: 'circle',
+            opacity: 0.6,
+            size: 1,
+            legend: {
+              title: 'Species richness',
+              size: 1,
+              shape: 'circle',
+              precision: 2000,
+              opacity: 0.6,
+              lines: legendLines
+            }
+          })
+        }).catch(function(e){
+          reject(e)
         })
-      }
+      })
+    }
 
-      var map = brcatlas.svgMap({
-        selector: "#map",
-        captionId: 'dotCaption',
-        height: 600,
-        mapTypesKey: 'Standard tetrad',
-        mapTypesSel: dataAccessors,
-        transOptsKey: 'clvc',
-        transOptsSel: {
-          clvc: {
-            id: 'clvc',
-            caption: 'Cheshire Lancashire VCs',
-            bounds: {
-              xmin: 302500,
-              ymin: 326000,
-              xmax: 428000,
-              ymax: 494000
-            },
+    const map = brcatlas.svgMap({
+      selector: "#map",
+      captionId: 'dotCaption',
+      height: 600,
+      mapTypesKey: 'Standard tetrad',
+      mapTypesSel: dataAccessors,
+      transOptsControl: false,
+      transOptsSel: {
+        // Custom transOptsSel to define different views for
+        // three different local atlases.
+        'chesh-lancs': {
+          id: 'chesh-lancs',
+          caption: 'Cheshire Lancashire VCs',
+          bounds: {
+            xmin: 302500,
+            ymin: 326000,
+            xmax: 428000,
+            ymax: 494000
           },
-          vc10: {
-            id: 'vc10',
-            caption: 'Isle of Wight (10)',
-            bounds: {
-              xmin: 426736,
-              ymin: 69180,
-              xmax: 469473,
-              ymax: 102938
-            }
-          },
-          vc11: {
-            id: 'vc11',
-            caption: 'South Hampshire (11)',
-            bounds: {
-              xmin: 398898,
-              ymin: 77884,
-              xmax: 484372,
-              ymax: 145400
-            }
+        },
+        vc10: {
+          id: 'vc10',
+          caption: 'Isle of Wight (10)',
+          bounds: {
+            xmin: 426736,
+            ymin: 69180,
+            xmax: 469473,
+            ymax: 102938
           }
         },
-        boundaryGjson: './chesh-lancs-vcs-27700.geojson',
-        gridGjson: './chesh-lancs-hectad-grid-27700.geojson',
-        proj: "gb",
-        gridLineColour: 'grey',
-        boundaryColour: 'black',
-        legendFontSize: '13pt',
-        legendFont: 'Minion Pro',
-        legendInteractivity: 'mouseclick',
-        highlightClass: 'brc-atlas-highlight-example4',
-        highlightStyle: 'fill-opacity: 1; fill: black',
-        lowlightStyle: 'fill-opacity: 0.2 ',
-      })
-      map.basemapImage('background', true, './chesh-lancs-background.png', './chesh-lancs-background.pgw')
-
-      const legendOptsRichness = {
-        display: true,
-        scale: 0.8,
-        x: 300,
-        y: 5,
-        // Data is built by data accessor
-      }
-      const legendOptsCoincidence = {
-        display: true,
-        scale: 0.8,
-        x: 255,
-        y: 50,
-        data: {
-          title: 'Concidence of species',
-          size: 1,
-          precision: 2000,
-          opacity: 0.6,
-          lines: [
-            {
-              colour: 'magenta',
-              shape: 'triangle-up',
-              text: 'Araneus diadematus only'
-            },
-            {
-              colour: 'blue',
-              shape: 'triangle-down',
-              text: 'Araneus quadratus only only'
-            },
-            {
-              colour: 'green',
-              shape: 'square',
-              text: 'Both species'
-            },
-          ]
+        vc11: {
+          id: 'vc11',
+          caption: 'South Hampshire (11)',
+          bounds: {
+            xmin: 398898,
+            ymin: 77884,
+            xmax: 484372,
+            ymax: 145400
+          }
         }
+      },
+      transOptsKey: 'chesh-lancs', // Initialise view to Cheshire/Lancashire
+      boundaryGjson: './data/vcs/boundaries/chesh-lancs-27700.geojson', // Initialise view to Cheshire/Lancashire
+      gridGjson: './data/vcs/grids/chesh-lancs-hectad-grid-27700.geojson', // Initialise view to Cheshire/Lancashire
+      proj: "gb",
+      gridLineColour: 'grey',
+      boundaryColour: 'black',
+      legendFontSize: '13pt',
+      legendFont: 'Minion Pro', // Specify a custom font for the legend - this is defined in the page's header
+      legendInteractivity: 'mouseclick',
+    })
+    // Initialising a custom background from a georeferenced map image (Cheshire?lancashire)
+    // This image was created in QGIS and then exported which creates both the image file (png)
+    // and the 'world' file (pgw) which is used by the software to correctly georeference the image.
+    map.basemapImage('background', true, './data/vcs/background/chesh-lancs-background.png', './data/vcs/background/chesh-lancs-background.pgw')
+
+    // Create a legend for the species richness map
+    const legendOptsRichness = {
+      display: true,
+      scale: 0.8,
+      x: 300,
+      y: 5,
+      // Data is built by data accessor
+    }
+
+    // Create a legend for the coincidence map
+    const legendOptsCoincidence = {
+      display: true,
+      scale: 0.8,
+      x: 255,
+      y: 50,
+      data: {
+        title: 'Concidence of species',
+        size: 1,
+        precision: 2000,
+        opacity: 0.6,
+        lines: [
+          {
+            colour: 'magenta',
+            shape: 'triangle-up',
+            text: 'Araneus diadematus only'
+          },
+          {
+            colour: 'blue',
+            shape: 'triangle-down',
+            text: 'Araneus quadratus only only'
+          },
+          {
+            colour: 'green',
+            shape: 'square',
+            text: 'Both species'
+          },
+        ]
       }
+    }
 
-      function reDrawDots() {
-        var mapdata = d3.select('input[name="mapdata"]:checked').node().value
-        if (mapdata.indexOf('richness') > -1) {
-          map.setLegendOpts(legendOptsRichness) 
-          map.setMapType('Species richness')
-        } else if (mapdata.indexOf('-and-') > -1) {
-          map.setLegendOpts(legendOptsCoincidence)
-          map.setMapType('Standard tetrad') 
-        } else {
-          map.setLegendOpts({display: false}) // No legend
-          map.setMapType('Standard tetrad')
-        }
-        map.setIdentfier(mapdata)
-        map.redrawMap()
+    function reDrawDots() {
+      const mapdata = d3.select('input[name="mapdata"]:checked').node().value
+      if (mapdata.indexOf('richness') > -1) {
+        // Specis richness map - show legend created above
+        map.setLegendOpts(legendOptsRichness) 
+        map.setMapType('Species richness')
+      } else if (mapdata.indexOf('-and-') > -1) {
+        // Coincidence map - show legend created above
+        map.setLegendOpts(legendOptsCoincidence)
+        map.setMapType('Standard tetrad') 
+      } else {
+        map.setLegendOpts({display: false}) // No legend
+        map.setMapType('Standard tetrad')
       }
+      map.setIdentfier(mapdata)
+      map.redrawMap()
+    }
 
-      function downloadMapImage() {
-        map.saveMap(false, null, 'map')
-      }
+    function downloadMapImage() {
+      map.saveMap(false, null, 'map')
+    }
 
-      function downloadMapSvg() {
-        map.saveMap(true, null, 'map')
-      }
+    function downloadMapSvg() {
+      map.saveMap(true, null, 'map')
+    }
 
-      function changeView() {
+    function changeView() {
+      // This is where we change the map to a different view based
+      // on the user selection in the select control provided on this page
+      const vckey = d3.select("#view").property("value")
+      const fileRoot = './data/vcs/'
+      const backImg = fileRoot + 'background/' + vckey + '-background.png'
+      const backWld = fileRoot + 'background/' + vckey + '-background.pgw'
+      const boundary = fileRoot + 'boundaries/' + vckey + '-27700.geojson'
+      const grid = fileRoot + 'grids/' + vckey + '-hectad-grid-27700.geojson'
 
-        var code = '11'
-        var fileRoot = './vcs/'
-        var vckey = 'vc' + code
-        var backImg = fileRoot + 'background/' + vckey + '.png'
-        var backWld = fileRoot + 'background/' + vckey + '.pgw'
-        var boundary = fileRoot + 'boundaries/' + vckey + '.geojson'
-        var grid = fileRoot + 'grids/' + vckey + '-hectad.geojson'
+      map.setTransform(vckey)
+      map.basemapImage(vckey, true, backImg, backWld)
+      map.setGrid(grid)
+      map.setBoundary(boundary)
+    }
 
-        map.setTransform(vckey)
-        map.basemapImage(vckey, true, backImg, backWld)
-        map.setGrid(grid)
-        map.setBoundary(boundary)
-      }
-
-      var busyShown = false
-      function showBusy() {
-        busyShown = !busyShown
-        map.showBusy(busyShown)
-      }
-    </script>
-  </div>
+    // This simply demonstrates how a buit in 'busy' indicator
+    // of the map can be turned on and off. It can be used if
+    // your code involves any long pre-processing of data etc.
+    let busyShown = false
+    function showBusy() {
+      busyShown = !busyShown
+      map.showBusy(busyShown)
+    }
+  </script>
 </body>
 </html>

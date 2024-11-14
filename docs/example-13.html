@@ -7,12 +7,19 @@
 <body>
   <div class="content">
     <h1>Using the BRC Atlas Library</h1>
+    <p>
+      Explore the source of this page and examine the code comments to see how it works.
+      Included on this page:
+      <ul>
+        <li>Displaying a standard legend</li>
+        <li>Displaying a tabulated lgegend</li>
+        <li>Displaying a long legend</li>
+        <li>Displaying an SVG and Leaflet map side by side</li>
+      </ul>
+    </p>
     <h2>Legend examples</h2>
 
-    <p>
-      Explore the source of this page to see how it works.
-    </p>
-    
+    <!-- We're demoing in both SVG and Leaflet map -->
     <div style="display: flex">
       <div id="mapsvg" style="flex: 1"></div>
       <div id="mapslippy" style="flex: 1"></div>
@@ -25,212 +32,214 @@
     <button onclick="showHide(true, true)">Show both</button>
     <button onclick="showHide(true, false)">Show svg</button>
     <button onclick="showHide(false, true)">Show slippy</button>
+  </div>
 
-    <!--JS and CSS required for highlighting inline example code-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/a11y-light.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
+  <!--JS and CSS required for highlighting inline example code-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/a11y-light.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
 
     <!--Page CSS-->
-    <link rel="stylesheet" href="example.css" />
+  <link rel="stylesheet" href="example.css" />
 
-    <!--D3 JS required exernal dependency of BRC Atlas library-->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
+  <!--D3 JS required exernal dependency of BRC Atlas library-->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <!--Leaflet JS required exernal dependency of BRC Atlas library-->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 
-    <!--Leaflet JS required exernal dependency of BRC Atlas library-->
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    
-    <!--BRC Atlas library JS and CSS-->
-    <script src="./../dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="./../dist/brcatlas.umd.css">
-    <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
+  <!--BRC Atlas library JS and CSS
+  Here we get the resources in this package-->
+  <script src="./../dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="./../dist/brcatlas.umd.css">
+  <!--But you can get them from the CDNs as shown below-->
+  <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
 
-    <script>
-      var map = brcatlas.svgMap({
-        selector: "#mapsvg",
-        mapTypesKey: 'Standard hectad',
-        height: 700
-      })
-      map.setIdentfier('./example-hectads-0.csv')
+  <script>
+    const map = brcatlas.svgMap({
+      selector: "#mapsvg",
+      mapTypesKey: 'Standard hectad',
+      height: 700
+    })
+    map.setIdentfier('./data/example-hectads-0.csv')
+    map.redrawMap()
+
+    const mapl = brcatlas.leafletMap({
+      selector: "#mapslippy",
+      height: 700,
+      width: 500
+
+    })
+    mapl.setIdentfier('./data/example-hectads-0.csv')
+    mapl.redrawMap()
+
+    const legendOptsStandard = {
+      display: true,
+      scale: 0.8,
+      x: 10,
+      y: 10,
+      data: {
+        title: 'Simple legend example',
+        size: 1,
+        opacity: 0.6,
+        lines: [
+          {
+            colour: 'magenta',
+            shape: 'triangle-up',
+            text: '<i>Araneus diadematus</i> only'
+          },
+          {
+            colour: 'blue',
+            shape: 'triangle-down',
+            text: 'Araneus quadratus only',
+          },
+          {
+            colour: 'green',
+            shape: 'square',
+            text: '<b>Both</b> <i>species</i> at the <i>same</i> time',
+          },
+        ]
+      }
+    }
+
+    const legendOptsTabulated= {
+      display: true,
+      scale: 0.8,
+      x: 10,
+      y: 0,
+      data: {
+        title: 'Tabulated legend example',
+        raligned: [false, false, true, true],
+        padding: 8,
+        lines: [
+          {
+            text: ['Native', '', 'GB', 'IR'],
+            underline: true,
+          },
+          {
+            colour: 'blue',
+            shape: 'circle',
+            text: ['2000-19', 'symbol', '1234', '12'],
+            opacity: 1
+          },
+          {
+            colour: 'blue',
+            shape: 'circle',
+            text: ['1987-89', 'symbol', '234', '12'],
+            opacity: 0.8
+          },
+          {
+            colour: 'blue',
+            shape: 'circle',
+            text: ['1970-86', 'symbol', '234', '0'],
+            opacity: 0.6
+          },
+          {
+            colour: 'blue',
+            shape: 'circle',
+            text: ['1930-69', 'symbol', '6789', 0],
+            opacity: 0.4
+          },
+          {
+            colour: 'blue',
+            shape: 'circle',
+            text: ['pre-1930', 'symbol', '1234', '12'],
+            opacity: 0.2
+          },
+          {
+            text: [],
+          },
+          {
+            text: ['Native', '', 'GB', 'IR'],
+            underline: true,
+          },
+          {
+            colour: 'red',
+            shape: 'circle',
+            text: ['2000-19', 'symbol', '1234', '12'],
+            opacity: 1
+          },
+          {
+            colour: 'red',
+            shape: 'circle',
+            text: ['1987-89', 'symbol', '234', '12'],
+            opacity: 0.8
+          },
+          {
+            colour: 'red',
+            shape: 'circle',
+            text: ['1970-86', 'symbol', '234', '0'],
+            opacity: 0.6
+          },
+          {
+            colour: 'red',
+            shape: 'circle',
+            text: ['1930-69', 'symbol', '6789', 0],
+            opacity: 0.4
+          },
+          {
+            colour: 'red',
+            shape: 'circle',
+            text: ['pre-1930', 'symbol', '1234', '12'],
+            opacity: 0.2
+          },
+        ]
+      }
+    }
+
+    // The long legend shows/tests that the
+    // enclosing box correctly resizes to the text length
+    const legendOptsStandardLong = {
+      display: true,
+      scale: 0.8,
+      x: 10,
+      y: 10,
+      data: {
+        title: 'Long legend example ',
+        size: 1,
+        opacity: 0.6,
+        lines: [
+          {
+            colour: 'magenta',
+            shape: 'triangle-up',
+            text: 'Araneus diadematus only - long legend text item'
+          },
+          {
+            colour: 'blue',
+            shape: 'triangle-down',
+            text: 'Araneus quadratus only',
+          },
+          {
+            colour: 'green',
+            shape: 'square',
+            text: 'Both species',
+          },
+        ]
+      }
+    }
+
+    function setLegend(opts) {
+      map.setLegendOpts(opts)
       map.redrawMap()
 
-      var mapl = brcatlas.leafletMap({
-        selector: "#mapslippy",
-        height: 700,
-        width: 500
-
-      })
-      mapl.setIdentfier('./example-hectads-0.csv')
+      mapl.setLegendOpts(opts)
       mapl.redrawMap()
+    }
 
-      const legendOptsStandard = {
-        display: true,
-        scale: 0.8,
-        x: 10,
-        y: 10,
-        data: {
-          title: 'Simple legend example',
-          size: 1,
-          opacity: 0.6,
-          lines: [
-            {
-              colour: 'magenta',
-              shape: 'triangle-up',
-              text: '<i>Araneus diadematus</i> only'
-            },
-            {
-              colour: 'blue',
-              shape: 'triangle-down',
-              text: 'Araneus quadratus only',
-            },
-            {
-              colour: 'green',
-              shape: 'square',
-              text: '<b>Both</b> <i>species</i> at the <i>same</i> time',
-            },
-          ]
-        }
-      }
+    function showHide(svg, slippy) {
+      d3.select('#mapsvg').style('display', svg ? '' : 'none')
+      d3.select('#mapslippy').style('display', slippy ? '' : 'none')
 
-      const legendOptsTabulated= {
-        display: true,
-        scale: 0.8,
-        x: 10,
-        y: 0,
-        data: {
-          title: 'Tabulated legend example',
-          raligned: [false, false, true, true],
-          padding: 8,
-          lines: [
-            {
-              text: ['Native', '', 'GB', 'IR'],
-              underline: true,
-            },
-            {
-              colour: 'blue',
-              shape: 'circle',
-              text: ['2000-19', 'symbol', '1234', '12'],
-              opacity: 1
-            },
-            {
-              colour: 'blue',
-              shape: 'circle',
-              text: ['1987-89', 'symbol', '234', '12'],
-              opacity: 0.8
-            },
-            {
-              colour: 'blue',
-              shape: 'circle',
-              text: ['1970-86', 'symbol', '234', '0'],
-              opacity: 0.6
-            },
-            {
-              colour: 'blue',
-              shape: 'circle',
-              text: ['1930-69', 'symbol', '6789', 0],
-              opacity: 0.4
-            },
-            {
-              colour: 'blue',
-              shape: 'circle',
-              text: ['pre-1930', 'symbol', '1234', '12'],
-              opacity: 0.2
-            },
-            {
-              text: [],
-            },
-            {
-              text: ['Native', '', 'GB', 'IR'],
-              underline: true,
-            },
-            {
-              colour: 'red',
-              shape: 'circle',
-              text: ['2000-19', 'symbol', '1234', '12'],
-              opacity: 1
-            },
-            {
-              colour: 'red',
-              shape: 'circle',
-              text: ['1987-89', 'symbol', '234', '12'],
-              opacity: 0.8
-            },
-            {
-              colour: 'red',
-              shape: 'circle',
-              text: ['1970-86', 'symbol', '234', '0'],
-              opacity: 0.6
-            },
-            {
-              colour: 'red',
-              shape: 'circle',
-              text: ['1930-69', 'symbol', '6789', 0],
-              opacity: 0.4
-            },
-            {
-              colour: 'red',
-              shape: 'circle',
-              text: ['pre-1930', 'symbol', '1234', '12'],
-              opacity: 0.2
-            },
-          ]
-        }
-      }
-
-
-      const legendOptsStandardLong = {
-        display: true,
-        scale: 0.8,
-        x: 10,
-        y: 10,
-        data: {
-          title: 'Long legend example ',
-          size: 1,
-          opacity: 0.6,
-          lines: [
-            {
-              colour: 'magenta',
-              shape: 'triangle-up',
-              text: 'Araneus diadematus only blah blah blah blah'
-            },
-            {
-              colour: 'blue',
-              shape: 'triangle-down',
-              text: 'Araneus quadratus only',
-            },
-            {
-              colour: 'green',
-              shape: 'square',
-              text: 'Both species',
-            },
-          ]
-        }
-      }
-
-      function setLegend(opts) {
-        map.setLegendOpts(opts)
-        map.redrawMap()
-
-        mapl.setLegendOpts(opts)
+      if (slippy) {
         mapl.redrawMap()
       }
-
-      function showHide(svg, slippy) {
-        d3.select('#mapsvg').style('display', svg ? '' : 'none')
-        d3.select('#mapslippy').style('display', slippy ? '' : 'none')
-
-        if (slippy) {
-          mapl.redrawMap()
-        }
-        if (svg) {
-          map.redrawMap()
-        }
+      if (svg) {
+        map.redrawMap()
       }
-      
-    </script>
-  </div>
+    }
+    
+  </script>
 </body>
 </html>

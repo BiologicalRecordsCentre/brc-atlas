@@ -7,12 +7,22 @@
 <body>
   <div class="content">
     <h1>Using the BRC Atlas Library</h1>
-    <h2>Show two maps on one page</h2>
-    <div id="map"></div>
     <p>
-      For testing. Ensure that all works for page with more than one map.
+      Explore the source of this page and examine the code comments to see how it works.
+      Included on this page:
+      <ul>
+        <li>Showing multiple SVG maps on one page</li>
+        <li>Demonstrates setting map transform options using built in control and programatically</li>
+        <li>Demonstrates setting map access function using built in control and programatically</li>
+      </ul>
     </p>
-
+    <h2>Show two maps on one page</h2>
+    <p>
+      You can use the built-in map control to change the map transform options and/or the map access function
+      for either map. If you change them to something other than 'no insets' and 'Standard hectad'
+      respectively, you can them change them back programatically using the buttons.
+    </p>
+    <div id="map"></div>
     <div>
       <div style="float:left; padding-right: 1em;" id="map1"></div>
       <div id="map2"></div>
@@ -21,67 +31,62 @@
     <button onclick='setMap("map1")'>Map 1 - hectads</button><br/><br/>
     <button onclick='setInset("map2")'>Map 2 - no insets</button>
     <button onclick='setMap("map2")'>Map 2 - hectads</button>
-
-    <!--JS and CSS required for highlighting inline example code-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/a11y-light.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
-
-    <!--Page CSS-->
-    <link rel="stylesheet" href="example.css" />
-
-    <!--D3 JS required exernal dependency of BRC Atlas library-->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-
-    <!--BRC Atlas library JS and CSS-->
-    <!-- <script src="./../../brc-atlas/dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="./../../brc-atlas/dist/brcatlas.umd.css"> -->
-    <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css">
-
-    <script>
-      var map1 = brcatlas.svgMap({
-        selector: "#map1",
-        mapid: "map1",
-        mapTypesKey: 'Standard hectad',
-        transOptsControl: true,
-        mapTypesControl: true,
-      })
-      map1.setIdentfier('./example-hectads-1.csv')
-      map1.redrawMap()
-
-      var map2 = brcatlas.svgMap({
-        selector: "#map2",
-        mapid: "map2",
-        mapTypesKey: 'Standard hectad',
-        transOptsControl: true,
-        mapTypesControl: true,
-      })
-      map2.setIdentfier('./example-hectads-1.csv')
-      map2.redrawMap()
-
-      function setInset(id) {
-        var map
-        if (id === "map1") {
-          map = map1
-        } else {
-          map = map2
-        }
-        map.setTransform('BI1')
-        map.redrawMap()
-      }
-      function setMap(id) {
-        var map
-        if (id === "map1") {
-          map = map1
-        } else {
-          map = map2
-        }
-        map.setMapType('Standard hectad')
-        map.redrawMap()
-      }
-    </script>
   </div>
+  <!--Page CSS-->
+  <link rel="stylesheet" href="example.css" />
+
+  <!--D3 JS required exernal dependency of BRC Atlas library-->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <!--BRC Atlas library JS and CSS
+  Here we get the resources in this package-->
+  <script src="./../dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="./../dist/brcatlas.umd.css">
+  <!--But you can get them from the CDNs as shown below-->
+  <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
+
+  <script>
+    const map1 = brcatlas.svgMap({
+      selector: "#map1",
+      mapid: "map1",
+      mapTypesKey: 'Standard hectad',
+      transOptsControl: true,
+      mapTypesControl: true,
+    })
+    map1.setIdentfier('./data/example-hectads-1.csv')
+    map1.redrawMap()
+
+    const map2 = brcatlas.svgMap({
+      selector: "#map2",
+      mapid: "map2",
+      mapTypesKey: 'Standard hectad',
+      transOptsControl: true,
+      mapTypesControl: true,
+    })
+    map2.setIdentfier('./data/example-hectads-1.csv')
+    map2.redrawMap()
+
+    function setInset(id) {
+      let map
+      if (id === "map1") {
+        map = map1
+      } else {
+        map = map2
+      }
+      map.setTransform('BI1')
+      map.redrawMap()
+    }
+    function setMap(id) {
+      let map
+      if (id === "map1") {
+        map = map1
+      } else {
+        map = map2
+      }
+      map.setMapType('Standard hectad')
+      map.redrawMap()
+    }
+  </script>
 </body>
 </html>

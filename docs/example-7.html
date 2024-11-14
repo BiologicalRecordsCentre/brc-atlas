@@ -7,49 +7,52 @@
 <body>
   <div class="content">
     <h1>Using the BRC Atlas Library</h1>
+    <p>
+      Explore the source of this page and examine the code comments to see how it works.
+      Included on this page:
+      <ul>
+        <li>Displaying a leaflet map with atlas data</li>
+        <li>Downloading map (dot) data</li>
+      </ul>
+    </p>
     <h2>Show a Leaflet distribution map from a CSV file</h2>
+    <p>
+      Demonstrates the most basic configuration required to created
+      a Leaflet map using the BRC atlas library.
+    </p>
     <div id="map"></div>
     <button onclick="downloadData()">Download CSV</button>
     <button onclick="downloadData(true)">Download GeoJson</button>
-    <p>
-      Include the required Javascript libraries and CSS in the page. We need the BRC Atlas JS libary and the associated
-      CSS. We also need the D3 and Leaflet libraries which are external dependecies of 
-      the BRC Atlas library. In this example they are all included from CDNs.
-    </p>
-
-    <!--JS and CSS required for highlighting inline example code-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/a11y-light.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
-
-    <!--Page CSS-->
-    <link rel="stylesheet" href="example.css" />
-
-    <!--D3 JS required exernal dependency of BRC Atlas library-->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <!--Leaflet JS required exernal dependency of BRC Atlas library-->
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-
-    <!--BRC Atlas library JS and CSS-->
-    <script src="./../dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="./../dist/brcatlas.umd.css">
-    <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
-
-    <script>
-      var map = brcatlas.leafletMap({
-        selector: "#map",
-        //mapTypesKey: 'Standard hectad'
-      })
-      map.setIdentfier('./example-hectads-1.csv')
-      map.redrawMap()
-
-      function downloadData(asGeojson) {
-        map.downloadData(asGeojson)
-      }
-    </script>
   </div>
+
+  <!--Page CSS-->
+  <link rel="stylesheet" href="example.css" />
+
+  <!--D3 JS required exernal dependency of BRC Atlas library-->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <!--Leaflet JS required exernal dependency of BRC Atlas library-->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+  <!--BRC Atlas library JS and CSS
+  Here we get the resources in this package-->
+  <script src="./../dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="./../dist/brcatlas.umd.css">
+  <!--But you can get them from the CDNs as shown below-->
+  <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
+
+  <script>
+    const map = brcatlas.leafletMap({
+      selector: "#map",
+      //mapTypesKey: 'Standard hectad'
+    })
+    map.setIdentfier('./data/example-hectads-1.csv')
+    map.redrawMap()
+
+    function downloadData(asGeojson) {
+      map.downloadData(asGeojson)
+    }
+  </script>
 </body>
 </html>

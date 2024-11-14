@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>BRC Atlas Library include map by div tag</title>
+  <title>BRC Atlas Library example 11</title>
   <style>
     table, th, td {
       border: 1px solid black;
@@ -19,6 +19,12 @@
 <body>
   <div class="content">
     <h1>Using the BRC Atlas Library</h1>
+    <p>
+      Included on this page:
+      <ul>
+        <li>Displaying a leaflet or SVG map using HTML only with data tags</li>
+      </ul>
+    </p>
     <h2>Create a map from a div tag</h2>
     <p>
       The simplest way to use the brcatlas library to put
@@ -40,8 +46,8 @@
       <code class="html">&lt;div id=&quot;ex1&quot; class=&quot;brcatlas&quot; data-csv=&quot;example-hectads-1.csv&quot;&gt;&lt;/div&gt;</code>
     </pre>
     <p>This is what you see:</p>
-    <div id="ex1" class="brcatlas" data-csv="example-hectads-1.csv"></div>
-    <p>The div should include a unique id, the class <i>brcaltas</i> and, if you want to display some data, the <i>data-csv</i> attribute 
+    <div id="ex1" class="brcatlas" data-csv="data/example-hectads-1.csv"></div>
+    <p>The div should include a unique id, the class <i>brcatlas</i> and, if you want to display some data, the <i>data-csv</i> attribute 
     pointing to a correctly formatted CSV file (see below). This normally this CSV file would sit somewhere on your website's server.</p>
 
     <p>
@@ -121,7 +127,7 @@
     data-trans=&quot;BI4&quot;
 &gt;&lt;/div&gt;</code>
     </pre>
-    <div id="ex2" class="brcatlas" data-csv="example-hectads-1.csv" data-opts="false" data-trans="BI4"></div>
+    <div id="ex2" class="brcatlas" data-csv="data/example-hectads-1.csv" data-opts="false" data-trans="BI4"></div>
       
     <p>
       The default map is a 'static', map of the type shown above, but you can also
@@ -135,7 +141,7 @@
     data-slippy=&quot;true&quot;
 &gt;&lt;/div&gt;</code>
     </pre>
-    <div id="ex3" class="brcatlas" data-csv="example-hectads-1.csv" data-slippy="true"></div>
+    <div id="ex3" class="brcatlas" data-csv="data/example-hectads-1.csv" data-slippy="true"></div>
 
     <p>
       Note that to create the slippy map, you will need to include the Leaflet libraries:
@@ -162,7 +168,7 @@
     data-height=&quot;400&quot;
 &gt;&lt;/div&gt;</code>
     </pre>
-    <div id="ex4" class="brcatlas" data-csv="example-hectads-1.csv" data-slippy="true" data-width="700" data-height="400"></div>
+    <div id="ex4" class="brcatlas" data-csv="data/example-hectads-1.csv" data-slippy="true" data-width="700" data-height="400"></div>
 
     <p>
       You can also specify a legend to be displayed on the map. Obviously this should
@@ -190,7 +196,7 @@
     <div 
       id="ex5" 
       class="brcatlas" 
-      data-csv="example-hectads-1.csv" 
+      data-csv="data/example-hectads-1.csv" 
       data-height="500"
       data-trans="BI4"
       data-legend="true"
@@ -214,27 +220,29 @@
       entire lagend - useful if it is too big for the map. The attribute '<i>data-legend-opacity</i>'
       should be set to a value between 0 and 1 which specifies and the overall opacity of the legend.
     </p>
-
-    <!--JS and CSS required for highlighting inline example code-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/a11y-light.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
-
-    <!--Page CSS-->
-    <link rel="stylesheet" href="example.css" />
-
-    <!--D3 JS required exernal dependency of BRC Atlas library-->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <!--Leaflet JS required exernal dependency of BRC Atlas library-->
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-
-    <!--BRC Atlas library JS and CSS-->
-    <script src="./../dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="./../dist/brcatlas.umd.css">
-    <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
   </div>
+
+  <!--JS and CSS required for highlighting inline example code-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/a11y-light.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+  <!--Page CSS-->
+  <link rel="stylesheet" href="example.css" />
+
+  <!--D3 JS required exernal dependency of BRC Atlas library-->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <!--Leaflet JS required exernal dependency of BRC Atlas library-->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+  <!--BRC Atlas library JS and CSS
+  Here we get the resources in this package-->
+  <script src="./../dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="./../dist/brcatlas.umd.css">
+  <!--But you can get them from the CDNs as shown below-->
+  <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
 </body>
 </html>

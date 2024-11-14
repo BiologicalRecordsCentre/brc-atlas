@@ -6,7 +6,6 @@
 </head>
 <style>
   .split.split-horizontal {
-      background-color: lightgray;
       height: 100%;
       float: left;
   }
@@ -15,7 +14,7 @@
       cursor: col-resize;
       height: 100%;
       float: left;
- }
+  }
 </style>
 <body>
   <div id="main">
@@ -24,16 +23,24 @@
     </div>
     <div id="right" class="split split-horizontal">
       <div style="padding: 1em">
-        <h2>Right</h2>
+        <h1>Using the BRC Atlas Library</h1>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
-          sed do eiusmod tempor incididunt ut labore et dolore magna 
-          aliqua. Ut enim ad minim veniam, quis nostrud exercitation 
-          ullamco laboris nisi ut aliquip ex ea commodo consequat. 
-          Duis aute irure dolor in reprehenderit in voluptate velit 
-          esse cillum dolore eu fugiat nulla pariatur. Excepteur sint 
-          occaecat cupidatat non proident, sunt in culpa qui officia 
-          deserunt mollit anim id est laborum.
+          Explore the source of this page and examine the code comments to see how it works.
+          Included on this page:
+          <ul>
+            <li>
+              Demonstrates resizable SVG map
+            </li>
+          </ul>
+        </p>
+   
+        <p>
+          Allowing the map to resize to fill the available space can be a 
+          key feature of providing good responsive maps, e.g. on mobile
+          devices.
+        </p>
+        <p>
+          Drag the dark bar on the left to resize the map.
         </p>
       </div>
     </div>
@@ -48,15 +55,17 @@
   <!--D3 JS required exernal dependency of BRC Atlas library-->
   <script src="https://d3js.org/d3.v7.min.js"></script>
 
-  <!--BRC Atlas library JS and CSS-->
-  <!-- <script src="./../../brc-atlas/dist/brcatlas.umd.js"></script>
-  <link rel="stylesheet" type="text/css" href="./../../brc-atlas/dist/brcatlas.umd.css"> -->
-  <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
-  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css">
+  <!--BRC Atlas library JS and CSS
+  Here we get the resources in this package-->
+  <script src="./../dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="./../dist/brcatlas.umd.css">
+  <!--But you can get them from the CDNs as shown below-->
+  <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
 
   <script>
 
-    var height=500
+    const height=500
     // The height of the container must be set for splitter to work
     d3.select('#main').style('height', height + 'px')
 
@@ -64,13 +73,14 @@
       gutterSize: 5,
       sizes: [30,70]
     })
-    var map = brcatlas.svgMap({
+    const map = brcatlas.svgMap({
       selector: "#map",
       height: height,
-      expand: true,
+      expand: true, // This is the roperty which causes the map to resize to fill the available width.
+                    // Height adjusts to maitain the original aspect ratio
       mapTypesKey: 'Standard hectad'
     })
-    map.setIdentfier('./example-hectads-1.csv')
+    map.setIdentfier('./data/example-hectads-1.csv')
     map.redrawMap()
 
   </script>

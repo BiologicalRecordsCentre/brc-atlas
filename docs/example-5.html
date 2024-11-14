@@ -7,114 +7,72 @@
 <body>
   <div class="content">
     <h1>Using the BRC Atlas Library</h1>
-    <h2>Show a Channel Islands map with inset for Alderney</h2>
-    <div id="map"></div>
     <p>
+      Explore the source of this page and examine the code comments to see how it works.
+      Included on this page:
+      <ul>
+        <li>Creating a custom view local atlas</li>
+        <li>Includes a map inset (Alderney)</li>
+      </ul>
+    </p>
+    <h2>Show a Channel Islands map with inset for Alderney</h2>
+    <p></p>
       This example demonstrates using a user-defined inset 
       with the BRC Atlas library, using the Channel Islands 
-      as an example. You can consult some
-      other examples, <a href='./example-1.html'>example-1.html</a>
-      and <a href='./example-3.html'>example-3.html</a>. To learn about
-      some of the techniques used to create it.
+      as an example with Alderney shown on a map inset.
     </p>
-    <p>
-      The techniques used here but not described in those examples will
-      be documented in time. Until then, you can view the source and
-      download the various data files, images etc to work out how it
-      is put together.
-    </p>
-    <p>
-      Also look at the <a href='https://biologicalrecordscentre.github.io/brc-atlas/docs/api/'>BRC Altas API documentation</a>.
-    </p>
-<pre>
-<code class="javascript">var map = brcatlas.svgMap({
-  id: "map",
-  mapTypesKey: 'Standard tetrad',
-  transOptsKey: 'CI1',
-  transOptsSel: {
-    CI1: {
-      id: 'CI1',
-      caption: 'Channel Islands',
-      bounds: {
-        xmin: 519000,
-        ymin: 5443500,
-        xmax: 580000,
-        ymax: 5487000
-      },
-      insets: [{
-        bounds: {
-          xmin: 543500,
-          ymin: 5505000,
-          xmax: 563000,
-          ymax: 5510000
-        },
-        imageX: -50,
-        imageY: -50
-      }]
-    },
-  },
-  insetColour: 'black',
-  boundaryGjson: './ci-32630.geojson',
-  gridGjson: '',
-  proj: "ci",
-})
-map.setIdentfier('./example-irish-hectads-1.csv')
-map.redrawMap()</code>
-</pre>
-   
-    <!--JS and CSS required for highlighting inline example code-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/a11y-light.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
-
-    <!--Page CSS-->
-    <link rel="stylesheet" href="example.css" />
-
-    <!--D3 JS required exernal dependency of BRC Atlas library-->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-
-    <!--BRC Atlas library JS and CSS-->
-    <!-- <script src="./../../brc-atlas/dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="./../../brc-atlas/dist/brcatlas.umd.css"> -->
-    <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css">
-
-    <script>
-      var map = brcatlas.svgMap({
-        selector: "#map",
-        mapTypesKey: 'Standard tetrad',
-        transOptsKey: 'CI1',
-        transOptsSel: {
-          CI1: {
-            id: 'CI1',
-            caption: 'Channel Islands',
-            bounds: {
-              xmin: 519000,
-              ymin: 5443500,
-              xmax: 580000,
-              ymax: 5487000
-            },
-            insets: [{
-              bounds: {
-                xmin: 543500,
-                ymin: 5505000,
-                xmax: 563000,
-                ymax: 5510000
-              },
-              imageX: -50,
-              imageY: -50
-            }]
-          },
-        },
-        insetColour: 'black',
-        boundaryGjson: './ci-32630.geojson',
-        gridGjson: '',
-        proj: "ci",
-      })
-      map.setIdentfier('./example-ci-tetrads.csv')
-      map.redrawMap()
-    </script>
+    <div id="map"></div>
   </div>
+   
+  <!--Page CSS-->
+  <link rel="stylesheet" href="example.css" />
+
+  <!--D3 JS required exernal dependency of BRC Atlas library-->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <!--BRC Atlas library JS and CSS
+  Here we get the resources in this package-->
+  <script src="./../dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="./../dist/brcatlas.umd.css">
+  <!--But you can get them from the CDNs as shown below-->
+  <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
+    
+  <script>
+    const map = brcatlas.svgMap({
+      selector: "#map",
+      mapTypesKey: 'Standard tetrad', // Stanard pre-defined tetrad map data accessor
+      transOptsKey: 'CI1', // Custom view defined below
+      transOptsSel: {
+        // Uses a custom inset for Alderney
+        CI1: {
+          id: 'CI1',
+          caption: 'Channel Islands',
+          bounds: {
+            xmin: 519000,
+            ymin: 5443500,
+            xmax: 580000,
+            ymax: 5487000
+          },
+          insets: [{
+            bounds: {
+              xmin: 543500,
+              ymin: 5505000,
+              xmax: 563000,
+              ymax: 5510000
+            },
+            imageX: -50,
+            imageY: -50
+          }]
+        },
+      },
+      insetColour: 'black',
+      boundaryGjson: './data/ci-32630.geojson',
+      gridGjson: '',
+      proj: "ci",
+    })
+    map.setIdentfier('./data/example-ci-tetrads.csv')
+    map.redrawMap()
+  </script>
 </body>
 </html>

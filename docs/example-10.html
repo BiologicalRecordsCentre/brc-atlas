@@ -7,13 +7,24 @@
 <body>
   <div class="content">
     <h1>Using the BRC Atlas Library</h1>
-    <h2>Configure basemap layers demo</h2>
-    <div id="map"></div>
     <p>
-      Include the required Javascript libraries and CSS in the page. We need the BRC Atlas JS libary and the associated
-      CSS. We also need the D3 and Leaflet libraries which are external dependecies of 
-      the BRC Atlas library. In this example they are all included from CDNs.
+      Explore the source of this page and examine the code comments to see how it works.
+      Included on this page:
+      <ul>
+        <li>And and remove Leaflet basemap layers programatically</li>
+        <li>Add and remove Leaflet overlay layers programatically</li>
+      </ul>
     </p>
+    <h2>Configure basemap layers demo</h2>
+    <p>
+      This demonstration shows how basemap and overlay layers
+      can be added and removed from the Leaflet map programatically.
+      When only one basemap is present, the Leaflet layer control
+      is automatically removed by Leaflet and added again when another
+      basemap or an overlay layer is added. Note you cannot remove
+      a basemap layer if it is the only one displayed.
+    </p>
+    <div id="map"></div>
     <button onclick="removeLayer('OpenStreetMap')">Remove OpenStreetMap</button>
     <button onclick="removeLayer('OpenTopoMap')">Remove OpenTopoMap</button>
     <button onclick="removeLayer('Climate change exposure 1901-1930 to 1961-1990')">Remove Climate Change overlay</button>
@@ -21,88 +32,85 @@
     <button onclick="addLayer('OpenStreetMap')">Add OpenStreetMap</button>
     <button onclick="addLayer('OpenTopoMap')">Add OpenTopoMap</button>
     <button onclick="addLayer('Climate change exposure 1901-1930 to 1961-1990')">Add Climate Change overlay</button>
-
-    <!--JS and CSS required for highlighting inline example code-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/a11y-light.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
-
-    <!--Page CSS-->
-    <link rel="stylesheet" href="example.css" />
-
-    <!--D3 JS required exernal dependency of BRC Atlas library-->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <!--Leaflet JS required exernal dependency of BRC Atlas library-->
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-
-    <!--BRC Atlas library JS and CSS-->
-    <script src="./../dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="./../dist/brcatlas.umd.css">
-    <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
-
-    <script>
-      var basemapConfigs = [
-        {
-          name: 'OpenStreetMap',
-          type: 'tileLayer',
-          selected: true,
-          url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-          opts: {
-            maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          }
-        },
-        {
-          name: 'OpenTopoMap',
-          type: 'tileLayer',
-          selected: false,
-          url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-          opts: {
-            maxZoom: 17,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
-          }
-        },
-      ]
-
-      const cc = {
-        name: 'Climate change exposure 1901-1930 to 1961-1990',
-        type: 'wms',
-        selected: false,
-        url: 'https://warehouse1.indicia.org.uk/geoserver/climate/wms',
-        overlay: true,
-        opts: {
-          format: 'image/png',
-          transparent: true,
-          layers: 'climate_change_exposure_1901-1930_to_1961-1990',
-          maxZoom: 17,
-          attribution: 'UKCEH'
-        }
-      }
-
-      var map = brcatlas.leafletMap({
-        selector: "#map",
-        basemapConfigs: basemapConfigs
-      })
-      map.setIdentfier('./example-hectads-1.csv')
-      map.redrawMap()
-
-      function removeLayer(lyrName) {
-        map.removeBasemapLayer(lyrName)
-      }
-
-      function addLayer(lyrName) {
-        if (lyrName === 'Climate change exposure 1901-1930 to 1961-1990') {
-          map.addBasemapLayer(cc)
-        } else if (lyrName === 'OpenStreetMap') {
-          map.addBasemapLayer(basemapConfigs[0])
-        } else {
-          map.addBasemapLayer(basemapConfigs[1])
-        }
-      }
-    </script>
   </div>
+   <!--Page CSS-->
+  <link rel="stylesheet" href="example.css" />
+
+  <!--D3 JS required exernal dependency of BRC Atlas library-->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <!--Leaflet JS required exernal dependency of BRC Atlas library-->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+  <!--BRC Atlas library JS and CSS
+  Here we get the resources in this package-->
+  <script src="./../dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="./../dist/brcatlas.umd.css">
+  <!--But you can get them from the CDNs as shown below-->
+  <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
+
+  <script>
+    // Initial definition of basemaps and overlays
+    // Note overlays are distinguished by setting overlay property to true
+    const basemapConfigs = [
+      {
+        name: 'OpenStreetMap',
+        type: 'tileLayer',
+        selected: true,
+        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        opts: {
+          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }
+      },
+      {
+        name: 'OpenTopoMap',
+        type: 'tileLayer',
+        selected: false,
+        url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+        opts: {
+          maxZoom: 17,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+        }
+      },
+    ]
+
+    const overlayConfigs = {
+      name: 'Climate change exposure 1901-1930 to 1961-1990',
+      type: 'wms',
+      selected: false,
+      url: 'https://warehouse1.indicia.org.uk/geoserver/climate/wms',
+      overlay: true,
+      opts: {
+        format: 'image/png',
+        transparent: true,
+        layers: 'climate_change_exposure_1901-1930_to_1961-1990',
+        maxZoom: 17,
+        attribution: 'UKCEH'
+      }
+    }
+
+    const map = brcatlas.leafletMap({
+      selector: "#map",
+      basemapConfigs: basemapConfigs
+    })
+    map.setIdentfier('./data/example-hectads-1.csv')
+    map.redrawMap()
+
+    function removeLayer(lyrName) {
+      map.removeBasemapLayer(lyrName)
+    }
+
+    function addLayer(lyrName) {
+      if (lyrName === 'Climate change exposure 1901-1930 to 1961-1990') {
+        map.addBasemapLayer(overlayConfigs)
+      } else if (lyrName === 'OpenStreetMap') {
+        map.addBasemapLayer(basemapConfigs[0])
+      } else {
+        map.addBasemapLayer(basemapConfigs[1])
+      }
+    }
+  </script>
 </body>
 </html>

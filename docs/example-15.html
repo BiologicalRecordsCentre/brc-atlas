@@ -7,7 +7,16 @@
 <body>
   <div class="content">
     <h1>Using the BRC Atlas Library</h1>
-    <h2>Displaying Vice County boundaries</h2>
+    <p>
+      Explore the source of this page and examine the code comments to see how it works.
+      Included on this page:
+      <ul>
+        <li>Displaying VC bounaries on the SVG and Leaflet maps</li>
+        <li>Displaying country bounaries on the SVG and Leaflet maps</li>
+        <lis>Displaying information tips on leaflet map from VC</lis>
+      </ul>
+    </p>
+    <h2>Displaying country & VC boundaries</h2>
     <div style="display: flex">
       <div id="map1" style="flex: 1"></div>
       <div id="map2" style="flex: 10"></div>
@@ -15,84 +24,63 @@
     
     <button id="toggleVcs" onclick="toggleVcs()">Show VCs</button>
     <button id="toggleCountries" onclick="toggleCountries()">Show Countries</button>
-    <p>
-      Include the required Javascript libraries and CSS in the page. We need the BRC Atlas JS libary and the associated
-      CSS. We also need the D3 and Leaflet libraries which are external dependecies of 
-      the BRC Atlas library.
-    </p>
-    <p>
-      Explore the source of this page to see how it works.
-    </p>
-
-    <!--JS and CSS required for highlighting inline example code-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/a11y-light.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
-
-    <!--Page CSS-->
-    <link rel="stylesheet" href="example.css" />
-
-    <!--D3 JS required exernal dependency of BRC Atlas library-->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <!--Leaflet JS required exernal dependency of BRC Atlas library-->
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-
-    <!--BRC Atlas library JS and CSS-->
-    <script src="./../dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="./../dist/brcatlas.umd.css">
-    <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
-
-    <script>
-      var showVcs = false
-      var showCountries = false
-
-      var map1 = brcatlas.leafletMap({
-        selector: "#map1",
-        showVcs: showVcs,
-  
-        showVcsTooltips: true,
-        // styleVcs: [
-        //   {zoom: [], color: 'black', fill: true, weight: 2, opacity: 0.4, fillOpacity: 0}, 
-        //   {zoom: [7,6,5,4,3,2,1], color: 'black', fill: true, weight: 1, opacity: 0.3, fillOpacity: 0}
-        // ],
-        //onclick: function(){console.log('blah clicked')}
-      })
-      //map1.setIdentfier('./example-hectads-1.csv')
-      map1.redrawMap()
-
-      var map2 = brcatlas.svgMap({
-        selector: "#map2",
-        mapTypesKey: 'Standard hectad',
-        gridLineStyle: 'none'
-      })
-      //map2.setIdentfier('./example-hectads-1.csv')
-      //map2.redrawMap()
-
-      function toggleVcs() {
-        showVcs = !showVcs
-        var btn = document.getElementById('toggleVcs')
-        btn.innerText = showVcs ? "Hide VCs" : "Show VCs"
-
-        map1.setShowVcs(showVcs)
-
-        map2.setVcLineStyle(showVcs ? '' : 'none')
-        map2.setBoundaryColour(showVcs ? 'white' : '#7C7CD3')
-      }
-
-      function toggleCountries() {
-        showCountries = !showCountries
-        var btn = document.getElementById('toggleCountries')
-        btn.innerText = showCountries ? "Hide Countries" : "Show Countries"
-
-        map1.setShowCountries(showCountries)
-
-        map2.setCountryLineStyle(showCountries ? '' : 'none')
-        map2.setBoundaryColour(showCountries ? 'white' : '#7C7CD3')
-      }
-    </script>
   </div>
+
+  <!--Page CSS-->
+  <link rel="stylesheet" href="example.css" />
+
+  <!--D3 JS required exernal dependency of BRC Atlas library-->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <!--Leaflet JS required exernal dependency of BRC Atlas library-->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+  <!--BRC Atlas library JS and CSS
+  Here we get the resources in this package-->
+  <script src="./../dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="./../dist/brcatlas.umd.css">
+  <!--But you can get them from the CDNs as shown below-->
+  <!-- <script src="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css"> -->
+
+  <script>
+    let showVcs = false
+    let showCountries = false
+
+    const map1 = brcatlas.leafletMap({
+      selector: "#map1",
+      showVcs: showVcs,
+      showVcsTooltips: true,
+    })
+    map1.redrawMap()
+
+    const map2 = brcatlas.svgMap({
+      selector: "#map2",
+      mapTypesKey: 'Standard hectad',
+      gridLineStyle: 'none',
+    })
+
+    function toggleVcs() {
+      showVcs = !showVcs
+      const btn = document.getElementById('toggleVcs')
+      btn.innerText = showVcs ? "Hide VCs" : "Show VCs"
+
+      map1.setShowVcs(showVcs)
+
+      map2.setVcLineStyle(showVcs ? '' : 'none')
+      map2.setBoundaryColour(showVcs ? 'white' : '#7C7CD3')
+    }
+
+    function toggleCountries() {
+      showCountries = !showCountries
+      const btn = document.getElementById('toggleCountries')
+      btn.innerText = showCountries ? "Hide Countries" : "Show Countries"
+
+      map1.setShowCountries(showCountries)
+
+      map2.setCountryLineStyle(showCountries ? '' : 'none')
+      map2.setBoundaryColour(showCountries ? 'white' : '#7C7CD3')
+    }
+  </script>
 </body>
 </html>

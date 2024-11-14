@@ -4,8 +4,13 @@
 For API details - [JSDoc API documentation](https://biologicalrecordscentre.github.io/brc-atlas/docs/api/).
 
 ## Working examples
+### British & Irish atlas maps ###
 - [Using div tags - the simplest way to get a map on an HTML page](example-11.html)
 - [A basic UK & Ireland hectad distribution map](example-1.html)
+  - Creating a simple atlas (SVG) map
+  - Changing the island inset style
+  - Changing the map colours and styles
+  - Downloading map images and data
 - [A basic Irish hectad distribution map](example-3.html)
 - [A local atlas map](example-4.html)
 - [Animate transition between core UK & Ireland transformation types](example-2.html)
@@ -17,3 +22,8 @@ For API details - [JSDoc API documentation](https://biologicalrecordscentre.gith
 - [Creating legends - simple and tabulated](example-13.html)
 - [Busy indicators and large datasets on slippy map](example-14.html)
 - [Vice County boundaries on slippy map](example-15.html)
+- [Resizable SVG map] (example-9.html)
+- [Showing multiple SVG maps on one page] (example-8.html)
+### European atlas maps ###
+- [European atlas & colour options] (example-16.html)
+- [European atlas full screen] (example-17.html)
