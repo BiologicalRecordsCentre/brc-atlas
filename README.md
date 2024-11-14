@@ -34,6 +34,10 @@ For details of the API, view the [JSDoc API documentation](https://biologicalrec
 There are also a number of [working examples](https://biologicalrecordscentre.github.io/brc-atlas/docs/).
 
 ## Notes for developers
+### Assets
+There are a number of geojson files in the `assets` folder. These are loaded by the code when needed. In the development environment, it will often be the case that these assets need to be loaded from the local environment but in the live environment, they need to be loaded from the CDN. You can edit the code in `src/constants.hs` & `src_e/e_constants.js`, as indicated by inline comments, to make sure the assets are being loaded correctly.
+### Documentation
+The package uses JSDoc to produce the API documentation. JSDoc is not included in the package dependendies since developers normally install it globally in their development environment.
 ### Two libraries in one package ###
 There are two libraries in this package:
  - `dist/brcatlas.umd.js` - for atlas mapping in Britain and Ireland
@@ -58,3 +62,30 @@ Although these libraries are bundled here in the same package, they are essentia
   - https://purge.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.js 
   - https://purge.jsdelivr.net/gh/biologicalrecordscentre/brc-atlas@latest/dist/brcatlas.umd.css 
 
+### Rollup
+Rollup is used to build the transpiled library javascript assets for this package. Rollup is often preferred over webpack or other bundling tools for packaging libraries. The following javascript assets are produced by this rollup configuration:
+
+- **brcatlas.umd.js**: this is the browser-friendly javascript for the Britain & Ireland atlas library which can be used from browsers (supports a couple of different export formats). 
+- **brcatlas.umd.min.js**: same as previous but minified.
+- **brcatlas.umd.min.js.map**: this is a javascript map file. It can be used alonside the minified file to help with debugging.
+- **brcatlas.umd.css**: consolidated CSS file containing all project CSS for the Britain & Ireland atlas library.
+- **brcatlas_e.umd.js**: this is the browser-friendly javascript for the European atlas library which can be used from browsers (supports a couple of different export formats). 
+- **brcatlas_e.umd.min.js**: same as previous but minified.
+- **brcatlas_e.umd.min.js.map**: this is a javascript map file. It can be used alonside the minified file to help with debugging.
+- **brcatlas_e.umd.css**: consolidated CSS file containing all project CSS for the European atlas library.
+
+The following rollup plugins are used in the build:
+- **@rollup/plugin-node-resolve**: this allows rollup to resolve references to node libraries (in node_modules).
+- **@rollup/plugin-commonjs**: this allows rollup to convert CommonJS modules to ES6.
+- **@rollup/plugin-babel**: this is what allows rollup to transpile ES6/7 code to ES5 (for the browser packaging). This plugin has dependencies on '@babel/core' and '@babel/preset-env' which are included in the project's node package.
+- **rollup-plugin-terser**: this is used to produce the minified file.
+- **rollup-plugin-css**: for rolling up CSS into a single file.
+- **rollup-plugin-json**: for importing package JSON.
+
+### Other files in project
+The following files are in the root folder: 
+
+- **_config.yml**: used by GitHub pages to configure github pages 
+- **.eslintrc.json**: configures ESLint. These some stuff in here that's necessary to get jest and eslint to play nicely together. 
+- **babel.config.js**: the configuration in here seems to necessary to get Jest to work properly with ES2015 modules. 
+- **rollup.config.js** - rollup configuration.
