@@ -34,6 +34,8 @@ For details of the API, view the [JSDoc API documentation](https://biologicalrec
 There are also a number of [working examples](https://biologicalrecordscentre.github.io/brc-atlas/docs/).
 
 ## Notes for developers
+### Installing to development environment
+This project is configured as a *Node* project. To install and run it in a local development environment you will first need to install [Node and the Node Package Manager (npm)](https://nodejs.org/en/learn/getting-started/introduction-to-nodejs) on your computer. Then clone the repository from GitHub and in the root project folder run `npm install`. That will install all the Node package dependencies into a folder called 'node_modules'. Note that this large folder should not be committed to the repository - hece a line in the root `.gitignore` folder to exclude it.
 ### Assets
 There are a number of geojson files in the `assets` folder. These are loaded by the code when needed. In the development environment, it will often be the case that these assets need to be loaded from the local environment but in the live environment, they need to be loaded from the CDN. You can edit the code in `src/constants.hs` & `src_e/e_constants.js`, as indicated by inline comments, to make sure the assets are being loaded correctly.
 ### Documentation
@@ -85,7 +87,12 @@ The following rollup plugins are used in the build:
 ### Other files in project
 The following files are in the root folder: 
 
+- **README.md**: this readme file.
+- **index.js**: the entry point for the rollup build.
+- **package.json**: the Node package file for this project.
+- **package-lock.json**: the Node package lock file for this project.
 - **_config.yml**: used by GitHub pages to configure github pages 
 - **.eslintrc.json**: configures ESLint. These some stuff in here that's necessary to get jest and eslint to play nicely together. 
 - **babel.config.js**: the configuration in here seems to necessary to get Jest to work properly with ES2015 modules. 
 - **rollup.config.js**: rollup configuration.
+- **.gitignore**: a Git file to exclude certain files/folders from the repository.
