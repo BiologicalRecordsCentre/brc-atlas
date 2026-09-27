@@ -389,10 +389,11 @@ export function drawDots(svg, captionId, onclick, transform, accessFunction, tax
             }
           })
           .on('click', (a1,a2) => {
+            console.log('Dot clicked at', a1, a2);
             // D3 v5 passes d as first argument but v7 passes
             // d as second argument - event as first.
             let d
-            if(a1.type === 'mouseout') {
+            if(a1.type === 'click') {
               d=a2
             } else {
               d=a1

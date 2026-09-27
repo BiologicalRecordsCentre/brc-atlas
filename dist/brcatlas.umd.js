@@ -10090,11 +10090,12 @@
               d3.select("#".concat(captionId)).html(d.noCaption ? d.noCaption : '');
             }
           }).on('click', function (a1, a2) {
-            // D3 v5 passes d as first argument but v7 passes
+            console.log('Dot clicked at', a1, a2); // D3 v5 passes d as first argument but v7 passes
             // d as second argument - event as first.
+
             var d;
 
-            if (a1.type === 'mouseout') {
+            if (a1.type === 'click') {
               d = a2;
             } else {
               d = a1;
